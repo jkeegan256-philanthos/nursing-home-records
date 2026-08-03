@@ -1,0 +1,24 @@
+{
+  "name": "nh-data-site",
+  "private": true,
+  "version": "1.0.0",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "data": "python3 scripts/build_data.py",
+    "fixture": "python3 scripts/dev_fixture.py && NH_PARTITION_MIN_BYTES=500 python3 scripts/build_data.py --zip build/fixture/theme_fixture.zip"
+  },
+  "dependencies": {
+    "@duckdb/duckdb-wasm": "^1.29.0",
+    "next": "^15.3.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.6.0"
+  }
+}

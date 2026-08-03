@@ -1,0 +1,71 @@
+name: Build and deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "0 13 5 * *"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set base path
+        # For a custom domain, change this to: echo "NEXT_PUBLIC_BASE_PATH=" >> "$GITHUB_ENV"
+        run: echo "NEXT_PUBLIC_BASE_PATH=/${GITHUB_REPOSITORY#*/}" >> "$GITHUB_ENV"
+
+      - name: Get the monthly zip
+        run: |
+          if ls data/*.zip >/dev/null 2>&1; then
+            echo "Using the zip committed in data/"
+          else
+            curl -fL --retry 3 -o data/theme_nursing-homes_current.zip \
+              "https://data.cms.gov/provider-data/sites/default/files/dataset-archives/current/theme/theme_nursing-homes_current.zip"
+          fi
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install DuckDB
+        run: pip install duckdb
+
+      - name: Transform the monthly zip
+        run: python scripts/build_data.py
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install site dependencies
+        run: npm ci
+
+      - name: Build static site
+        run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
