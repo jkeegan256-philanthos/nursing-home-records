@@ -30,6 +30,12 @@ export default function OwnersPage() {
         </a>
         .
       </p>
+      <p className="lede">
+        These are disclosures filed by the facilities and their parties
+        themselves. CMS publishes them as filed and does not independently
+        verify them. Gaps and layered structures in the filings appear here
+        as gaps.
+      </p>
 
       <OwnerExplorer />
 
