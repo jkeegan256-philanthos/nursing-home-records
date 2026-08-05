@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
-import { BP, CMS_DATASET_URL, CORRECTIONS_URL } from "@/lib/config";
+import {
+  BP,
+  CMS_DATASET_URL,
+  CORRECTIONS_EMAIL,
+  CORRECTIONS_URL,
+} from "@/lib/config";
 import { missingProviderColumns, siteMeta } from "@/lib/data";
 
 export const metadata: Metadata = { title: "Data & downloads" };
@@ -97,7 +102,9 @@ export default function DataPage() {
         <a href={CORRECTIONS_URL} rel="noopener noreferrer">
           report it
         </a>{" "}
-        and it will be fixed.
+        or email{" "}
+        <a href={`mailto:${CORRECTIONS_EMAIL}`}>{CORRECTIONS_EMAIL}</a> and it
+        will be fixed.
       </p>
 
       {notes.length ? (

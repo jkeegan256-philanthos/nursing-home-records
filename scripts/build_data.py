@@ -39,6 +39,11 @@ import duckdb
 # Override with NH_PARTITION_MIN_BYTES (the test fixture sets it low).
 PARTITION_MIN_BYTES = int(os.environ.get("NH_PARTITION_MIN_BYTES", 30_000_000))
 
+# Uniform threshold for pre-rendered owner pages: every name connected
+# to at least this many distinct facilities gets a static page, no
+# exceptions either way. The fixture lowers it to exercise the path.
+OWNER_PAGE_MIN = int(os.environ.get("NH_OWNER_PAGE_MIN", 5))
+
 # filename pattern -> (logical table name, human label)
 TABLE_PATTERNS: list[tuple[str, str, str]] = [
     (r"^NH_ProviderInfo_", "providers", "Provider information"),
@@ -297,6 +302,22 @@ def export_owners(
     if blank_rows:
         warn(f"ownership: {blank_rows:,} rows have a blank owner name; they appear in facility tables but not on the Owners page")
 
+    # Full owner index for the home-page unified search: every named
+    # owner, exact strings, loaded by the browser only when a search
+    # begins.
+    all_named = con.execute(
+        f"SELECT \"Owner Name\", string_agg(DISTINCT coalesce(\"Owner Type\", '')), "
+        f"count(DISTINCT {ccn}) FROM ({named}) GROUP BY 1 ORDER BY 1"
+    ).fetchall()
+    (parquet_root.parent / "owners-slim.json").write_text(
+        json.dumps(
+            {"columns": ["Owner Name", "Owner Type", "Facilities"], "rows": all_named},
+            ensure_ascii=False,
+            separators=(",", ":"),
+        ),
+        encoding="utf-8",
+    )
+
     (build_dir / "owners-top.json").write_text(
         json.dumps(
             {
@@ -317,6 +338,8 @@ def export_owners(
         encoding="utf-8",
     )
 
+    export_owner_pages(con, named, own_meta, build_dir)
+
     return {
         "label": "Ownership, all states",
         "mode": "single",
@@ -332,6 +355,83 @@ def export_owners(
         "source_file": own_meta.get("source_file"),
         "facility_join": False,
     }
+
+
+def export_owner_pages(
+    con: duckdb.DuckDBPyConnection,
+    named: str,
+    own_meta: dict,
+    build_dir: Path,
+) -> None:
+    """One JSON of per-owner rows for every name at the uniform
+    OWNER_PAGE_MIN threshold, feeding the pre-rendered /owner/ pages.
+    Rows are regrouped by exact name; nothing is matched or edited."""
+    page_cols = [
+        own_meta["ccn_column"] or "CMS Certification Number (CCN)",
+        "Provider Name",
+        "City/Town",
+        "State",
+        "Role played by Owner or Manager in Facility",
+        "Ownership Percentage",
+        "Association Date",
+        "Owner Type",
+    ]
+    missing = [c for c in page_cols[:5] if c not in own_meta["columns"]]
+    empty = {"threshold": OWNER_PAGE_MIN, "owners": []}
+    out = build_dir / "owner-pages.json"
+    if missing or not own_meta["ccn_column"]:
+        warn(
+            "ownership file lacks columns needed for owner pages ("
+            + ", ".join(missing or ["CCN"])
+            + "); skipping them this batch"
+        )
+        out.write_text(json.dumps(empty, separators=(",", ":")), encoding="utf-8")
+        return
+
+    ccn = qident(own_meta["ccn_column"])
+    qualifying = {
+        r[0]
+        for r in con.execute(
+            f"SELECT \"Owner Name\" FROM ({named}) "
+            f"GROUP BY 1 HAVING count(DISTINCT {ccn}) >= {OWNER_PAGE_MIN}"
+        ).fetchall()
+    }
+    sel = ", ".join(
+        qident(c) if c in own_meta["columns"] else "NULL" for c in page_cols
+    )
+    by_name: dict[str, list[list]] = {}
+    for r in con.execute(f"SELECT \"Owner Name\", {sel} FROM ({named})").fetchall():
+        if r[0] in qualifying:
+            by_name.setdefault(r[0], []).append(list(r[1:]))
+
+    owners = []
+    used: dict[str, int] = {}
+    for name in sorted(by_name):
+        base = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-") or "owner"
+        n = used.get(base, 0) + 1
+        used[base] = n
+        slug = base if n == 1 else f"{base}-{n}"
+        rows = by_name[name]
+        rows.sort(key=lambda x: (x[3] or "", x[2] or "", x[1] or "", x[4] or ""))
+        owners.append(
+            {
+                "name": name,
+                "slug": slug,
+                "types": sorted({x[7] for x in rows if x[7]}),
+                "facilities": len({x[0] for x in rows}),
+                "states": len({x[3] for x in rows if x[3] and str(x[3]).strip()}),
+                "rows": rows,
+            }
+        )
+    out.write_text(
+        json.dumps(
+            {"threshold": OWNER_PAGE_MIN, "owners": owners},
+            ensure_ascii=False,
+            separators=(",", ":"),
+        ),
+        encoding="utf-8",
+    )
+    print(f"  owner pages: {len(owners):,} names at the {OWNER_PAGE_MIN}+ facility threshold")
 
 
 def export_providers(con: duckdb.DuckDBPyConnection, csv_path: Path, build_dir: Path, public_data: Path) -> None:
@@ -486,6 +586,12 @@ def main() -> None:
     }
     (build_dir / "site-meta.json").write_text(
         json.dumps(site_meta, ensure_ascii=False, indent=1), encoding="utf-8"
+    )
+    # Same provenance, machine-readable and deployed, so scripts and the
+    # future integrity ledger can read the live site's state.
+    (public_data / "build.json").write_text(
+        json.dumps(site_meta, ensure_ascii=False, separators=(",", ":")),
+        encoding="utf-8",
     )
 
     print()

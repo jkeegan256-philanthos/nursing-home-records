@@ -3,7 +3,15 @@
 import { useEffect, useState } from "react";
 import { BP, CMS_DATASET_URL } from "@/lib/config";
 import type { DataMap, TableInfo } from "@/lib/data";
-import { querySQL, sqlIdent, sqlLit, type QueryResult } from "@/lib/duckdb-client";
+import {
+  queryParquetAll,
+  querySQL,
+  sqlIdent,
+  sqlLit,
+  type QueryResult,
+} from "@/lib/duckdb-client";
+import { csvFilename } from "@/lib/csv";
+import CsvButton from "@/components/CsvButton";
 import Stars from "@/components/Stars";
 
 const NAMED =
@@ -340,16 +348,33 @@ export default function OwnerExplorer() {
                   </span>
                 )}
               </p>
-              <p className="count-line">
-                {detail.facilities.toLocaleString()}{" "}
-                {detail.facilities === 1 ? "facility" : "facilities"} in{" "}
-                {detail.states} {detail.states === 1 ? "state" : "states"},{" "}
-                {detail.totalRows.toLocaleString()} disclosure rows
-                {detail.totalRows > detail.rows.length
-                  ? ` (showing the first ${detail.rows.length.toLocaleString()})`
-                  : ""}
-                . Same name can be more than one person; different spellings
-                of one person are listed separately.
+              <p className="count-line has-button">
+                <span>
+                  {detail.facilities.toLocaleString()}{" "}
+                  {detail.facilities === 1 ? "facility" : "facilities"} in{" "}
+                  {detail.states} {detail.states === 1 ? "state" : "states"},{" "}
+                  {detail.totalRows.toLocaleString()} disclosure rows
+                  {detail.totalRows > detail.rows.length
+                    ? ` (showing the first ${detail.rows.length.toLocaleString()})`
+                    : ""}
+                  . Same name can be more than one person; different spellings
+                  of one person are listed separately.
+                </span>
+                {info ? (
+                  <CsvButton
+                    filename={csvFilename(
+                      "ownership",
+                      detail.name,
+                      info.modified_date?.slice(0, 7) ?? "current"
+                    )}
+                    fetchAll={() =>
+                      queryParquetAll(
+                        new URL(`${BP}/${info.path}`, window.location.origin).toString(),
+                        { column: "Owner Name", equals: detail.name }
+                      )
+                    }
+                  />
+                ) : null}
               </p>
               <div className="tablewrap">
                 <table>
@@ -403,7 +428,9 @@ export default function OwnerExplorer() {
                   <> · last modified {info.modified_date}</>
                 ) : null}
                 . Overall ratings shown from the Provider information dataset.
-                Values are shown unmodified.
+                Values are shown unmodified. CSV downloads carry the ownership
+                file&apos;s own columns only — full rows, no joined ratings —
+                checkable against the originals on the Data page.
               </p>
             </>
           )}

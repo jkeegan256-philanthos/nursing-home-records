@@ -127,3 +127,6 @@ only if it survives the principles above.
 - 2026-08-05: named-individual searchability written down as a
   deliberate decision, with principles 2-4 and the declined scope as
   its safeguards.
+- 2026-08-05: owner pages pre-rendered at a uniform threshold, five or
+  more distinct facilities, applied identically to every name per
+  principle 4. Every other name remains searchable in the explorer.

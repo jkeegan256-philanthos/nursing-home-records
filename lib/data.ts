@@ -57,6 +57,34 @@ export function ownersTop(): OwnersTop | null {
   }
 }
 
+// Pre-rendered owner pages. Row shape mirrors export_owner_pages():
+// [ccn, facility, city, state, role, pct, since, type]
+export type OwnerPage = {
+  name: string;
+  slug: string;
+  types: string[];
+  facilities: number;
+  states: number;
+  rows: (string | null)[][];
+};
+export type OwnerPages = { threshold: number; owners: OwnerPage[] };
+
+let _ownerPages: OwnerPages | null = null;
+let _ownerBySlug: Map<string, OwnerPage> | null = null;
+
+export function ownerPages(): OwnerPages {
+  try {
+    return (_ownerPages ??= readJson("build", "owner-pages.json"));
+  } catch {
+    return { threshold: 0, owners: [] };
+  }
+}
+
+export function getOwnerPage(slug: string): OwnerPage | null {
+  _ownerBySlug ??= new Map(ownerPages().owners.map((o) => [o.slug, o]));
+  return _ownerBySlug.get(slug) ?? null;
+}
+
 // Join-critical lookups (CCN, State, and the six columns build_data.py
 // guards) use col() and stop the build. Every other ProviderInfo column
 // the site reads goes through colOrNull()/field(): a CMS rename blanks

@@ -137,3 +137,10 @@ site links to its CMS dataset page.
   saw (unknown files, size mismatches, rows with a blank state).
 - The workflow log shows the same per-table report the script prints
   locally: rows, sizes, and mode for every dataset.
+
+## License
+
+The code in this repository is released under the MIT License (see
+LICENSE). The data it republishes is published by CMS as a work of the
+United States government and is public domain; it is not covered by,
+and does not need, the code license.

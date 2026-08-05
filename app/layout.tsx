@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { BP, SITE_NAME, SITE_TAGLINE } from "@/lib/config";
 import { dataMap } from "@/lib/data";
+import CitePage from "@/components/CitePage";
 
 export const metadata: Metadata = {
   title: { default: SITE_NAME, template: `%s · ${SITE_NAME}` },
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <a href={`${BP}/`}>Facilities</a>
               <a href={`${BP}/owners/`}>Ownership</a>
               <a href={`${BP}/data/`}>Data &amp; downloads</a>
+              <a href={`${BP}/about/`}>About</a>
             </nav>
           </div>
         </header>
@@ -41,7 +43,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               Data Catalog. Not affiliated with CMS. Figures are shown exactly
               as published, with no edits, computations, or filtering.
             </p>
-            <p>Current data batch processed {generated}.</p>
+            <p>
+              Current data batch processed {generated}.{" "}
+              <CitePage vintage={generated} />
+            </p>
           </div>
         </footer>
       </body>
