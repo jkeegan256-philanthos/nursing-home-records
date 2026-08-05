@@ -51,6 +51,7 @@ export default function OwnersPage() {
                 </tr>
               </thead>
               <tbody>
+                {/* build_data.py exports 150 on purpose; 100 is the page's choice */}
                 {owners.top.slice(0, 100).map((o) => (
                   <tr key={o.name}>
                     <td>

@@ -9,6 +9,11 @@ import Stars from "@/components/Stars";
 const NAMED =
   `"Owner Name" IS NOT NULL AND trim("Owner Name") <> '' AND "Owner Name" <> 'None'`;
 
+// Verified headroom, not a live cap: the largest name in the 2026-07
+// batch has 424 disclosure rows. The header counts come from SQL over
+// all rows either way, and a notice appears if the table is ever cut.
+const DETAIL_ROW_LIMIT = 3000;
+
 type Hit = { name: string; types: string; facilities: number };
 type DetailRow = {
   ccn: string;
@@ -26,6 +31,7 @@ type Detail = {
   roles: string[];
   facilities: number;
   states: number;
+  totalRows: number;
   fallback: QueryResult | null;
 };
 
@@ -55,7 +61,10 @@ export default function OwnerExplorer() {
         if (!t) throw new Error("missing");
         setInfo(t);
       })
-      .catch(() => alive && setInfoFailed(true));
+      .catch((err) => {
+        console.error("ownership index failed to load", err);
+        if (alive) setInfoFailed(true);
+      });
     const read = () => {
       const name = new URLSearchParams(window.location.search).get("name");
       setSelected(name && name.trim() ? name : null);
@@ -80,7 +89,7 @@ export default function OwnerExplorer() {
     (async () => {
       try {
         const res = await querySQL(
-          `SELECT * FROM read_parquet('${url}') WHERE "Owner Name" = ${sqlLit(selected)} LIMIT 3000`
+          `SELECT * FROM read_parquet(${sqlLit(url)}) WHERE "Owner Name" = ${sqlLit(selected)} LIMIT ${DETAIL_ROW_LIMIT}`
         );
         if (!alive) return;
         const need = [
@@ -97,11 +106,22 @@ export default function OwnerExplorer() {
         if (idx.slice(0, 5).some((i) => i < 0)) {
           setDetail({
             name: selected, rows: [], types: [], roles: [],
-            facilities: 0, states: 0, fallback: res,
+            facilities: 0, states: 0, totalRows: res.rows.length, fallback: res,
           });
           setDetailState("idle");
           return;
         }
+        // Counts over all rows in SQL, so the header agrees with the
+        // search list even if the row table above is ever truncated.
+        const counts = await querySQL(
+          `SELECT count(*), count(DISTINCT ${sqlIdent(need[0])}), ` +
+            `count(DISTINCT CASE WHEN "State" IS NOT NULL AND trim("State") <> '' THEN "State" END) ` +
+            `FROM read_parquet(${sqlLit(url)}) WHERE "Owner Name" = ${sqlLit(selected)}`
+        );
+        if (!alive) return;
+        const [totalRows, facilities, states] = (counts.rows[0] ?? []).map((v) =>
+          Number(v ?? 0)
+        );
         const rows: DetailRow[] = res.rows.map((r) => ({
           ccn: r[idx[0]] ?? "",
           facility: r[idx[1]] ?? "",
@@ -125,12 +145,14 @@ export default function OwnerExplorer() {
           rows,
           types,
           roles,
-          facilities: new Set(rows.map((r) => r.ccn)).size,
-          states: new Set(rows.map((r) => r.state).filter(Boolean)).size,
+          facilities,
+          states,
+          totalRows,
           fallback: null,
         });
         setDetailState("idle");
-      } catch {
+      } catch (err) {
+        console.error("owner detail query failed", err);
         if (alive) setDetailState("error");
       }
     })();
@@ -148,7 +170,10 @@ export default function OwnerExplorer() {
         if (!alive) return;
         setRatings(new Map(j.rows.map((r) => [r[0] ?? "", r[5] ?? ""])));
       })
-      .catch(() => alive && setRatings(new Map()));
+      .catch((err) => {
+        console.error("ratings index failed to load", err);
+        if (alive) setRatings(new Map());
+      });
     return () => {
       alive = false;
     };
@@ -165,7 +190,7 @@ export default function OwnerExplorer() {
       const ccn = sqlIdent(info.ccn_column ?? "CMS Certification Number (CCN)");
       const res = await querySQL(
         `SELECT "Owner Name", string_agg(DISTINCT coalesce("Owner Type", '')), ` +
-          `count(DISTINCT ${ccn}) FROM read_parquet('${url}') ` +
+          `count(DISTINCT ${ccn}) FROM read_parquet(${sqlLit(url)}) ` +
           `WHERE ${NAMED} AND contains(upper("Owner Name"), upper(${sqlLit(needle)})) ` +
           `GROUP BY 1 ORDER BY 3 DESC, 1 LIMIT 60`
       );
@@ -176,7 +201,8 @@ export default function OwnerExplorer() {
           facilities: Number(r[2] ?? 0),
         }))
       );
-    } catch {
+    } catch (err) {
+      console.error("owner search failed", err);
       setSearchError(true);
     } finally {
       setSearching(false);
@@ -318,9 +344,12 @@ export default function OwnerExplorer() {
                 {detail.facilities.toLocaleString()}{" "}
                 {detail.facilities === 1 ? "facility" : "facilities"} in{" "}
                 {detail.states} {detail.states === 1 ? "state" : "states"},{" "}
-                {detail.rows.length.toLocaleString()} disclosure rows. Same
-                name can be more than one person; different spellings of one
-                person are listed separately.
+                {detail.totalRows.toLocaleString()} disclosure rows
+                {detail.totalRows > detail.rows.length
+                  ? ` (showing the first ${detail.rows.length.toLocaleString()})`
+                  : ""}
+                . Same name can be more than one person; different spellings
+                of one person are listed separately.
               </p>
               <div className="tablewrap">
                 <table>
