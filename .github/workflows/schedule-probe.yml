@@ -1,0 +1,17 @@
+name: Schedule probe
+
+# Temporary diagnostic: hourly heartbeat to test whether scheduled events
+# are delivered to this repo at all. Delete once the question is answered.
+
+on:
+  schedule:
+    - cron: "13 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "scheduler fired at $(date -u)"
