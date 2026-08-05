@@ -5,7 +5,7 @@ on:
     branches: [main]
   workflow_dispatch:
   schedule:
-    - cron: "0 13 5 * *"
+    - cron: "47 15 5 * *" # off-hour minute; top-of-hour slots are load-shed most often
 
 permissions:
   contents: read
