@@ -1,0 +1,38 @@
+name: CI
+
+# Runs the synthetic fixture through the full pipeline and builds the
+# site from it, so a broken transform or type error fails the PR
+# instead of the next monthly refresh.
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  fixture-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install DuckDB
+        run: pip install duckdb
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install site dependencies
+        run: npm ci
+
+      - name: Transform the fixture batch
+        run: npm run fixture
+
+      - name: Build static site from the fixture
+        run: npm run build

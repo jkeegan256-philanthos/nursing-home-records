@@ -46,13 +46,16 @@ export async function querySQL(sql: string): Promise<QueryResult> {
   }
 }
 
+/** Rows a table query returns at most; the UI's truncation notices use the same number. */
+export const ROW_LIMIT = 2000;
+
 /** Run one SELECT against a Parquet file over HTTP, filtered by equality. */
 export async function queryParquet(
   url: string,
   where: { column: string; equals: string },
-  limit = 2000
+  limit = ROW_LIMIT
 ): Promise<QueryResult> {
   return querySQL(
-    `SELECT * FROM read_parquet('${url}') WHERE ${sqlIdent(where.column)} = ${sqlLit(where.equals)} LIMIT ${limit}`
+    `SELECT * FROM read_parquet(${sqlLit(url)}) WHERE ${sqlIdent(where.column)} = ${sqlLit(where.equals)} LIMIT ${Math.max(0, Math.floor(limit))}`
   );
 }

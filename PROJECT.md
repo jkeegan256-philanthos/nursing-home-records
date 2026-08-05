@@ -61,6 +61,21 @@ Decided deliberately. Do not revisit casually.
 - No editorial layer: no adjectives, no verdicts, no "worst of"
   lists.
 
+## Named individuals
+
+The disclosure file names natural persons — owners, officers, managing
+employees — and this site makes those names searchable nationwide,
+which CMS's own site does not. That is deliberate. The disclosure
+exists so the public can see who stands behind a facility, and a
+public record that cannot be found is not meaningfully public. The
+safeguards are the principles above, applied without exception: exact
+strings with no merging or identity claims (2), every name shown with
+its role (3), the identical layout and neutral sort for every name
+with no one singled out (4), and the declined scope — no money flows,
+no editorial layer, no single-name campaigns. Corrections to the
+underlying record belong with CMS; corrections to our display of it
+belong on the corrections link.
+
 ## Architecture in one breath
 
 A GitHub Action fetches the monthly CMS nursing homes theme zip (or
@@ -109,3 +124,6 @@ only if it survives the principles above.
   name merging, and single-name framing declined.
 - 2026-07-24: home page ownership tallies, facility ownership chip,
   corrections link, and this charter added.
+- 2026-08-05: named-individual searchability written down as a
+  deliberate decision, with principles 2-4 and the declined scope as
+  its safeguards.

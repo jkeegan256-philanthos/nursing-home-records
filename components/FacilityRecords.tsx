@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { BP, CMS_DATASET_URL } from "@/lib/config";
 import type { DataMap, TableInfo } from "@/lib/data";
-import { queryParquet, type QueryResult } from "@/lib/duckdb-client";
+import { queryParquet, ROW_LIMIT, type QueryResult } from "@/lib/duckdb-client";
 
 const PREFERRED_ORDER = [
   "health_citations",
@@ -49,7 +49,10 @@ export default function FacilityRecords({
         const first = orderedKeys(j)[0] ?? null;
         setActive(first);
       })
-      .catch(() => alive && setMapFailed(true));
+      .catch((err) => {
+        console.error("dataset index failed to load", err);
+        if (alive) setMapFailed(true);
+      });
     return () => {
       alive = false;
     };
@@ -100,7 +103,8 @@ export default function FacilityRecords({
             ? { status: "empty" }
             : { status: "done", result },
       }));
-    } catch {
+    } catch (err) {
+      console.error(`records query failed for ${key}`, err);
       setTabs((t) => ({
         ...t,
         [key]: {
@@ -160,8 +164,8 @@ export default function FacilityRecords({
               <p className="count-line">
                 {tab.result.rows.length.toLocaleString()} row
                 {tab.result.rows.length === 1 ? "" : "s"}
-                {tab.result.rows.length >= 2000
-                  ? " (showing the first 2,000)"
+                {tab.result.rows.length >= ROW_LIMIT
+                  ? ` (showing the first ${ROW_LIMIT.toLocaleString()})`
                   : ""}
               </p>
               <div className="tablewrap">

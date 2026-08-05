@@ -57,10 +57,47 @@ export function ownersTop(): OwnersTop | null {
   }
 }
 
+// Join-critical lookups (CCN, State, and the six columns build_data.py
+// guards) use col() and stop the build. Every other ProviderInfo column
+// the site reads goes through colOrNull()/field(): a CMS rename blanks
+// the affected fields and surfaces in missingProviderColumns(), which
+// the Data page prints as a processing note — a dented page, not a dead
+// monthly refresh.
 export function col(t: Table, name: string): number {
   const i = t.columns.indexOf(name);
   if (i < 0) throw new Error(`ProviderInfo column not found: ${name}`);
   return i;
+}
+
+export function colOrNull(t: Table, name: string): number | null {
+  const i = t.columns.indexOf(name);
+  return i < 0 ? null : i;
+}
+
+// Non-critical ProviderInfo columns the site displays. Kept in one place
+// so missingProviderColumns() is complete; add here when a page starts
+// reading a new column.
+export const OPTIONAL_PROVIDER_COLUMNS = [
+  "Ownership Type",
+  "Number of Certified Beds",
+  "Average Number of Residents per Day",
+  "Provider Type",
+  "Provider Resides in Hospital",
+  "Date First Approved to Provide Medicare and Medicaid Services",
+  "Chain Name",
+  "Legal Business Name",
+  "Health Inspection Rating",
+  "QM Rating",
+  "Staffing Rating",
+  "Special Focus Status",
+  "Abuse Icon",
+  "Provider Address",
+  "Telephone Number",
+];
+
+export function missingProviderColumns(): string[] {
+  const have = new Set(providersTable().columns);
+  return OPTIONAL_PROVIDER_COLUMNS.filter((c) => !have.has(c));
 }
 
 const CCN = "CMS Certification Number (CCN)";
@@ -70,7 +107,8 @@ export function ownershipRollup():
   | null {
   try {
     const t = providersTable();
-    const oi = col(t, "Ownership Type");
+    const oi = colOrNull(t, "Ownership Type");
+    if (oi == null) return null;
     const r = { forProfit: 0, nonProfit: 0, government: 0, other: 0 };
     for (const row of t.rows) {
       const v = (row[oi] ?? "").trim();
@@ -105,7 +143,7 @@ export function facilitiesFor(state: string) {
     name: col(t, "Provider Name"),
     city: col(t, "City/Town"),
     state: col(t, "State"),
-    beds: col(t, "Number of Certified Beds"),
+    beds: colOrNull(t, "Number of Certified Beds"),
     rating: col(t, "Overall Rating"),
   };
   return t.rows
@@ -114,7 +152,7 @@ export function facilitiesFor(state: string) {
       ccn: r[idx.ccn] ?? "",
       name: r[idx.name] ?? "",
       city: r[idx.city] ?? "",
-      beds: r[idx.beds] ?? "",
+      beds: (idx.beds == null ? "" : r[idx.beds]) ?? "",
       rating: r[idx.rating] ?? "",
     }));
 }
@@ -138,6 +176,9 @@ export function getFacility(ccn: string) {
   }
   const row = _byCCN.get(ccn);
   if (!row) return null;
-  const get = (name: string) => row[col(t, name)] ?? "";
+  const get = (name: string) => {
+    const i = colOrNull(t, name);
+    return (i == null ? "" : row[i]) ?? "";
+  };
   return { columns: t.columns, row, get };
 }

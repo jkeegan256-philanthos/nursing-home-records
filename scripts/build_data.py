@@ -66,7 +66,10 @@ EXPECTED_EXTRAS = {"manifest.json"}
 DICTIONARY_PATTERN = re.compile(r"data[_ ]?dictionary", re.IGNORECASE)
 
 # Columns the site build requires from ProviderInfo. If CMS renames one,
-# fail loudly here instead of building a broken site.
+# fail loudly here instead of building a broken site. Only these six
+# hard-fail: they anchor search, joins, and page generation. Every other
+# ProviderInfo column the site reads degrades to a blank field plus a
+# processing note on the Data page (see lib/data.ts).
 SLIM_COLUMNS = [
     "CMS Certification Number (CCN)",
     "Provider Name",
@@ -278,6 +281,8 @@ def export_owners(
         f"SELECT * FROM {rel} WHERE \"Owner Name\" IS NOT NULL "
         f"AND trim(\"Owner Name\") <> '' AND \"Owner Name\" <> 'None'"
     )
+    # 150 exported vs 100 rendered on the Owners page: intentional
+    # headroom so the page slice can grow without waiting for a rebuild.
     top = con.execute(
         f"SELECT \"Owner Name\", string_agg(DISTINCT coalesce(\"Owner Type\", '')), "
         f"count(DISTINCT {ccn}), {st_expr} FROM ({named}) "
@@ -388,10 +393,17 @@ def main() -> None:
     print(f"sha256  {zip_hash}")
 
     with zipfile.ZipFile(zip_path) as zf:
+        seen: dict[str, str] = {}
         for info in zf.infolist():
             name = Path(info.filename).name  # flatten; refuse path tricks
             if not name or info.is_dir():
                 continue
+            if name in seen:
+                die(
+                    f"zip entries {seen[name]!r} and {info.filename!r} flatten to the "
+                    f"same name {name!r}; one would silently overwrite the other"
+                )
+            seen[name] = info.filename
             with zf.open(info) as src, (extract_dir / name).open("wb") as dst:
                 shutil.copyfileobj(src, dst)
 

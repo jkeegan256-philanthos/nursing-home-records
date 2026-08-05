@@ -35,7 +35,8 @@ export default function FullRecord({ ccn }: { ccn: string }) {
         status: "done",
         fields: res.cols.map((c, i) => [c, row[i]] as [string, string | null]),
       });
-    } catch {
+    } catch (err) {
+      console.error("full record failed to load", err);
       setState({ status: "error" });
     }
   }

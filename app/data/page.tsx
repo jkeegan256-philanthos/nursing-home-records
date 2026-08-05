@@ -1,12 +1,19 @@
 import type { Metadata } from "next";
 import { BP, CMS_DATASET_URL, CORRECTIONS_URL } from "@/lib/config";
-import { siteMeta } from "@/lib/data";
+import { missingProviderColumns, siteMeta } from "@/lib/data";
 
 export const metadata: Metadata = { title: "Data & downloads" };
 
 export default function DataPage() {
   const meta = siteMeta();
   const src = meta.source_zip;
+  const notes: string[] = [
+    ...(meta.warnings ?? []),
+    ...missingProviderColumns().map(
+      (c) =>
+        `Provider information column "${c}" is not in this batch; fields that display it are blank.`
+    ),
+  ];
 
   return (
     <>
@@ -93,11 +100,11 @@ export default function DataPage() {
         and it will be fixed.
       </p>
 
-      {meta.warnings?.length ? (
+      {notes.length ? (
         <>
           <h2>Processing notes</h2>
           <ul>
-            {meta.warnings.map((w: string, i: number) => (
+            {notes.map((w: string, i: number) => (
               <li key={i}>{w}</li>
             ))}
           </ul>

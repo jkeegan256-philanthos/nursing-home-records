@@ -17,7 +17,10 @@ export default function FacilitySearch() {
     fetch(`${BP}/data/providers-slim.json`)
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((j) => alive && setSlim(j))
-      .catch(() => alive && setFailed(true));
+      .catch((err) => {
+        console.error("search index failed to load", err);
+        if (alive) setFailed(true);
+      });
     return () => {
       alive = false;
     };
