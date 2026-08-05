@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { BP } from "@/lib/config";
-import { allCCNs, getFacility } from "@/lib/data";
+import { allCCNs, dataMap, getFacility } from "@/lib/data";
+import { CMS_DATASET_URL } from "@/lib/config";
 import FacilityRecords from "@/components/FacilityRecords";
 import FullRecord from "@/components/FullRecord";
 import Stars from "@/components/Stars";
@@ -96,6 +97,30 @@ export default async function FacilityPage({
             );
           })}
         </div>
+
+        {(() => {
+          const src = dataMap().tables["providers"];
+          return src ? (
+            <p className="prov">
+              Header facts: {src.dataset_name ?? "Provider information"} · file{" "}
+              <span className="mono">{src.source_file}</span>
+              {src.dataset_id ? (
+                <>
+                  {" "}· CMS dataset{" "}
+                  <a
+                    className="mono"
+                    href={CMS_DATASET_URL(src.dataset_id)}
+                    rel="noopener noreferrer"
+                  >
+                    {src.dataset_id}
+                  </a>
+                </>
+              ) : null}
+              {src.modified_date ? <> · last modified {src.modified_date}</> : null}
+              {" "}· shown unmodified
+            </p>
+          ) : null;
+        })()}
 
         <FullRecord ccn={ccn} />
       </div>

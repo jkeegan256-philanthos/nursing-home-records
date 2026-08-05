@@ -77,11 +77,12 @@ of fetching; see `data/README.md`.
 3. Wait for the first workflow run to finish, then open the URL shown
    on the deploy step.
 
-The workflow derives `NEXT_PUBLIC_BASE_PATH` from the repo name at run
-time because project sites are served under that prefix. If you attach
-a custom domain, or name the repo `<user>.github.io`, edit the
-"Set base path" step in `.github/workflows/build-deploy.yml` to set it
-empty; the comment there shows the exact line.
+The site serves from the custom domain root, so the workflow's
+"Set base path" step sets `NEXT_PUBLIC_BASE_PATH` to empty. To serve
+from a project path instead, with no custom domain, swap in the
+commented variant in `.github/workflows/build-deploy.yml`, which
+derives the prefix from the repo name at run time. The old
+github.io address redirects to the domain automatically.
 
 ## Local development
 
@@ -137,3 +138,10 @@ site links to its CMS dataset page.
   saw (unknown files, size mismatches, rows with a blank state).
 - The workflow log shows the same per-table report the script prints
   locally: rows, sizes, and mode for every dataset.
+
+## License
+
+The code in this repository is released under the MIT License (see
+LICENSE). The data it republishes is published by CMS as a work of the
+United States government and is public domain; it is not covered by,
+and does not need, the code license.

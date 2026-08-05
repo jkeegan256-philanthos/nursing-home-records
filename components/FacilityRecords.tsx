@@ -3,7 +3,14 @@
 import { useEffect, useState } from "react";
 import { BP, CMS_DATASET_URL } from "@/lib/config";
 import type { DataMap, TableInfo } from "@/lib/data";
-import { queryParquet, ROW_LIMIT, type QueryResult } from "@/lib/duckdb-client";
+import {
+  queryParquet,
+  queryParquetAll,
+  ROW_LIMIT,
+  type QueryResult,
+} from "@/lib/duckdb-client";
+import { csvFilename } from "@/lib/csv";
+import CsvButton from "@/components/CsvButton";
 
 const PREFERRED_ORDER = [
   "health_citations",
@@ -46,8 +53,10 @@ export default function FacilityRecords({
       .then((j: DataMap) => {
         if (!alive) return;
         setMap(j);
-        const first = orderedKeys(j)[0] ?? null;
-        setActive(first);
+        const keys = orderedKeys(j);
+        // #<table> deep-links a tab so a citation can point at one dataset.
+        const fromHash = decodeURIComponent(window.location.hash.slice(1));
+        setActive(keys.includes(fromHash) ? fromHash : keys[0] ?? null);
       })
       .catch((err) => {
         console.error("dataset index failed to load", err);
@@ -75,6 +84,12 @@ export default function FacilityRecords({
     return [...ranked, ...rest];
   }
 
+  function urlFor(info: TableInfo): string {
+    const rel =
+      info.mode === "by_state" ? `${info.path}/${state}.parquet` : info.path;
+    return new URL(`${BP}/${rel}`, window.location.origin).toString();
+  }
+
   async function load(key: string, info: TableInfo) {
     if (!info.ccn_column) return;
     if (info.mode === "by_state" && info.states && !info.states.includes(state)) {
@@ -89,10 +104,7 @@ export default function FacilityRecords({
     }
     setTabs((t) => ({ ...t, [key]: { status: "loading" } }));
     try {
-      const rel =
-        info.mode === "by_state" ? `${info.path}/${state}.parquet` : info.path;
-      const url = new URL(`${BP}/${rel}`, window.location.origin).toString();
-      const result = await queryParquet(url, {
+      const result = await queryParquet(urlFor(info), {
         column: info.ccn_column,
         equals: ccn,
       });
@@ -140,7 +152,10 @@ export default function FacilityRecords({
             key={k}
             role="tab"
             aria-selected={k === active}
-            onClick={() => setActive(k)}
+            onClick={() => {
+              setActive(k);
+              window.history.replaceState(null, "", `#${encodeURIComponent(k)}`);
+            }}
           >
             {map.tables[k].label}
           </button>
@@ -161,12 +176,30 @@ export default function FacilityRecords({
             <p className="tab-status">{tab.message}</p>
           ) : (
             <>
-              <p className="count-line">
-                {tab.result.rows.length.toLocaleString()} row
-                {tab.result.rows.length === 1 ? "" : "s"}
-                {tab.result.rows.length >= ROW_LIMIT
-                  ? ` (showing the first ${ROW_LIMIT.toLocaleString()})`
-                  : ""}
+              <p className="count-line has-button">
+                <span>
+                  {tab.result.rows.length.toLocaleString()} row
+                  {tab.result.rows.length === 1 ? "" : "s"}
+                  {tab.result.rows.length >= ROW_LIMIT
+                    ? ` (showing the first ${ROW_LIMIT.toLocaleString()})`
+                    : ""}
+                </span>
+                {info.ccn_column ? (
+                  <CsvButton
+                    filename={csvFilename(
+                      active ?? info.label,
+                      ccn,
+                      info.modified_date?.slice(0, 7) ??
+                        map.generated_at.slice(0, 7)
+                    )}
+                    fetchAll={() =>
+                      queryParquetAll(urlFor(info), {
+                        column: info.ccn_column as string,
+                        equals: ccn,
+                      })
+                    }
+                  />
+                ) : null}
               </p>
               <div className="tablewrap">
                 <table>
@@ -214,7 +247,9 @@ export default function FacilityRecords({
               </>
             ) : null}
             {info.modified_date ? <> · last modified {info.modified_date}</> : null}
-            {" "}· shown unmodified
+            {" "}· shown unmodified. CSV downloads carry this file&apos;s full
+            columns and every matching row, checkable against the originals on
+            the Data page.
           </p>
         </>
       )}

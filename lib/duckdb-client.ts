@@ -2,6 +2,21 @@ import * as duckdb from "@duckdb/duckdb-wasm";
 
 let dbPromise: Promise<duckdb.AsyncDuckDB> | null = null;
 
+// If the engine can't come up in this long, surface the friendly error
+// (every catch site points readers at the Data page downloads) instead
+// of an infinite "Loading".
+const INIT_TIMEOUT_MS = 30_000;
+
+function withTimeout<T>(p: Promise<T>, ms: number, what: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error(`${what} timed out after ${ms}ms`)), ms);
+    p.then(
+      (v) => (clearTimeout(t), resolve(v)),
+      (e) => (clearTimeout(t), reject(e))
+    );
+  });
+}
+
 async function init(): Promise<duckdb.AsyncDuckDB> {
   const bundles = duckdb.getJsDelivrBundles();
   const bundle = await duckdb.selectBundle(bundles);
@@ -18,7 +33,13 @@ async function init(): Promise<duckdb.AsyncDuckDB> {
 }
 
 export function getDB(): Promise<duckdb.AsyncDuckDB> {
-  return (dbPromise ??= init());
+  dbPromise ??= withTimeout(init(), INIT_TIMEOUT_MS, "DuckDB startup").catch(
+    (e) => {
+      dbPromise = null; // let the next interaction retry from scratch
+      throw e;
+    }
+  );
+  return dbPromise;
 }
 
 export type QueryResult = { cols: string[]; rows: (string | null)[][] };
@@ -57,5 +78,15 @@ export async function queryParquet(
 ): Promise<QueryResult> {
   return querySQL(
     `SELECT * FROM read_parquet(${sqlLit(url)}) WHERE ${sqlIdent(where.column)} = ${sqlLit(where.equals)} LIMIT ${Math.max(0, Math.floor(limit))}`
+  );
+}
+
+/** Same filter, no cap: CSV exports must contain every row, not the screen. */
+export async function queryParquetAll(
+  url: string,
+  where: { column: string; equals: string }
+): Promise<QueryResult> {
+  return querySQL(
+    `SELECT * FROM read_parquet(${sqlLit(url)}) WHERE ${sqlIdent(where.column)} = ${sqlLit(where.equals)}`
   );
 }
