@@ -6,7 +6,7 @@ anything. Code shows how; this file shows why and where the lines are.
 ## Purpose
 
 Make the ownership structure of America's certified nursing homes
-readable by anyone in seconds. Most people assume these are government
+readable in seconds. Most people assume these are government
 institutions. The data says otherwise: roughly three in four are
 operated for profit, fewer than one in fifteen by any government, and
 every facility in the file holds Medicare or Medicaid certification,
@@ -61,6 +61,17 @@ Decided deliberately. Do not revisit casually.
 - No editorial layer: no adjectives, no verdicts, no "worst of"
   lists.
 
+## What the filings are
+
+These are disclosures filed by the facilities and their parties
+themselves. CMS publishes them as filed and does not independently
+verify them. Gaps and layered structures in the filings appear here as
+gaps. Our checksums prove the mirror matches the source; they are
+silent about whether the source matches reality. The site says this
+where readers will see it, because a confident-looking mirror can
+launder self-reported filings into apparent fact, and refusing that
+laundering is provenance of a deeper kind.
+
 ## Named individuals
 
 The disclosure file names natural persons — owners, officers, managing
@@ -94,6 +105,17 @@ Monthly refresh is one tap: Actions, Build and deploy, Run workflow.
 A schedule also fires on the 5th, but GitHub pauses schedules on quiet
 repos, so the tap is the ritual. The Data page shows which batch is
 live. Local development: `npm run fixture` then `npm run dev`.
+
+## Continuity
+
+Most civic tools are mortal; this one is built to fail legibly and
+forkably. The code is MIT, the data is public and re-fetchable from
+CMS, ADAPTATION.md maps the specifics, and the hosting has no bill to
+lapse. Every page carries its batch vintage, so an unmaintained mirror
+degrades into a labeled archive, not a silent lie. Anyone can fork the
+repository and run the workflow to serve a current copy. An
+institutional adopter is a legitimate outcome of outreach, not a
+prerequisite for it.
 
 ## Future phases, in order of value, none started
 
@@ -130,3 +152,11 @@ only if it survives the principles above.
 - 2026-08-05: owner pages pre-rendered at a uniform threshold, five or
   more distinct facilities, applied identically to every name per
   principle 4. Every other name remains searchable in the explorer.
+- 2026-08-05: after the second external audit, adopted the
+  self-reported-filings caveat on the Ownership page, About, and this
+  charter; added continuity documentation; calibrated audience claims
+  to the professional-tool-first reality; retired "readable by anyone"
+  until the ergonomics release earns it. Declined per-entity business
+  inference (e.g. "appears to provide pharmacy services") as a
+  forbidden identity claim; the charter-clean substitute is CMS's own
+  role definitions inline, which rides with the glossary work.
