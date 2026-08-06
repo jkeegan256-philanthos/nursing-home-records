@@ -149,8 +149,22 @@ details.fullrecord[open] summary { margin-bottom: 10px; }
 .dl-list { list-style: none; padding: 0; margin: 8px 0; }
 .dl-list li { padding: 6px 0; border-bottom: 1px solid var(--rule-soft); }
 
+/* sortable column headers */
+.th-sort {
+  font: inherit; text-transform: inherit; letter-spacing: inherit;
+  color: inherit; background: none; border: 0; padding: 0; cursor: pointer;
+}
+.th-sort:hover { color: var(--spruce); }
+
 @media (max-width: 640px) {
   h1 { font-size: 24px; }
   body { font-size: 14px; }
+  .container { padding: 0 14px; }
   .record-head { padding: 16px; }
+  table { font-size: 12.5px; }
+  th, td { padding: 6px 8px; }
+  .factgrid { grid-template-columns: 1fr 1fr; }
+  .count-line.has-button { flex-wrap: wrap; }
+  .search-results a { gap: 6px 10px; padding: 8px 10px; }
+  .tablewrap { -webkit-overflow-scrolling: touch; }
 }

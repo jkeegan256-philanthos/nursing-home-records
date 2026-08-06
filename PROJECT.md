@@ -167,6 +167,11 @@ only if it survives the principles above.
   says so beside the table. Drift notes report structural change only;
   row deltas stay silent because change-over-time display is the
   deferred retention feature, whose fence stands.
+- 2026-08-06: ergonomics release shipped - keyboard-operable record
+  tabs, responsive table and layout refinements, state tables gain
+  filter, neutral-key sort, and the deferred CSV button. The standing
+  rule's condition is met; when family-facing promotion begins is the
+  founder's call, not triggered by the merge.
 - 2026-08-05: scheduler verdict, by run label after a day of controlled
   measurement: scheduled delivery works on this account but arrives
   late (the monthly slot fired 4h54m behind) and drops some hourly
