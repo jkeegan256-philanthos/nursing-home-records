@@ -1,16 +1,63 @@
-// CMS's own definitions for the ownership file's role and owner-type
-// values, quoted verbatim from the data dictionary the site already
-// republishes. Nothing here is paraphrased; if CMS revises a
-// definition, GLOSSARY_VINTAGE dates the drift.
+// What the CMS data dictionary actually says about the ownership file,
+// quoted verbatim from Table 13. The dictionary defines the columns and
+// enumerates the role values; it does not define each role individually
+// and does not expand the abbreviation ADP. This module reproduces
+// exactly what it provides and nothing more.
 
 export type GlossaryEntry = { term: string; definition: string };
 
-// The data dictionary edition these quotes were taken from.
-export const GLOSSARY_VINTAGE = "PENDING";
+// The dictionary edition these quotes were taken from, in its own words.
+export const GLOSSARY_VINTAGE = "updated July 2026";
 
-export const ROLE_DEFINITIONS: GlossaryEntry[] = [];
+// Table 13, "Ownership file variables" — definitions verbatim.
+export const COLUMN_DEFINITIONS: GlossaryEntry[] = [
+  {
+    term: "Role played by Owner or Manager in Facility",
+    definition:
+      "Role description; possible values are: 5% or greater direct ownership interest; DIRECT OWNERSHIP INTEREST; 5% or greater indirect ownership interest; INDIRECT OWNERSHIP INTEREST; 5% OR GREATER MORTGAGE INTEREST; 5% OR GREATER SECURITY INTEREST; MANAGING CONTROL - GOVERNING BODY; CONTRACTED MANAGING EMPLOYEE; W-2 MANAGING EMPLOYEE; CORPORATE DIRECTOR; CORPORATE OFFICER; OPERATIONAL/MANAGERIAL CONTROL; GENERAL PARTNERSHIP INTEREST; LIMITED PARTNERSHIP INTEREST; INDIVIDUAL IS AN OWNER, PARTNER OR TRUSTEE OF ANY ADP OF THE SNF; TRUSTEE OF THE SNF; ADP OF THE SNF",
+  },
+  {
+    term: "Owner Type",
+    definition:
+      "Indicates if owner is an individual or organization (Individual or Organization)",
+  },
+  {
+    term: "Owner Name",
+    definition: "Name of Owner",
+  },
+  {
+    term: "Ownership Percentage",
+    definition:
+      "Ownership percentage – value provided only for owners with role description of “5% or greater direct ownership interest” or “5% or greater indirect ownership interest”",
+  },
+  {
+    term: "Association Date",
+    definition:
+      "Date when given owner/manager became associated with provider in this role",
+  },
+];
 
-export const OWNER_TYPE_DEFINITIONS: GlossaryEntry[] = [];
+// The role values from the dictionary's list, one entry each so inline
+// role cells can deep-link to the exact value.
+export const ROLE_VALUES: string[] = [
+  "5% or greater direct ownership interest",
+  "DIRECT OWNERSHIP INTEREST",
+  "5% or greater indirect ownership interest",
+  "INDIRECT OWNERSHIP INTEREST",
+  "5% OR GREATER MORTGAGE INTEREST",
+  "5% OR GREATER SECURITY INTEREST",
+  "MANAGING CONTROL - GOVERNING BODY",
+  "CONTRACTED MANAGING EMPLOYEE",
+  "W-2 MANAGING EMPLOYEE",
+  "CORPORATE DIRECTOR",
+  "CORPORATE OFFICER",
+  "OPERATIONAL/MANAGERIAL CONTROL",
+  "GENERAL PARTNERSHIP INTEREST",
+  "LIMITED PARTNERSHIP INTEREST",
+  "INDIVIDUAL IS AN OWNER, PARTNER OR TRUSTEE OF ANY ADP OF THE SNF",
+  "TRUSTEE OF THE SNF",
+  "ADP OF THE SNF",
+];
 
 /** Stable fragment id for a term, shared by the page and inline links. */
 export function termAnchor(term: string): string {

@@ -11,6 +11,7 @@ import {
   type QueryResult,
 } from "@/lib/duckdb-client";
 import { csvFilename } from "@/lib/csv";
+import { termAnchor } from "@/lib/glossary";
 import CsvButton from "@/components/CsvButton";
 import Stars from "@/components/Stars";
 
@@ -399,7 +400,18 @@ export default function OwnerExplorer() {
                         </td>
                         <td>{r.city}</td>
                         <td>{r.state}</td>
-                        <td>{r.role || <span className="muted">&ndash;</span>}</td>
+                        <td>
+                          {r.role ? (
+                            <a
+                              className="quiet-link"
+                              href={`${BP}/glossary/#${termAnchor(r.role)}`}
+                            >
+                              {r.role}
+                            </a>
+                          ) : (
+                            <span className="muted">&ndash;</span>
+                          )}
+                        </td>
                         <td>{r.pct || <span className="muted">&ndash;</span>}</td>
                         <td>{r.since || <span className="muted">&ndash;</span>}</td>
                         <td>
