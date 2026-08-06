@@ -60,9 +60,10 @@ Fidelity rules the pipeline enforces:
 
 Open the repo's Actions tab, choose "Build and deploy", and tap
 "Run workflow". Roughly 10 minutes later the new batch is live. A
-scheduled run also tries on the 5th of each month, though GitHub
-pauses schedules on repos with no recent activity, so the tap is the
-dependable ritual. Works from a phone.
+scheduled run also fires on the 5th of each month at 09:47 UTC;
+measured behavior is that delivery can run hours late and can skip a
+slot entirely, so if the 5th passes with no run wearing the Scheduled
+label, the tap is the dependable ritual. Works from a phone.
 
 Committing a zip to `data/` pins the build to that exact batch instead
 of fetching; see `data/README.md`.

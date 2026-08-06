@@ -5,7 +5,10 @@ on:
     branches: [main]
   workflow_dispatch:
   schedule:
-    - cron: "47 15 5 * *" # off-hour minute; top-of-hour slots are load-shed most often
+    # Monthly, 09:47 UTC on the 5th. Delivery is measured to run late
+    # (hours, on 2026-08-05) and can drop a slot entirely; if the 5th
+    # passes with no run wearing the Scheduled label, tap Run workflow.
+    - cron: "47 9 5 * *"
 
 permissions:
   contents: read
