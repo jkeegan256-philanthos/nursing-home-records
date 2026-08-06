@@ -406,11 +406,18 @@ def export_owner_pages(
 
     owners = []
     used: dict[str, int] = {}
+    taken: set[str] = set()
     for name in sorted(by_name):
         base = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-") or "owner"
         n = used.get(base, 0) + 1
-        used[base] = n
         slug = base if n == 1 else f"{base}-{n}"
+        # A published name can naturally end in -<digits>, so a suffix
+        # candidate may already be someone's slug; probe the global set.
+        while slug in taken:
+            n += 1
+            slug = f"{base}-{n}"
+        used[base] = n
+        taken.add(slug)
         rows = by_name[name]
         rows.sort(key=lambda x: (x[3] or "", x[2] or "", x[1] or "", x[4] or ""))
         owners.append(

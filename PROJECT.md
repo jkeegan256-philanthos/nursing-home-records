@@ -102,9 +102,11 @@ secrets.
 ## Operating it
 
 Monthly refresh is one tap: Actions, Build and deploy, Run workflow.
-A schedule also fires on the 5th, but GitHub pauses schedules on quiet
-repos, so the tap is the ritual. The Data page shows which batch is
-live. Local development: `npm run fixture` then `npm run dev`.
+A schedule also fires on the 5th at 09:47 UTC; delivery is measured
+to run late and occasionally not at all, so the tap remains the
+backup ritual whenever the 5th passes without a Scheduled run. The
+Data page shows which batch is live. Local development:
+`npm run fixture` then `npm run dev`.
 
 ## Continuity
 
@@ -160,3 +162,9 @@ only if it survives the principles above.
   inference (e.g. "appears to provide pharmacy services") as a
   forbidden identity claim; the charter-clean substitute is CMS's own
   role definitions inline, which rides with the glossary work.
+- 2026-08-05: scheduler verdict, by run label after a day of controlled
+  measurement: scheduled delivery works on this account but arrives
+  late (the monthly slot fired 4h54m behind) and drops some hourly
+  slots. Permanent cron set to 09:47 UTC on the 5th, probe workflow
+  retired, tap documented as the backup whenever the 5th passes
+  without a Scheduled run.
