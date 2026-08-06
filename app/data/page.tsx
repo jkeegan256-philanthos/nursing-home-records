@@ -106,6 +106,11 @@ export default function DataPage() {
         <a href={`mailto:${CORRECTIONS_EMAIL}`}>{CORRECTIONS_EMAIL}</a> and it
         will be fixed.
       </p>
+      <p>
+        This site makes no third-party requests: the fonts and the query
+        engine are served from this domain, alongside the data. A check in
+        the build pipeline fails any change that would break that.
+      </p>
 
       {notes.length ? (
         <>

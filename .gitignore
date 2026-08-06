@@ -6,3 +6,5 @@ public/data/
 next-env.d.ts
 *.tsbuildinfo
 .DS_Store
+public/duckdb/
+public/fonts/

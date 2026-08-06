@@ -36,3 +36,23 @@ jobs:
 
       - name: Build static site from the fixture
         run: npm run build
+
+      - name: Assert zero third-party loads
+        # Links are not loads: anchors to CMS or GitHub are fine. This
+        # gate fails on resource CDNs anywhere, on any external origin
+        # in a loading position, and on missing vendored assets.
+        run: |
+          set -euo pipefail
+          if grep -rIlE "fonts\.googleapis\.com|fonts\.gstatic\.com|jsdelivr|unpkg\.com|cdnjs\.cloudflare\.com|esm\.sh" out/; then
+            echo "FAIL: resource CDN reference in the export"; exit 1; fi
+          if grep -rIE '<script[^>]{0,300}src="https?://' out/ --include='*.html'; then
+            echo "FAIL: external script load"; exit 1; fi
+          if grep -rIE '<link[^>]{0,300}href="https?://' out/ --include='*.html'; then
+            echo "FAIL: external link load"; exit 1; fi
+          if grep -rIE 'url\(\s*["'"'"']?https?://' out/ --include='*.css'; then
+            echo "FAIL: external css url()"; exit 1; fi
+          test -f out/duckdb/duckdb-eh.wasm
+          test -f out/duckdb/duckdb-mvp.wasm
+          test -f out/fonts/public-sans-latin-wght-normal.woff2
+          test -f out/fonts/LICENSE-public-sans.txt
+          echo "zero third-party loads confirmed"

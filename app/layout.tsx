@@ -14,12 +14,32 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=Spline+Sans+Mono:wght@400;500&display=swap"
-          rel="stylesheet"
-        />
+        {/* Self-hosted variable fonts, vendored by scripts/vendor-assets.mjs.
+            Declared here rather than in globals.css so the paths can carry
+            the base path. OFL license texts sit beside the files. */}
+        <style>{`
+          @font-face {
+            font-family: "Public Sans";
+            src: url("${BP}/fonts/public-sans-latin-wght-normal.woff2") format("woff2-variations");
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+          }
+          @font-face {
+            font-family: "Source Serif 4";
+            src: url("${BP}/fonts/source-serif-4-latin-opsz-normal.woff2") format("woff2-variations");
+            font-weight: 200 900;
+            font-style: normal;
+            font-display: swap;
+          }
+          @font-face {
+            font-family: "Spline Sans Mono";
+            src: url("${BP}/fonts/spline-sans-mono-latin-wght-normal.woff2") format("woff2-variations");
+            font-weight: 300 700;
+            font-style: normal;
+            font-display: swap;
+          }
+        `}</style>
       </head>
       <body>
         <header className="site-header">
