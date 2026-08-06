@@ -1,0 +1,34 @@
+name: TEMP fetch dictionary text
+
+# Temporary, branch-only: the maintenance container's proxy cannot
+# reach data.cms.gov, but Actions runners can. Extracts the CMS data
+# dictionary text as an artifact for the glossary build. This file is
+# removed before this PR merges.
+
+on: pull_request
+
+permissions: {}
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download and extract text
+        run: |
+          curl -fL --retry 3 -o dict.pdf \
+            "https://data.cms.gov/provider-data/sites/default/files/data_dictionaries/nursing_home/NH_Data_Dictionary.pdf"
+          pip install pypdf
+          python3 - <<'EOF'
+          from pypdf import PdfReader
+          r = PdfReader("dict.pdf")
+          with open("dictionary.txt", "w", encoding="utf-8") as f:
+              for i, p in enumerate(r.pages):
+                  f.write(f"\n===== PAGE {i+1} =====\n")
+                  f.write(p.extract_text() or "")
+          print("pages:", len(r.pages))
+          EOF
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dictionary-text
+          path: dictionary.txt
