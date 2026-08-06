@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { BP, CMS_DATASET_URL } from "@/lib/config";
 import { dataMap, getOwnerPage, ownerPages } from "@/lib/data";
+import { termAnchor } from "@/lib/glossary";
 
 export const dynamicParams = false;
 
@@ -75,7 +76,18 @@ export default async function OwnerPage({
                 </td>
                 <td>{r[2]}</td>
                 <td>{r[3]}</td>
-                <td>{r[4] || <span className="muted">&ndash;</span>}</td>
+                <td>
+                  {r[4] ? (
+                    <a
+                      className="quiet-link"
+                      href={`${BP}/glossary/#${termAnchor(r[4])}`}
+                    >
+                      {r[4]}
+                    </a>
+                  ) : (
+                    <span className="muted">&ndash;</span>
+                  )}
+                </td>
                 <td>{r[5] || <span className="muted">&ndash;</span>}</td>
                 <td>{r[6] || <span className="muted">&ndash;</span>}</td>
               </tr>

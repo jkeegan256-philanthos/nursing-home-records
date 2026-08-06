@@ -10,7 +10,13 @@ import {
   type QueryResult,
 } from "@/lib/duckdb-client";
 import { csvFilename } from "@/lib/csv";
+import { termAnchor } from "@/lib/glossary";
 import CsvButton from "@/components/CsvButton";
+
+const GLOSSARY_COLUMNS = new Set([
+  "Role played by Owner or Manager in Facility",
+  "Owner Type",
+]);
 
 const PREFERRED_ORDER = [
   "health_citations",
@@ -219,6 +225,13 @@ export default function FacilityRecords({
                               <span className="muted">&ndash;</span>
                             ) : tab.result.cols[j] === "Owner Name" ? (
                               <a href={`${BP}/owners/?name=${encodeURIComponent(v)}`}>{v}</a>
+                            ) : GLOSSARY_COLUMNS.has(tab.result.cols[j]) ? (
+                              <a
+                                className="quiet-link"
+                                href={`${BP}/glossary/#${termAnchor(v)}`}
+                              >
+                                {v}
+                              </a>
                             ) : (
                               v
                             )}

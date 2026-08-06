@@ -338,7 +338,7 @@ def export_owners(
         encoding="utf-8",
     )
 
-    export_owner_pages(con, named, own_meta, build_dir)
+    export_owner_pages(con, named, own_meta, build_dir, parquet_root.parent)
 
     return {
         "label": "Ownership, all states",
@@ -357,11 +357,43 @@ def export_owners(
     }
 
 
+def load_previous_slugs() -> dict[str, str]:
+    """Fetch the live site's owner slug map so names keep their URLs
+    across batches. NH_PREVIOUS_SLUGS_URL overrides the source (a URL
+    or a file path); an empty value skips anchoring, which the fixture
+    uses to stay offline and deterministic."""
+    src = os.environ.get(
+        "NH_PREVIOUS_SLUGS_URL",
+        "https://nursinghomerecords.org/data/owner-slugs.json",
+    )
+    if not src:
+        return {}
+    try:
+        if re.match(r"^https?://", src):
+            import urllib.request
+
+            with urllib.request.urlopen(src, timeout=30) as r:
+                data = json.load(r)
+        else:
+            data = json.loads(Path(src).read_text(encoding="utf-8"))
+        slugs = data.get("slugs", {})
+        if not isinstance(slugs, dict):
+            raise ValueError("malformed slugs map")
+        return {str(k): str(v) for k, v in slugs.items()}
+    except Exception as exc:
+        warn(
+            f"previous owner slugs could not be read ({exc}); "
+            "previously cited owner URLs may have shifted this batch"
+        )
+        return {}
+
+
 def export_owner_pages(
     con: duckdb.DuckDBPyConnection,
     named: str,
     own_meta: dict,
     build_dir: Path,
+    public_data: Path,
 ) -> None:
     """One JSON of per-owner rows for every name at the uniform
     OWNER_PAGE_MIN threshold, feeding the pre-rendered /owner/ pages.
@@ -376,6 +408,20 @@ def export_owner_pages(
         "Association Date",
         "Owner Type",
     ]
+    prev = load_previous_slugs()
+    slug_file = public_data / "owner-slugs.json"
+
+    def write_slug_map(current: dict[str, str]) -> None:
+        # Departed names keep their reservation, so an old URL is never
+        # reassigned to a different name.
+        merged = dict(current)
+        for name, slug in prev.items():
+            merged.setdefault(name, slug)
+        slug_file.write_text(
+            json.dumps({"slugs": merged}, ensure_ascii=False, separators=(",", ":")),
+            encoding="utf-8",
+        )
+
     missing = [c for c in page_cols[:5] if c not in own_meta["columns"]]
     empty = {"threshold": OWNER_PAGE_MIN, "owners": []}
     out = build_dir / "owner-pages.json"
@@ -386,6 +432,9 @@ def export_owner_pages(
             + "); skipping them this batch"
         )
         out.write_text(json.dumps(empty, separators=(",", ":")), encoding="utf-8")
+        # Carry the anchor map through a degraded batch unchanged, so
+        # the chain survives until the columns come back.
+        write_slug_map({})
         return
 
     ccn = qident(own_meta["ccn_column"])
@@ -406,18 +455,23 @@ def export_owner_pages(
 
     owners = []
     used: dict[str, int] = {}
-    taken: set[str] = set()
+    # Every slug ever published stays reserved for its name, so a cited
+    # URL can never come to mean a different person or company.
+    taken: set[str] = set(prev.values())
+    assigned: set[str] = set()
     for name in sorted(by_name):
-        base = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-") or "owner"
-        n = used.get(base, 0) + 1
-        slug = base if n == 1 else f"{base}-{n}"
-        # A published name can naturally end in -<digits>, so a suffix
-        # candidate may already be someone's slug; probe the global set.
-        while slug in taken:
-            n += 1
-            slug = f"{base}-{n}"
-        used[base] = n
-        taken.add(slug)
+        slug = prev.get(name)
+        if not slug or slug in assigned:
+            base = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-") or "owner"
+            n = used.get(base, 0) + 1
+            slug = base if n == 1 else f"{base}-{n}"
+            # A published name can naturally end in -<digits>, and past
+            # batches hold reservations; probe the whole set.
+            while slug in taken or slug in assigned:
+                n += 1
+                slug = f"{base}-{n}"
+            used[base] = n
+        assigned.add(slug)
         rows = by_name[name]
         rows.sort(key=lambda x: (x[3] or "", x[2] or "", x[1] or "", x[4] or ""))
         owners.append(
@@ -438,7 +492,12 @@ def export_owner_pages(
         ),
         encoding="utf-8",
     )
-    print(f"  owner pages: {len(owners):,} names at the {OWNER_PAGE_MIN}+ facility threshold")
+    write_slug_map({o["name"]: o["slug"] for o in owners})
+    anchored = sum(1 for o in owners if prev.get(o["name"]) == o["slug"])
+    print(
+        f"  owner pages: {len(owners):,} names at the {OWNER_PAGE_MIN}+ facility "
+        f"threshold ({anchored:,} slugs anchored to the previous batch)"
+    )
 
 
 def export_providers(con: duckdb.DuckDBPyConnection, csv_path: Path, build_dir: Path, public_data: Path) -> None:

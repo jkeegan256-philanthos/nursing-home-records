@@ -135,6 +135,16 @@ details.fullrecord[open] summary { margin-bottom: 10px; }
 }
 .csv-button:disabled { cursor: default; opacity: 0.6; }
 
+/* glossary */
+.glossary { margin: 8px 0; }
+.glossary-entry { margin: 0 0 14px; }
+.glossary-entry dt { font-weight: 600; }
+.glossary-entry dd { margin: 2px 0 0; color: var(--faint); }
+.glossary-values { list-style: none; padding: 0; margin: 8px 0; }
+.glossary-values li { padding: 3px 0; border-bottom: 1px solid var(--rule); font-size: 13px; }
+.glossary-values li:target, .glossary-entry:target dt { background: var(--ochre-wash); }
+.quiet-link { color: inherit; text-decoration: underline dotted; text-underline-offset: 2px; }
+
 /* downloads */
 .dl-list { list-style: none; padding: 0; margin: 8px 0; }
 .dl-list li { padding: 6px 0; border-bottom: 1px solid var(--rule-soft); }

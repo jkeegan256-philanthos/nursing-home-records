@@ -10,7 +10,7 @@ export default function OwnersPage() {
 
   return (
     <>
-      <h1>Who is behind each facility</h1>
+      <h1>Owners, operators, and disclosed parties</h1>
       <p className="lede">
         Federal law requires nursing homes to disclose their owners, officers,
         directors, managing employees, and other parties. CMS publishes those
@@ -24,11 +24,9 @@ export default function OwnersPage() {
         consultants, and accounting firms as well as owners, because CMS
         requires all of them to be disclosed. Names are grouped exactly as
         published: one person can appear under several spellings, and common
-        names can belong to more than one person. Role definitions are in the{" "}
-        <a href={`${BP}/data/downloads/NH_Data_Dictionary.pdf`}>
-          CMS data dictionary
-        </a>
-        .
+        names can belong to more than one person. What CMS says each role
+        and column means is on the{" "}
+        <a href={`${BP}/glossary/`}>role definitions page</a>.
       </p>
       <p className="lede">
         These are disclosures filed by the facilities and their parties
