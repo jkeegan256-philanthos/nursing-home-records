@@ -1,4 +1,5 @@
 import * as duckdb from "@duckdb/duckdb-wasm";
+import { BP } from "@/lib/config";
 
 let dbPromise: Promise<duckdb.AsyncDuckDB> | null = null;
 
@@ -18,17 +19,22 @@ function withTimeout<T>(p: Promise<T>, ms: number, what: string): Promise<T> {
 }
 
 async function init(): Promise<duckdb.AsyncDuckDB> {
-  const bundles = duckdb.getJsDelivrBundles();
-  const bundle = await duckdb.selectBundle(bundles);
-  const workerUrl = URL.createObjectURL(
-    new Blob([`importScripts("${bundle.mainWorker}");`], {
-      type: "text/javascript",
-    })
-  );
-  const worker = new Worker(workerUrl);
+  // Engine files are vendored into public/duckdb by
+  // scripts/vendor-assets.mjs — same origin, so the worker loads
+  // directly and no CDN is ever contacted.
+  const bundle = await duckdb.selectBundle({
+    mvp: {
+      mainModule: `${BP}/duckdb/duckdb-mvp.wasm`,
+      mainWorker: `${BP}/duckdb/duckdb-browser-mvp.worker.js`,
+    },
+    eh: {
+      mainModule: `${BP}/duckdb/duckdb-eh.wasm`,
+      mainWorker: `${BP}/duckdb/duckdb-browser-eh.worker.js`,
+    },
+  });
+  const worker = new Worker(bundle.mainWorker!);
   const db = new duckdb.AsyncDuckDB(new duckdb.VoidLogger(), worker);
   await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
-  URL.revokeObjectURL(workerUrl);
   return db;
 }
 
