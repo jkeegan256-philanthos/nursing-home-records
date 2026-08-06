@@ -149,6 +149,25 @@ export default function FacilityRecords({
   const info = active ? map.tables[active] : null;
   const tab = active ? tabs[active] : undefined;
 
+  function selectTab(k: string) {
+    setActive(k);
+    window.history.replaceState(null, "", `#${encodeURIComponent(k)}`);
+  }
+
+  function onTabKeyDown(e: React.KeyboardEvent, k: string) {
+    const i = keys.indexOf(k);
+    let next: number | null = null;
+    if (e.key === "ArrowRight") next = (i + 1) % keys.length;
+    else if (e.key === "ArrowLeft") next = (i - 1 + keys.length) % keys.length;
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = keys.length - 1;
+    if (next != null) {
+      e.preventDefault();
+      selectTab(keys[next]);
+      document.getElementById(`tab-${keys[next]}`)?.focus();
+    }
+  }
+
   return (
     <section>
       <h2>Records for this facility</h2>
@@ -156,12 +175,13 @@ export default function FacilityRecords({
         {keys.map((k) => (
           <button
             key={k}
+            id={`tab-${k}`}
             role="tab"
             aria-selected={k === active}
-            onClick={() => {
-              setActive(k);
-              window.history.replaceState(null, "", `#${encodeURIComponent(k)}`);
-            }}
+            aria-controls="records-panel"
+            tabIndex={k === active ? 0 : -1}
+            onClick={() => selectTab(k)}
+            onKeyDown={(e) => onTabKeyDown(e, k)}
           >
             {map.tables[k].label}
           </button>
@@ -169,7 +189,11 @@ export default function FacilityRecords({
       </div>
 
       {info && (
-        <>
+        <div
+          id="records-panel"
+          role="tabpanel"
+          aria-labelledby={active ? `tab-${active}` : undefined}
+        >
           {!tab || tab.status === "loading" || tab.status === "idle" ? (
             <p className="tab-status">Loading {info.label.toLowerCase()}&hellip;</p>
           ) : tab.status === "absent" ? (
@@ -264,7 +288,7 @@ export default function FacilityRecords({
             columns and every matching row, checkable against the originals on
             the Data page.
           </p>
-        </>
+        </div>
       )}
     </section>
   );

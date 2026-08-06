@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { BP } from "@/lib/config";
 import { dataMap, facilitiesFor, listStates } from "@/lib/data";
 import Provenance from "@/components/Provenance";
-import Stars from "@/components/Stars";
+import StateTable from "@/components/StateTable";
 
 export const dynamicParams = false;
 
@@ -27,44 +26,14 @@ export default async function StatePage({
   const { state } = await params;
   const facilities = facilitiesFor(state);
   const providersInfo = dataMap().tables["providers"];
+  const vintage =
+    providersInfo?.modified_date?.slice(0, 7) ??
+    dataMap().generated_at.slice(0, 7);
 
   return (
     <>
       <h1>{state} nursing homes</h1>
-      <p className="count-line">
-        {facilities.length.toLocaleString()} certified facilities, sorted by
-        name.
-      </p>
-      <div className="tablewrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Facility</th>
-              <th>City</th>
-              <th>CCN</th>
-              <th className="num">Certified beds</th>
-              <th>Overall rating</th>
-            </tr>
-          </thead>
-          <tbody>
-            {facilities.map((f) => (
-              <tr key={f.ccn}>
-                <td>
-                  <a href={`${BP}/facility/${encodeURIComponent(f.ccn)}/`}>
-                    {f.name}
-                  </a>
-                </td>
-                <td>{f.city}</td>
-                <td className="mono">{f.ccn}</td>
-                <td className="num">{f.beds}</td>
-                <td>
-                  <Stars value={f.rating} />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <StateTable state={state} rows={facilities} vintage={vintage} />
       {providersInfo ? <Provenance info={providersInfo} /> : null}
     </>
   );
