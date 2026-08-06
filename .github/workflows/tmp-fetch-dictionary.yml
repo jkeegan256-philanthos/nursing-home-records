@@ -28,6 +28,12 @@ jobs:
           print("pages:", len(r.pages))
           EOF
 
+      - name: Print text into the log
+        run: |
+          echo "===== DICTIONARY TEXT BEGIN ====="
+          cat dictionary.txt
+          echo "===== DICTIONARY TEXT END ====="
+
       - uses: actions/upload-artifact@v4
         with:
           name: dictionary-text
