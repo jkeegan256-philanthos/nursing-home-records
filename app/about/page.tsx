@@ -33,7 +33,11 @@ export default function AboutPage() {
         as gaps. The checksums on the{" "}
         <a href={`${BP}/data/`}>Data page</a> prove this site matches what
         CMS published; they say nothing about whether a filing matches
-        reality. Both facts are worth knowing before quoting a number.
+        reality. Both facts are worth knowing before quoting a number. The
+        Data page&apos;s batch history goes one step further: an append-only
+        ledger of every build this mirror has served, with per-file
+        checksums, so the site&apos;s own history is provable even though
+        CMS&apos;s is not.
       </p>
 
       <h2>Who this serves today</h2>

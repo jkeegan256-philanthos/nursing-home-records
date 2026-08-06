@@ -162,6 +162,11 @@ only if it survives the principles above.
   inference (e.g. "appears to provide pharmacy services") as a
   forbidden identity claim; the charter-clean substitute is CMS's own
   role definitions inline, which rides with the glossary work.
+- 2026-08-06: integrity ledger and drift notes added. The ledger
+  deliberately proves this mirror's served history, not CMS's, and
+  says so beside the table. Drift notes report structural change only;
+  row deltas stay silent because change-over-time display is the
+  deferred retention feature, whose fence stands.
 - 2026-08-05: scheduler verdict, by run label after a day of controlled
   measurement: scheduled delivery works on this account but arrives
   late (the monthly slot fired 4h54m behind) and drops some hourly
