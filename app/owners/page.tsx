@@ -10,7 +10,7 @@ export default function OwnersPage() {
 
   return (
     <>
-      <h1>Who is behind each facility</h1>
+      <h1>Owners, operators, and disclosed parties</h1>
       <p className="lede">
         Federal law requires nursing homes to disclose their owners, officers,
         directors, managing employees, and other parties. CMS publishes those
