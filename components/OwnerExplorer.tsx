@@ -13,6 +13,7 @@ import {
 import { csvFilename } from "@/lib/csv";
 import { termAnchor } from "@/lib/glossary";
 import CsvButton from "@/components/CsvButton";
+import RecordLookup from "@/components/RecordLookup";
 import Stars from "@/components/Stars";
 
 const NAMED =
@@ -377,6 +378,7 @@ export default function OwnerExplorer() {
                   />
                 ) : null}
               </p>
+              <RecordLookup name={detail.name} />
               <div className="tablewrap">
                 <table>
                   <thead>
