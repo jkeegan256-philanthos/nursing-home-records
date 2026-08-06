@@ -172,6 +172,15 @@ only if it survives the principles above.
   filter, neutral-key sort, and the deferred CSV button. The standing
   rule's condition is met; when family-facing promotion begins is the
   founder's call, not triggered by the merge.
+- 2026-08-06: uniform public-record lookup links adopted under every
+  name - OIG exclusions, SEC EDGAR, CourtListener - the same row for
+  all 61,671 names, exact string pre-filled where the destination
+  allows, copy button where it doesn't. The boundary: the site carries
+  the reader's question to the public record; it never carries the
+  record's answer back. Refused and logged: any automated join against
+  the exclusion list or similar, because a name-string join is the
+  machine making the match, and the government's own verification
+  requires identifiers the file does not hold. Links, never joins.
 - 2026-08-05: scheduler verdict, by run label after a day of controlled
   measurement: scheduled delivery works on this account but arrives
   late (the monthly slot fired 4h54m behind) and drops some hourly
