@@ -39,6 +39,26 @@ export function siteMeta(): any {
   return (_meta ??= readJson("build", "site-meta.json"));
 }
 
+// The served-build ledger; missing file (first build) reads as empty.
+export type LedgerEntry = {
+  generated_at: string;
+  trigger: string;
+  commit: string;
+  source_zip: { filename: string; bytes: number; sha256: string };
+  files: Record<
+    string,
+    { sha256: string; rows: number | null; modified_date: string | null }
+  >;
+};
+let _ledger: { entries: LedgerEntry[] } | null = null;
+export function ledger(): LedgerEntry[] {
+  try {
+    return (_ledger ??= readJson("public", "data", "ledger.json")).entries;
+  } catch {
+    return [];
+  }
+}
+
 export type OwnersTop = {
   total_owners: number;
   blank_owner_rows: number;

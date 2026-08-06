@@ -11,7 +11,7 @@
     "prebuild": "node scripts/vendor-assets.mjs",
     "build": "next build",
     "data": "python3 scripts/build_data.py",
-    "fixture": "python3 scripts/dev_fixture.py && NH_PARTITION_MIN_BYTES=500 NH_OWNER_PAGE_MIN=2 NH_PREVIOUS_SLUGS_URL= python3 scripts/build_data.py --zip build/fixture/theme_fixture.zip"
+    "fixture": "python3 scripts/dev_fixture.py && NH_PARTITION_MIN_BYTES=500 NH_OWNER_PAGE_MIN=2 NH_STATE_URL= python3 scripts/build_data.py --zip build/fixture/theme_fixture.zip"
   },
   "dependencies": {
     "@duckdb/duckdb-wasm": "^1.29.0",

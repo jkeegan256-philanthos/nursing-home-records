@@ -5,7 +5,7 @@ import {
   CORRECTIONS_EMAIL,
   CORRECTIONS_URL,
 } from "@/lib/config";
-import { missingProviderColumns, siteMeta } from "@/lib/data";
+import { ledger, missingProviderColumns, siteMeta } from "@/lib/data";
 
 export const metadata: Metadata = { title: "Data & downloads" };
 
@@ -90,6 +90,51 @@ export default function DataPage() {
         Datasets carry their own refresh dates. Files in one theme download can
         differ in vintage; the dates above are CMS&apos;s, not ours.
       </p>
+
+      {ledger().length > 0 && (
+        <>
+          <h2>Batch history</h2>
+          <div className="tablewrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Served</th>
+                  <th>Trigger</th>
+                  <th>Commit</th>
+                  <th>Source zip</th>
+                  <th className="num">MB</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...ledger()].reverse().map((e, i) => (
+                  <tr key={i}>
+                    <td className="mono">
+                      {e.generated_at.slice(0, 16).replace("T", " ")} UTC
+                    </td>
+                    <td>{e.trigger}</td>
+                    <td className="mono">
+                      {e.commit ? e.commit.slice(0, 7) : <span className="muted">&ndash;</span>}
+                    </td>
+                    <td className="mono">{e.source_zip.filename}</td>
+                    <td className="num">
+                      {(e.source_zip.bytes / 1_000_000).toFixed(1)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="prov">
+            This ledger records what this site served and when. It proves the
+            mirror&apos;s history, not CMS&apos;s; CMS does not publish stable
+            archives of past batches to compare against. Machine-readable:{" "}
+            <a className="mono" href={`${BP}/data/ledger.json`}>
+              ledger.json
+            </a>
+            .
+          </p>
+        </>
+      )}
 
       <h2>Method and corrections</h2>
       <p>

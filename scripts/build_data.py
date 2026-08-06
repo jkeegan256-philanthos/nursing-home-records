@@ -357,17 +357,19 @@ def export_owners(
     }
 
 
-def load_previous_slugs() -> dict[str, str]:
-    """Fetch the live site's owner slug map so names keep their URLs
-    across batches. NH_PREVIOUS_SLUGS_URL overrides the source (a URL
-    or a file path); an empty value skips anchoring, which the fixture
-    uses to stay offline and deterministic."""
-    src = os.environ.get(
-        "NH_PREVIOUS_SLUGS_URL",
-        "https://nursinghomerecords.org/data/owner-slugs.json",
-    )
-    if not src:
-        return {}
+# The previously deployed site is the pipeline's only state. One base
+# feeds slug anchoring, the ledger, and the drift notes; the fixture
+# points it at local files (or empty to skip), CI at production.
+STATE_BASE = os.environ.get("NH_STATE_URL", "https://nursinghomerecords.org/data")
+
+
+def fetch_state(name: str, consequence: str) -> dict | None:
+    """Read one JSON state file from the previously deployed site.
+    Empty STATE_BASE skips silently (fixture default); a fetch failure
+    degrades to a warn that names the consequence for the reader."""
+    if not STATE_BASE:
+        return None
+    src = f"{STATE_BASE.rstrip('/')}/{name}"
     try:
         if re.match(r"^https?://", src):
             import urllib.request
@@ -376,16 +378,30 @@ def load_previous_slugs() -> dict[str, str]:
                 data = json.load(r)
         else:
             data = json.loads(Path(src).read_text(encoding="utf-8"))
-        slugs = data.get("slugs", {})
-        if not isinstance(slugs, dict):
-            raise ValueError("malformed slugs map")
-        return {str(k): str(v) for k, v in slugs.items()}
+        if not isinstance(data, dict):
+            raise ValueError("malformed state file")
+        return data
     except Exception as exc:
+        warn(f"{name} could not be read ({exc}); {consequence}")
+        return None
+
+
+def load_previous_slugs() -> dict[str, str]:
+    """The live site's owner slug map, so names keep their URLs."""
+    data = fetch_state(
+        "owner-slugs.json",
+        "previously cited owner URLs may have shifted this batch",
+    )
+    if not data:
+        return {}
+    slugs = data.get("slugs", {})
+    if not isinstance(slugs, dict):
         warn(
-            f"previous owner slugs could not be read ({exc}); "
+            "owner-slugs.json is malformed; "
             "previously cited owner URLs may have shifted this batch"
         )
         return {}
+    return {str(k): str(v) for k, v in slugs.items()}
 
 
 def export_owner_pages(
@@ -524,6 +540,89 @@ def export_providers(con: duckdb.DuckDBPyConnection, csv_path: Path, build_dir: 
     )
 
 
+def record_history(
+    data_map: dict,
+    source_zip: dict,
+    tables: list[dict],
+    file_hashes: dict[str, str],
+    public_data: Path,
+) -> None:
+    """The integrity layer: drift notes against the previously served
+    batch, and an append-only ledger of every served build. Both read
+    the live site's own state; both degrade to a note, never a dead
+    build. The ledger proves this mirror's history, not CMS's."""
+    prev_map = fetch_state(
+        "data-map.json",
+        "batch comparison unavailable this build; "
+        "structural changes since the last batch are not reported",
+    )
+    prev_ledger = fetch_state(
+        "ledger.json",
+        "ledger history unavailable this build; the chain restarts from this entry",
+    )
+
+    # Drift notes: structure only. Row-count deltas are normal monthly
+    # movement and stay deliberately silent (retention is a deferred
+    # feature; its fence is not crossed here).
+    if prev_map:
+        cur = data_map["tables"]
+        prev = prev_map.get("tables", {})
+        for t in sorted(set(cur) - set(prev)):
+            warn(f"batch change: new table '{t}' ({cur[t]['source_file']})")
+        for t in sorted(set(prev) - set(cur)):
+            warn(f"batch change: table '{t}' from the previous batch is absent")
+        for t in sorted(set(cur) & set(prev)):
+            cur_cols = set(cur[t]["columns"])
+            prev_cols = set(prev[t].get("columns", []))
+            added = sorted(cur_cols - prev_cols)
+            removed = sorted(prev_cols - cur_cols)
+            if added:
+                warn(f"batch change: {t} added column(s): " + ", ".join(added))
+            if removed:
+                warn(f"batch change: {t} removed column(s): " + ", ".join(removed))
+            pm = prev[t].get("modified_date")
+            cm = cur[t].get("modified_date")
+            if pm and cm and cm < pm:
+                warn(f"batch change: {t} modified_date moved backward ({pm} -> {cm})")
+
+    entries = list(prev_ledger.get("entries", [])) if prev_ledger else []
+
+    # Same filename, different content: only detectable via the ledger's
+    # per-file hashes, and the reason they exist.
+    if entries:
+        prev_files = entries[-1].get("files", {})
+        for fname in sorted(file_hashes):
+            p = prev_files.get(fname)
+            if p and p.get("sha256") and p["sha256"] != file_hashes[fname]:
+                warn(
+                    f"batch change: {fname} content changed although its "
+                    "filename did not"
+                )
+
+    by_file = {t["source_file"]: t for t in tables}
+    entries.append(
+        {
+            "generated_at": data_map["generated_at"],
+            "trigger": os.environ.get("GITHUB_EVENT_NAME", "local"),
+            "commit": os.environ.get("GITHUB_SHA", ""),
+            "source_zip": source_zip,
+            "files": {
+                fname: {
+                    "sha256": file_hashes[fname],
+                    "rows": by_file.get(fname, {}).get("rows"),
+                    "modified_date": by_file.get(fname, {}).get("modified_date"),
+                }
+                for fname in sorted(file_hashes)
+            },
+        }
+    )
+    (public_data / "ledger.json").write_text(
+        json.dumps({"entries": entries}, ensure_ascii=False, separators=(",", ":")),
+        encoding="utf-8",
+    )
+    print(f"  ledger: {len(entries)} served build(s) on record")
+
+
 # ---------------------------------------------------------------- main
 
 def main() -> None:
@@ -558,6 +657,7 @@ def main() -> None:
     zip_hash = sha256_of(zip_path)
     print(f"sha256  {zip_hash}")
 
+    file_hashes: dict[str, str] = {}
     with zipfile.ZipFile(zip_path) as zf:
         seen: dict[str, str] = {}
         for info in zf.infolist():
@@ -572,6 +672,7 @@ def main() -> None:
             seen[name] = info.filename
             with zf.open(info) as src, (extract_dir / name).open("wb") as dst:
                 shutil.copyfileobj(src, dst)
+            file_hashes[name] = sha256_of(extract_dir / name)
 
     datasets, by_file = load_manifest(extract_dir)
     validate_against_manifest(extract_dir, by_file)
@@ -636,9 +737,16 @@ def main() -> None:
         json.dumps(data_map, ensure_ascii=False, separators=(",", ":")), encoding="utf-8"
     )
 
+    source_zip = {
+        "filename": zip_path.name,
+        "bytes": zip_path.stat().st_size,
+        "sha256": zip_hash,
+    }
+    record_history(data_map, source_zip, tables, file_hashes, public_data)
+
     site_meta = {
         "generated_at": data_map["generated_at"],
-        "source_zip": {"filename": zip_path.name, "bytes": zip_path.stat().st_size, "sha256": zip_hash},
+        "source_zip": source_zip,
         "downloads": sorted(p.name for p in downloads.iterdir()),
         "datasets": datasets,
         "tables": [
