@@ -133,6 +133,11 @@ only if it survives the principles above.
 
 ## Decision log
 
+Standing policy: a decision reversed is not a mistake hidden; it is a
+principle enforced. Entries are appended, never rewritten. When a
+shipped feature is reversed, the original entry stays, the reversal is
+dated beside it, and the reasoning is recorded at full length.
+
 - 2025: first version built by hand over about nine months; expired
   July 2026.
 - 2026-07-22: rebuild agreed. Zip-in, static-out, provenance
@@ -210,7 +215,22 @@ only if it survives the principles above.
   leaves the pages silent — which is why this feature was revisable
   rather than radioactive; but a principled boundary does not rescue a
   badly chosen instance sitting close to it, and this instance was
-  badly chosen.
+  badly chosen. Reusers adapting this code: the row is gone because it
+  could not be made honest, not because it broke; re-adding anything
+  like it means answering the three errors above first.
+- 2026-08-07: after three independent reviews of the reversal converged
+  on its proportionality, the log gained its standing-policy preamble,
+  and README and About each gained a one-sentence pointer to the
+  documented reversals — two doors, disjoint audiences: repo skimmers
+  never read About, site readers never open repos. Declined: a GitHub
+  Release to memorialize the reversal, as ceremony; and a proposed
+  categorical rule, "the machine may not construct a query that
+  implies a match," because it silently upgrades an instance judgment
+  into a bright line. The shipped boundary stays as judged: links
+  versus joins is the principle, and instances near the line are
+  weighed against it case by case — this week is the evidence that the
+  weighing works. If the bright line is ever adopted, it gets its own
+  dated entry with its own reasoning, not a rewording in a recap.
 - 2026-08-05: scheduler verdict, by run label after a day of controlled
   measurement: scheduled delivery works on this account but arrives
   late (the monthly slot fired 4h54m behind) and drops some hourly

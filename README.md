@@ -5,7 +5,9 @@ homes theme exactly as CMS ships it. No calculations, no filtering, no
 editorial layer. One zip goes in each month; a browsable site comes out.
 
 Read `PROJECT.md` first. It holds the goals, the principles, and the
-declined scope that every change must respect.
+declined scope that every change must respect. Its decision log also
+records the features this project shipped and then reversed, with the
+reasoning at full length — reversals are documented here, not erased.
 
 Rename the site in `lib/config.ts` (`SITE_NAME`), and point
 `CORRECTIONS_URL` wherever you want error reports to land.
