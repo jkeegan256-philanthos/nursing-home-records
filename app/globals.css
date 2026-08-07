@@ -149,9 +149,9 @@ details.fullrecord[open] summary { margin-bottom: 10px; }
 .dl-list { list-style: none; padding: 0; margin: 8px 0; }
 .dl-list li { padding: 6px 0; border-bottom: 1px solid var(--rule-soft); }
 
-/* public-record lookup row */
-.lookup-row { font-size: 12.5px; margin: 0 0 12px; }
-.lookup-row .csv-button { margin-left: 4px; }
+/* copy-name row */
+.copy-row { font-size: 12.5px; margin: 0 0 12px; }
+.copy-row .csv-button { margin-left: 0; }
 
 /* sortable column headers */
 .th-sort {

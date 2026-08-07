@@ -94,6 +94,23 @@ export default function AboutPage() {
         significant, that significance comes from the public record itself.
       </p>
 
+      <h2>Researching a name further</h2>
+      <p>
+        Researchers who need more than these filings typically consult
+        other public records: court dockets, corporate and securities
+        filings, and government enforcement and exclusion databases, each
+        maintained by the court or agency that creates it. This site links
+        to none of them and attaches none of them to any name, because a
+        matching name string is not a matching person. Many names in the
+        disclosure file are common; some of those databases exist only to
+        record wrongdoing, so a coincidental hit there reads as a verdict;
+        and the official verification steps for the most consequential of
+        them require identifiers the public does not hold. The copy button
+        under each name does the one part a website can do honestly: it
+        preserves the exact filed spelling for wherever the reader&apos;s
+        own judgment takes it.
+      </p>
+
       <h2>Limitations</h2>
       <p>
         The per-facility record tables and the live owner search run a

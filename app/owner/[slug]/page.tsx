@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { BP, CMS_DATASET_URL } from "@/lib/config";
 import { dataMap, getOwnerPage, ownerPages } from "@/lib/data";
 import { termAnchor } from "@/lib/glossary";
-import RecordLookup from "@/components/RecordLookup";
+import CopyName from "@/components/CopyName";
 
 export const dynamicParams = false;
 
@@ -55,7 +55,7 @@ export default async function OwnerPage({
         </a>{" "}
         for ratings and CSV download.
       </p>
-      <RecordLookup name={o.name} />
+      <CopyName name={o.name} />
       <div className="tablewrap">
         <table>
           <thead>
