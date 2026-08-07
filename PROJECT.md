@@ -181,6 +181,36 @@ only if it survives the principles above.
   the exclusion list or similar, because a name-string join is the
   machine making the match, and the government's own verification
   requires identifiers the file does not hold. Links, never joins.
+- 2026-08-07: the lookup-links row reversed, one day after shipping,
+  on the strength of an outside critique the designer judged correct.
+  Three errors, logged beside the designer's own rules. First, OIG's
+  LEIE is an enforcement-only database: a name hit reads as a verdict,
+  a miss reads as silence, OIG's own guidance says name-matching alone
+  is insufficient, and the verification step requires an SSN the
+  public never holds — the row sent readers into a workflow that
+  cannot be completed, wearing the costume of due diligence. Second,
+  the selection frame: choosing exclusions, dockets, and securities
+  enforcement out of all possible public records is a menu that says
+  "check whether these people are bad"; the neutral "public records"
+  label was a fig leaf over it. Third, the decisive asymmetry: the row
+  automated the construction of suspicion without automating its
+  resolution, so under principle 4's identical layout it worked
+  honestly for distinctive names and misled for common ones — uniform
+  rules producing non-uniform harm, the exact failure this charter
+  exists to catch, caught in the architect's own feature. Revision:
+  all three links stripped; the copy button stays, because the
+  LAST-comma-FIRST format is the genuine friction the feature solved
+  and a copy button carries zero frame, zero implied workflow, zero
+  destination endorsement — it formalizes what readers were doing by
+  hand, nothing more. Research guidance moved to a single site-level
+  prose note on About, naming kinds of records in general terms,
+  linked to nothing, attached to no name. Retained on principle: the
+  boundary between a join and a link stands — a join publishes an
+  association as the site's content, a link requires a human act and
+  leaves the pages silent — which is why this feature was revisable
+  rather than radioactive; but a principled boundary does not rescue a
+  badly chosen instance sitting close to it, and this instance was
+  badly chosen.
 - 2026-08-05: scheduler verdict, by run label after a day of controlled
   measurement: scheduled delivery works on this account but arrives
   late (the monthly slot fired 4h54m behind) and drops some hourly
