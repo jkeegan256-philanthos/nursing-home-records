@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
-import { BP, CORRECTIONS_EMAIL, CORRECTIONS_URL } from "@/lib/config";
+import {
+  BP,
+  CORRECTIONS_EMAIL,
+  CORRECTIONS_URL,
+  REPO_URL,
+} from "@/lib/config";
 
 export const metadata: Metadata = { title: "About" };
 
@@ -85,6 +90,19 @@ export default function AboutPage() {
           replace access to the complete published record.
         </li>
       </ul>
+      <p>
+        When one of these rules catches a feature this site already
+        shipped, the feature is reversed and the reversal is written
+        down: the project&apos;s{" "}
+        <a
+          href={`${REPO_URL}/blob/main/PROJECT.md`}
+          rel="noopener noreferrer"
+        >
+          public decision log
+        </a>{" "}
+        records every correction, at full length, next to the rules that
+        forced it.
+      </p>
 
       <h2>What this site does not do</h2>
       <p>
