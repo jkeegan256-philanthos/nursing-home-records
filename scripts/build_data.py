@@ -186,6 +186,13 @@ def convert_table(
 
     ccn_col = pick(columns, CCN_CANDIDATES, contains="ccn")
     state_col = pick(columns, STATE_CANDIDATES)
+    # Partition on the trimmed value, never on the raw one. A published
+    # " UT " passes a stripped validity check and then becomes a
+    # filename with spaces in it, splitting one state across two files
+    # that no page knows to ask for. Choosing which file a row goes in
+    # is not editing the row: the value inside the Parquet stays exactly
+    # as CMS published it, spaces and all.
+    state_expr = f"trim({qident(state_col)})" if state_col else None
     src_bytes = csv_path.stat().st_size
     partition = src_bytes >= PARTITION_MIN_BYTES and state_col is not None and table != "providers"
     if src_bytes >= PARTITION_MIN_BYTES and state_col is None:
@@ -201,15 +208,15 @@ def convert_table(
         raw_states = [
             r[0]
             for r in con.execute(
-                f"SELECT DISTINCT {qident(state_col)} FROM {rel} "
-                f"WHERE {qident(state_col)} IS NOT NULL ORDER BY 1"
+                f"SELECT DISTINCT {state_expr} FROM {rel} "
+                f"WHERE {state_expr} IS NOT NULL ORDER BY 1"
             ).fetchall()
         ]
-        clean = [s for s in raw_states if re.fullmatch(r"[A-Z]{2}", str(s).strip())]
+        clean = [s for s in raw_states if re.fullmatch(r"[A-Z]{2}", str(s))]
         for st in clean:
             dest = out_dir / f"{st}.parquet"
             con.execute(
-                f"COPY (SELECT * FROM {rel} WHERE {qident(state_col)} = {qlit(st)}) "
+                f"COPY (SELECT * FROM {rel} WHERE {state_expr} = {qlit(st)}) "
                 f"TO {qlit(str(dest))} (FORMAT PARQUET, COMPRESSION ZSTD)"
             )
             n = con.execute(f"SELECT count(*) FROM read_parquet({qlit(str(dest))})").fetchone()[0]
@@ -221,15 +228,19 @@ def convert_table(
             in_list = ", ".join(qlit(s) for s in clean) or qlit("__none__")
             dest = out_dir / "_OTHER.parquet"
             con.execute(
-                f"COPY (SELECT * FROM {rel} WHERE {qident(state_col)} IS NULL "
-                f"OR {qident(state_col)} NOT IN ({in_list})) "
+                f"COPY (SELECT * FROM {rel} WHERE {state_expr} IS NULL "
+                f"OR {state_expr} NOT IN ({in_list})) "
                 f"TO {qlit(str(dest))} (FORMAT PARQUET, COMPRESSION ZSTD)"
             )
             n = con.execute(f"SELECT count(*) FROM read_parquet({qlit(str(dest))})").fetchone()[0]
             written += n
             out_bytes += dest.stat().st_size
             states.append("_OTHER")
-            warn(f"{table}: {n:,} rows had a blank or non-standard state; kept in _OTHER.parquet")
+            warn(
+                f"{table}: {n:,} rows had a blank or non-standard state; kept in "
+                f"_OTHER.parquet and shown on facility pages alongside the "
+                f"state file"
+            )
     else:
         dest = parquet_root / f"{table}.parquet"
         dest.parent.mkdir(parents=True, exist_ok=True)
@@ -282,7 +293,8 @@ def export_owners(
 
     ccn = qident(own_meta["ccn_column"]) if own_meta["ccn_column"] else "NULL"
     st = qident(own_meta["state_column"]) if own_meta["state_column"] else None
-    st_expr = f"count(DISTINCT {st})" if st else "0"
+    # trim() so " UT " and "UT" are not counted as two states.
+    st_expr = f"count(DISTINCT trim({st}))" if st else "0"
     named = (
         f"SELECT * FROM {rel} WHERE \"Owner Name\" IS NOT NULL "
         f"AND trim(\"Owner Name\") <> '' AND \"Owner Name\" <> 'None'"
@@ -644,7 +656,7 @@ def export_owner_pages(
                 "slug": slug,
                 "types": sorted({x[7] for x in rows if x[7]}),
                 "facilities": len({x[0] for x in rows}),
-                "states": len({x[3] for x in rows if x[3] and str(x[3]).strip()}),
+                "states": len({str(x[3]).strip() for x in rows if x[3] and str(x[3]).strip()}),
                 "rows": rows,
             }
         )
@@ -835,8 +847,24 @@ def main() -> None:
     providers_csv: Path | None = None
     ownership_meta: dict | None = None
 
+    # Two files that classify to one table name would write the same
+    # Parquet path and collapse to one data-map key, last one wins, with
+    # every per-file row count still passing. The zip extractor already
+    # refuses two entries that flatten to one filename; this is the same
+    # guard one level up. It is not hypothetical: the SNF VBP patterns
+    # match any fiscal year, so a zip published across a year boundary
+    # carrying FY2026 and FY2027 would silently drop one.
+    seen_tables: dict[str, str] = {}
+
     for csv_path in sorted(extract_dir.glob("*.csv")):
         table, label = classify(csv_path.name)
+        if table in seen_tables:
+            die(
+                f"{seen_tables[table]!r} and {csv_path.name!r} both map to the "
+                f"table {table!r}; one would silently overwrite the other. Give "
+                f"them distinct entries in TABLE_PATTERNS."
+            )
+        seen_tables[table] = csv_path.name
         print(f"  {csv_path.name}  ->  {table}")
         meta = convert_table(con, csv_path, table, parquet_root)
         src_info = by_file.get(csv_path.name, {})

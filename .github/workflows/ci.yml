@@ -33,6 +33,9 @@ jobs:
       - name: Install site dependencies
         run: npm ci
 
+      - name: Assert the transform's fidelity rules
+        run: python3 scripts/test_build_data.py
+
       - name: Transform the fixture batch
         run: npm run fixture
 

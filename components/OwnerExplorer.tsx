@@ -125,7 +125,7 @@ export default function OwnerExplorer() {
         // search list even if the row table above is ever truncated.
         const counts = await querySQL(
           `SELECT count(*), count(DISTINCT ${sqlIdent(need[0])}), ` +
-            `count(DISTINCT CASE WHEN "State" IS NOT NULL AND trim("State") <> '' THEN "State" END) ` +
+            `count(DISTINCT CASE WHEN "State" IS NOT NULL AND trim("State") <> '' THEN trim("State") END) ` +
             `FROM read_parquet(${sqlLit(url)}) WHERE "Owner Name" = ${sqlLit(selected)}`
         );
         if (!alive) return;

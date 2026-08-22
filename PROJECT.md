@@ -326,3 +326,30 @@ dated beside it, and the reasoning is recorded at full length.
   to what is actually verified, and carrying its own history, because a
   claim that was once false and is now true should say so rather than
   quietly reappear.
+- 2026-08-22: three fidelity fixes in the transform and the record
+  pages, from the same review. The load-bearing one is principle 6.
+  Rows CMS publishes with a blank or non-standard state code are put in
+  an _OTHER shard by the partitioner, and no page ever read that shard:
+  a facility page asked for its own state's file and nothing else, so
+  where a facility had such rows the record shown was shorter than the
+  record published, with no notice that anything was missing. The
+  processing note said those rows were kept, which was true of the file
+  and false of the site. That is an undisclosed filter, which is the
+  thing this project exists not to do, and it fell hardest on rows
+  already flagged as irregular. Facility pages now read the state shard
+  and the _OTHER shard together, and the provenance strip says so where
+  the shard exists. Two smaller ones beside it. A published state value
+  with surrounding whitespace passed a stripped validity check and was
+  then used unstripped as a filename, splitting one state across two
+  shards while the home page counted the facility and the state table
+  omitted it; partitioning now normalises the key while the row keeps
+  CMS's exact value, because choosing which file a row goes in is not
+  editing the row. And two source files that classify to one table name
+  used to overwrite each other in silence, with every per-file row-count
+  assertion still passing, which the SNF VBP patterns make a live hazard
+  at a fiscal-year boundary rather than a hypothetical; the zip
+  extractor already refused two entries flattening to one filename, and
+  the table map now refuses the same thing one level up. Each of the
+  three is asserted in scripts/test_build_data.py, the first test in
+  this repository that checks an outcome rather than that nothing
+  crashed.

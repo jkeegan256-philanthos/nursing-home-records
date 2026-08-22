@@ -50,7 +50,9 @@ export default async function FacilityPage({
   const f = getFacility(ccn);
   if (!f) return <p>Facility not found in the current data batch.</p>;
 
-  const state = f.get("State");
+  // Trimmed to match listStates() and the Parquet partition names; the
+  // displayed row values stay exactly as CMS published them.
+  const state = f.get("State").trim();
   const specialFocus = f.get("Special Focus Status").trim();
   const abuse = f.get("Abuse Icon").trim().toUpperCase() === "Y";
   const ownType = f.get("Ownership Type").trim();

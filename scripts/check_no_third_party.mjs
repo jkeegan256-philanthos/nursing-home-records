@@ -1,5 +1,6 @@
-// Load the built site in a real browser and fail if it talks to anyone
-// but itself.
+// Load the built site in a real browser and check two things no static
+// inspection of the export can: that it talks to nobody but itself, and
+// that the record it shows is the record it published.
 //
 // This replaces a grep. The grep looked through the exported files for
 // a list of CDN hostnames, which cannot work for the failure it was
@@ -133,6 +134,7 @@ const context = await browser.newContext();
 const page = await context.newPage();
 
 const offOrigin = new Set();
+const requested = new Set();
 const failed = [];
 const badStatus = [];
 
@@ -140,6 +142,7 @@ page.on("request", (r) => {
   const u = new URL(r.url());
   if (u.protocol === "data:" || u.protocol === "blob:") return;
   if (u.origin !== ORIGIN) offOrigin.add(r.url());
+  else requested.add(u.pathname);
 });
 page.on("requestfailed", (r) => {
   if (new URL(r.url()).origin === ORIGIN) {
@@ -189,6 +192,36 @@ const tabError = (await page.locator(".tab-status").allTextContents()).find((t) 
   t.includes("could not be read")
 );
 check(!tabError, "facility record tabs report no engine error", tabError);
+
+// A partitioned table with an _OTHER shard holds the rows CMS published
+// without a usable state code. The page must ask for that shard as well
+// as the state one, or it shows a record shorter than the published one
+// and says nothing about it. Asserting on the request rather than on a
+// row count keeps this true for any batch: if the shard exists, it gets
+// read.
+const map = readJson("data/data-map.json");
+const sharded = Object.entries(map.tables).filter(
+  ([, t]) => t.mode === "by_state" && (t.states ?? []).includes("_OTHER") && t.facility_join
+);
+if (sharded.length === 0) {
+  console.log("  --    no _OTHER shard in this batch; nothing to check");
+} else {
+  for (const [key, t] of sharded) {
+    const tab = page.locator(`[id="tab-${key}"]`);
+    if (await tab.count()) {
+      await tab.click();
+      await page.waitForTimeout(4000);
+    }
+    // endsWith, not equality, so a project-path deployment still matches.
+    const want = `/${t.path}/_OTHER.parquet`;
+    check(
+      [...requested].some((p) => p.endsWith(want)),
+      `${key}: the _OTHER shard is read alongside the state shard`,
+      `the page never requested ${want}, so rows CMS published without a ` +
+        `state code are invisible on facility pages`
+    );
+  }
+}
 
 // 3. The owner explorer, which is the other DuckDB-backed view.
 if (owner) {
