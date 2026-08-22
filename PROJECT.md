@@ -600,3 +600,71 @@ dated beside it, and the reasoning is recorded at full length.
   served. The claim on the Data page is about the build readers get, so
   the check now runs on that build, with the real batch behind it, and
   nothing deploys if it fails.
+- 2026-08-23: counts made accountable to their own source, and a
+  Release 3 decision reversed. That spec said drift notes should stay
+  deliberately silent on row-count deltas, because monthly volume
+  change is normal and reporting it is noise. The first half is right
+  and the conclusion did not follow. It treated a delta as a display
+  feature -- the fenced then-versus-now thing, still deferred, still
+  fenced -- and so never asked whether a delta is also a diagnostic
+  that no reader ever sees. It is, and the omission has the same shape
+  as everything else this week: what the site requests was gated, what
+  it renders was gated, and what it counts was left to be believed.
+  The occasion was benign. June's 61,671 named owners became July's
+  62,077, recomputed from the served file and correct. But nothing in
+  the system could say which of the only two possible causes it was.
+  A count that moves means CMS changed or we changed, and the second
+  is always a bug, and both looked identical from outside and from
+  inside. The discriminator turns out to need no thresholds and no
+  judgement, only a comparison the ledger could already answer and was
+  never asked: a count and the bytes it was derived from travel
+  together, so a count that moved while its source file is
+  byte-identical cannot have moved because the data changed. Every
+  ledger entry now carries the derived headline numbers -- facilities,
+  states, ownership rows, named owners, owner pages -- each tagged
+  with the file it came from, and each build compares against the most
+  recent earlier build that saw that file at that hash, rather than
+  merely the previous build, so an unrelated batch in between cannot
+  hide a regression. Byte-identical and moved is a hard failure.
+  Changed source and moved is silent, which keeps the Release 3
+  instinct intact where it was right. Worth knowing about the
+  polarity: CMS stamps its filenames with the month, so this is silent
+  across a monthly refresh, when there is nothing to compare, and
+  loud across a code deploy on an unchanged batch, which is precisely
+  the only case where this pipeline can be at fault. Its blind spot,
+  stated because a check whose limits are unwritten is a check
+  half-believed: a code change and a data change landing in the same
+  build are not distinguishable and never will be by this method.
+  NH_ALLOW_COUNT_DRIFT=1 passes a drift through and writes it into the
+  ledger entry, so an intentional change becomes a recorded decision
+  rather than a silent pass; the deploy workflow never sets it.
+- 2026-08-23: the competitive landscape corrected, and what actually
+  distinguishes this site written down instead of assumed. An earlier
+  review reported that no direct competitor was found. It searched
+  poorly and the finding was passed along unchecked. There are several:
+  nursinghomereport.org publishes per-owner-name pages with state CSV
+  downloads and a same-name caveat close to this site's own,
+  caretrace.org offers browsing by owner name, role, organisation type,
+  state and portfolio size, and nursinghomedatabase.com covers
+  ownership across roughly 45,000 individuals and companies. Recording
+  this because the belief was load-bearing for how the project thought
+  about itself, and because a project that logs its own errors has no
+  business quietly dropping one that flattered it. Nothing shipped to
+  readers was wrong: the site has never claimed to be the only one,
+  and a grep for every form of that claim found none. That is luck
+  rather than design -- nobody wrote it, no check prevented it -- and
+  the useful conclusion is that such a claim should stay off the site
+  permanently. "No one else publishes this" is a claim about the world,
+  and unlike every other claim here it cannot be checked by a build.
+  Principle 7 has no machinery for it and should not grow any; the
+  answer is not to gate the claim but to decline to make it. What does
+  distinguish this site is demonstrable on the page and needs no
+  outside agreement: the source zip's checksum, the append-only ledger
+  of every build served, a vintage on every table, a single-origin
+  claim gated by a browser on every deploy, and a glossary that says
+  plainly where CMS declines to define its own role codes. A reader can
+  verify every one of those without trusting anyone. That is a better
+  position than being first and a more durable one than being alone,
+  and it points outreach at auditability and freshness rather than at
+  existence. One of those sites advertises a 2023 build; this one can
+  prove what it served this morning.

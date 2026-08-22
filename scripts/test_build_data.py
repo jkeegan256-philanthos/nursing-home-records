@@ -50,7 +50,12 @@ def csv_bytes(cols: list[str], rows: list[dict]) -> bytes:
     return buf.getvalue().encode("utf-8")
 
 
-def run_transform(files: dict[str, bytes], root: Path) -> subprocess.CompletedProcess:
+def run_transform(
+    files: dict[str, bytes],
+    root: Path,
+    state_url: str = "",
+    allow_drift: bool = False,
+) -> subprocess.CompletedProcess:
     (root / "data").mkdir(parents=True, exist_ok=True)
     zip_path = root / "batch.zip"
     with zipfile.ZipFile(zip_path, "w") as zf:
@@ -60,8 +65,13 @@ def run_transform(files: dict[str, bytes], root: Path) -> subprocess.CompletedPr
     env = {
         **os.environ,
         "NH_PARTITION_MIN_BYTES": "100",   # force partitioning on tiny inputs
-        "NH_STATE_URL": "",                # carry no state
+        "NH_STATE_URL": state_url,         # "" carries no state at all
     }
+    if state_url:
+        env["NH_STATE_SAVE"] = "1"
+        env["NH_STATE_BOOTSTRAP"] = "1"
+    if allow_drift:
+        env["NH_ALLOW_COUNT_DRIFT"] = "1"
     return subprocess.run(
         [sys.executable, str(BUILD), "--zip", str(zip_path), "--root", str(root)],
         capture_output=True, text=True, env=env,
@@ -183,10 +193,68 @@ def test_other_shard_holds_the_rows_and_unions_cleanly() -> None:
         )
 
 
+# ---------------------------------------------------------------- drift
+
+def test_count_drift_discriminates_cms_from_us() -> None:
+    """A headline count that moves while its source file is byte-identical
+    cannot have moved because CMS changed, so it moved because we did."""
+    print("\nD   a published count moving without its source")
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        rows = [provider(f"{i:06d}", "UT") for i in range(1, 6)]
+        files = {
+            "NH_ProviderInfo_Jun2026.csv": csv_bytes(PROVIDER_COLS, rows),
+        }
+        state = root / "state"
+        empty = root / "empty"
+        empty.mkdir(parents=True, exist_ok=True)
+
+        # First build starts the chain; second reads it and must agree.
+        first = run_transform(files, root, state_url=str(empty))
+        check(first.returncode == 0, "a first build records the counts", first.stdout[-300:])
+        ledger = json.loads((state / "ledger.json").read_text())
+        counts = ledger["entries"][-1].get("counts", {})
+        check(
+            counts.get("facilities", {}).get("value") == 5,
+            f"facilities recorded as 5 (got {counts.get('facilities')})",
+        )
+
+        again = run_transform(files, root, state_url=str(state))
+        check(again.returncode == 0, "an unchanged rebuild passes silently", again.stdout[-300:])
+
+        # Now make the previous build claim a different number for the same
+        # bytes: exactly the shape of a pipeline regression.
+        led = state / "ledger.json"
+        d = json.loads(led.read_text())
+        d["entries"][-1]["counts"]["facilities"]["value"] = 4
+        led.write_text(json.dumps(d))
+        broke = run_transform(files, root, state_url=str(state))
+        check(broke.returncode != 0, "a count moving on identical bytes stops the build")
+        check(
+            "byte-identical" in broke.stdout and "facilities" in broke.stdout,
+            "and says which count and which file",
+            broke.stdout[-300:],
+        )
+
+        # The deliberate override proceeds and leaves a record.
+        d = json.loads(led.read_text())
+        d["entries"][-1]["counts"]["facilities"]["value"] = 4
+        led.write_text(json.dumps(d))
+        forced = run_transform(files, root, state_url=str(state), allow_drift=True)
+        check(forced.returncode == 0, "NH_ALLOW_COUNT_DRIFT lets it through")
+        entry = json.loads(led.read_text())["entries"][-1]
+        check(
+            bool(entry.get("count_drift_override")),
+            "and the override is recorded in the ledger entry, not just the log",
+            str(entry.get("count_drift_override")),
+        )
+
+
 for t in (
     test_whitespace_state_does_not_split_a_state,
     test_two_files_one_table_name_is_fatal,
     test_other_shard_holds_the_rows_and_unions_cleanly,
+    test_count_drift_discriminates_cms_from_us,
 ):
     t()
 

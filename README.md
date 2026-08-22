@@ -183,6 +183,11 @@ site links to its CMS dataset page.
   and the matching names in `lib/data.ts`.
 - Processing notes on the Data page list anything unusual the transform
   saw (unknown files, size mismatches, rows with a blank state).
+- Build fails with "a published count changed while its source file did
+  not": a number this site displays moved while the CMS file it derives
+  from is byte-identical to an earlier build, so CMS cannot have caused
+  it. Find the pipeline change. `NH_ALLOW_COUNT_DRIFT=1` passes it
+  through and records it in the ledger entry as a decision.
 - Build fails with "unreachable ... and no committed copy exists": the
   previous batch's ledger and slug reservations could not be read from
   either source, and continuing would restart the chain permanently.

@@ -131,7 +131,11 @@ export default function DataPage() {
             archives of past batches to compare against. The chain is kept in
             two places, here and in the repository, and a build that can read
             neither stops rather than start a new chain over the old one.
-            Machine-readable:{" "}
+            Each entry also records the counts this site derives from that
+            batch beside the checksum of the file they came from, so a
+            number that moves while its source has not is caught as a
+            defect in this pipeline rather than reported as a change in
+            CMS&apos;s data. Machine-readable:{" "}
             <a className="mono" href={`${BP}/data/ledger.json`}>
               ledger.json
             </a>
