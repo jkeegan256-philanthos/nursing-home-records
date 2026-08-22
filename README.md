@@ -4,13 +4,21 @@ A static site that republishes the CMS Provider Data Catalog nursing
 homes theme exactly as CMS ships it. No calculations, no filtering, no
 editorial layer. One zip goes in each month; a browsable site comes out.
 
+Reviewing or changing this? `PROJECT.md` has a short "Reviewing this
+project" section on why reading the code is not enough here, and what
+to run instead.
+
 Read `PROJECT.md` first. It holds the goals, the principles, and the
 declined scope that every change must respect. Its decision log also
 records the features this project shipped and then reversed, with the
 reasoning at full length — reversals are documented here, not erased.
 
-Rename the site in `lib/config.ts` (`SITE_NAME`), and point
-`CORRECTIONS_URL` wherever you want error reports to land.
+Forking? Set `SITE_NAME`, `SITE_URL`, `REPO_URL`, and
+`CORRECTIONS_EMAIL` in `lib/config.ts`, and `NH_STATE_URL` in
+`.github/workflows/build-deploy.yml`. All five default to this
+deployment, and a fork that leaves them will still build — it will just
+tell search engines it lives at this domain and read this site's batch
+history as its own. `ADAPTATION.md` lists them as touchpoints 9 and 10.
 
 ## How it works
 
@@ -82,7 +90,11 @@ of fetching; see `data/README.md`.
    public data site anyway.
 2. In the repo: Settings, then Pages, then set Source to
    "GitHub Actions".
-3. Wait for the first workflow run to finish, then open the URL shown
+3. Point `NH_STATE_URL` and `lib/config.ts` at your own deployment
+   (see above). For the very first run only, whose URL does not serve
+   anything yet, add `NH_STATE_BOOTSTRAP=1` to the workflow's
+   environment; remove it afterwards.
+4. Wait for the first workflow run to finish, then open the URL shown
    on the deploy step.
 
 The site serves from the custom domain root, so the workflow's

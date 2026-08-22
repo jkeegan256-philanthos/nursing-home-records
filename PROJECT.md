@@ -138,6 +138,73 @@ prerequisite for it.
 Each waits until the current site proves insufficient, and each ships
 only if it survives the principles above.
 
+## Reviewing this project
+
+Read the code, then run it. Not either one.
+
+This is here because of what it cost to learn. Four independent reviews
+read this codebase carefully and were right about everything that exists
+at rest: the transform, the fidelity rules, the principles, the copy.
+The fifth built the site and drove it in a browser, and found within
+minutes that every facility page had been fetching a file from
+extensions.duckdb.org since the day the site went live, while the Data
+page told readers no such request was ever made. The URL was assembled
+inside a WebAssembly binary at run time. It existed in no file. No
+amount of careful reading could have found it, and the check meant to
+prevent it was a grep, which is careful reading performed by a machine.
+
+The general form: static inspection proves what is in the files and
+nothing whatever about what the files go and do. Any claim this site
+makes about its own behaviour -- what it requests, what it renders, what
+it does when something fails -- is a claim about run time, and can only
+be honestly checked by running it. `npm run check:origins` is that check
+for the third-party claim. A claim of the same kind that ships without
+one is a claim nobody has verified.
+
+A run-time check is only as strong as its sample, and its sample is not
+just which pages it opens but which interactions it performs. Three of
+this site's query paths are reachable only by acting: the full record
+fires on a `<details>` toggle, the owner search on Enter, a record tab
+on a click. A check that loaded pages and waited would exercise none of
+them and go green having proved nothing about them. So the origin gate
+drives each one, and its header lists exactly which pages and which
+interactions a green result covers. When a page type or an interaction
+is added, it goes in that list, or the gate quietly stops covering the
+thing everyone assumes it covers.
+
+That last sentence is a rule, and a rule that depends on someone reading
+this file is not self-maintaining, so the gate asserts its own coverage
+instead. Page types it derives from the export and compares against what
+the browser actually opened, which cannot drift: a page type added later
+appears in the export, nothing visits it, and the run fails naming it.
+Query call sites it cannot derive -- nothing can infer which of them a
+browser run reached -- so those are declared, and declaring them is the
+point: adding a query anywhere changes the count and fails the check,
+forcing whoever added it to drive it here rather than reason that the
+shared helper makes it safe. That reasoning is precisely what missed the
+extension fetch and the star glyphs.
+
+The honest limit of the declared half: nothing stops someone satisfying
+the count by raising the number instead of driving the interaction. It
+is a tripwire, not a proof, and the two are worth distinguishing because
+a tripwire mistaken for a proof is this whole file's recurring failure
+in yet another costume. What makes a tripwire worth having anyway is
+where it fires and what it says when it does: at the moment of the
+change, to the person making it, naming the specific reasoning it exists
+to interrupt. Someone who reads that message and bumps the number has
+made a decision rather than an oversight, and a decision is the thing
+this log can hold.
+
+Two corollaries earned the same week:
+
+- A safety property that holds because of something outside this
+  repository is not a safety property this repository has. The deploy
+  loop was prevented, correctly, by a GitHub behaviour written down
+  nowhere in this tree. Declare it or check it, and preferably both.
+- The check has to be able to fail. Every gate here was validated by
+  breaking the thing it guards and confirming it goes red and says
+  which thing. A gate never seen to fail is a gate nobody has tested.
+
 ## Decision log
 
 Standing policy: a decision reversed is not a mistake hidden; it is a
@@ -507,3 +574,29 @@ dated beside it, and the reasoning is recorded at full length.
   three is asserted in scripts/test_build_data.py, the first test in
   this repository that checks an outcome rather than that nothing
   crashed.
+- 2026-08-22: the fork boundary corrected, and the origin gate moved
+  onto the build that actually ships. ADAPTATION.md claimed eight
+  touchpoints and had ten. The two missing ones are not theme
+  knowledge, which is why they were missed while the document was being
+  written about theme knowledge, and they share a shape worth naming:
+  each is a default that is correct for this deployment and wrong for
+  every other one, and quiet in both cases. NH_STATE_URL and STATE_BASE
+  point a fork at this site's ledger and this site's slug reservations,
+  which it would then serve as its own history; SITE_URL, REPO_URL, and
+  CORRECTIONS_EMAIL point a fork's sitemap, its decision-log links, and
+  its corrections address back here. A fork that skipped both would not
+  fail. It would build, deploy, and look right. The continuity section
+  of the charter rests on anyone being able to fork the repository and
+  run the workflow, so a boundary document that does not mention the
+  settings which make a fork someone else's mirror was not describing
+  the boundary. Both are now touchpoints, named in README's first-time
+  setup and beside the constants themselves, with the honest note that
+  they cost minutes rather than the days the other eight cost. Beside
+  that, two gaps of the same family: the glossary page was generated and
+  in no sitemap, so the page carrying CMS's verbatim role definitions,
+  which every inline role link points at, was the one page search
+  engines were never told about; and the origin check ran only on pull
+  requests against the synthetic fixture, never against the export being
+  served. The claim on the Data page is about the build readers get, so
+  the check now runs on that build, with the real batch behind it, and
+  nothing deploys if it fails.
