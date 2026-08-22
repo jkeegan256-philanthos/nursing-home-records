@@ -23,6 +23,22 @@ So the build now reads the deployed copy first, this committed copy
 second, and refuses to build on neither. See the 2026-08-22 entry in
 PROJECT.md.
 
+## The commit-back loop
+
+The deploy workflow writes here and pushes to the branch that triggers
+the deploy workflow. Two guards stop that from running away, and
+`scripts/check_loop_guard.py` asserts both in CI:
+
+- `paths-ignore: ["state/**"]` on the push trigger, so a commit touching
+  only this directory raises no build.
+- The `record-state` job refuses to push a commit that reaches outside
+  `state/`, so widening what it stages cannot defeat the first guard.
+
+GitHub also raises no workflow event for pushes made with the default
+`GITHUB_TOKEN`. That is real, and it is not one of the two: it is not
+visible in this repository and it ends without warning if the token is
+ever swapped for a PAT or a GitHub App token.
+
 ## Do not hand-edit
 
 These files are generated. `git checkout state/` is the right response to
