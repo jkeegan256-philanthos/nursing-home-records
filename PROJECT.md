@@ -398,7 +398,7 @@ dated beside it, and the reasoning is recorded at full length.
   to what is actually verified, and carrying its own history, because a
   claim that was once false and is now true should say so rather than
   quietly reappear.
-- 2026-08-22: three notes from the session that shipped these changes,
+- 2026-08-22: four notes from the session that shipped these changes,
   kept because the difference between the first two is the difference
   between evidence and assumption. The state commit landed on main and no build followed it,
   which confirms the outcome and not the mechanism: the push used the
@@ -421,6 +421,33 @@ dated beside it, and the reasoning is recorded at full length.
   and package.json. CI would have caught it. It should not have needed
   to, and the fix is a repository-wide marker sweep before any push
   rather than trusting the resolver to have finished.
+  Fourth, caught the same day and fixed in this release because it is
+  the same failure wearing a reader's clothes: star ratings were drawn
+  as five identical filled glyphs, the unearned ones separated only by
+  CSS colour. Colour exists in a browser and nowhere else. Copy a page,
+  scrape it, save it as text, or read it with anything that does not
+  paint stylesheets, and a facility CMS rated one came out as five
+  filled stars, indistinguishable from a facility rated five, on every
+  page carrying a rating. The footer says figures are shown exactly as
+  published; that sentence was false for every rating below five the
+  moment the page left the screen, which makes this a principle 1
+  violation that principle 7 is what caught. The unearned stars are now
+  a different character, and the number itself rides in the text out of
+  the layout, so a clipboard, a scraper, a screen reader, or a model
+  gets the published value rather than a shape it has to count. A
+  reader also no longer sees a dash where CMS published something
+  unrecognised: the dash now means only that CMS published nothing.
+  scripts/check_rendered_values.mjs reads the built pages and compares
+  their text to the published numerals, and was validated against the
+  broken export first, where it named the one-star facility rendering
+  as five. The general rule, which is the reader-facing form of the two
+  test-harness notes above: colour, position, and shape are decoration,
+  and decoration must never be the only thing carrying a published
+  value. Three instances of one pattern landed in a single day -- an
+  assertion that printed ok while asserting nothing, a gate that went
+  green having run no query, and a grey star shaped exactly like an
+  earned one. Each was an artifact wearing the appearance of the thing
+  it was not.
 - 2026-08-22: three fidelity fixes in the transform and the record
   pages, from the same review. The load-bearing one is principle 6.
   Rows CMS publishes with a blank or non-standard state code are put in

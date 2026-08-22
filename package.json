@@ -14,7 +14,8 @@
     "fixture": "python3 scripts/dev_fixture.py && NH_PARTITION_MIN_BYTES=500 NH_OWNER_PAGE_MIN=2 NH_STATE_URL= python3 scripts/build_data.py --zip build/fixture/theme_fixture.zip",
     "check:loop": "python3 scripts/check_loop_guard.py",
     "check:origins": "node scripts/check_no_third_party.mjs",
-    "test:data": "python3 scripts/test_build_data.py"
+    "test:data": "python3 scripts/test_build_data.py",
+    "check:rendered": "node scripts/check_rendered_values.mjs"
   },
   "dependencies": {
     "@duckdb/duckdb-wasm": "^1.29.0",
