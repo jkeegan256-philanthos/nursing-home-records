@@ -29,6 +29,14 @@ jobs:
         # For project-path serving without a custom domain, use: echo "NEXT_PUBLIC_BASE_PATH=/${GITHUB_REPOSITORY#*/}" >> "$GITHUB_ENV"
         run: echo "NEXT_PUBLIC_BASE_PATH=" >> "$GITHUB_ENV"
 
+      - name: Point the carried state at this deployment
+        # Where the previous batch's ledger, slug reservations, and data
+        # map are read from. A fork MUST change this to its own deployed
+        # /data/ URL: left as is, a fork inherits this site's history as
+        # if it were its own. NH_STATE_BOOTSTRAP is deliberately not set
+        # here, so a build can never quietly restart the chain.
+        run: echo "NH_STATE_URL=https://nursinghomerecords.org/data" >> "$GITHUB_ENV"
+
       - name: Get the monthly zip
         run: |
           if ls data/*.zip >/dev/null 2>&1; then
@@ -63,6 +71,15 @@ jobs:
         with:
           path: out
 
+      # The committed half of the carried state. Uploaded here, committed
+      # only after the deploy succeeds, so the repository copy never
+      # claims a batch that was not served.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: carried-state
+          path: state/
+          if-no-files-found: error
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -72,3 +89,42 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  # The ledger chain and the owner-slug reservations are append-only and
+  # irreplaceable. Keeping the only copy on the site being rebuilt makes
+  # the site its own single point of failure, so the served state is
+  # committed back here after every successful deploy.
+  record-state:
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: carried-state
+          path: state
+
+      - name: Commit the state this build served
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain state)" ]; then
+            echo "carried state unchanged; nothing to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add state
+          git commit -m "State: record the batch served by ${GITHUB_SHA:0:7}"
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" && \
+              git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            echo "push attempt $attempt failed; retrying"
+            sleep $((attempt * 4))
+          done
+          echo "could not commit the carried state after 3 attempts" >&2
+          exit 1

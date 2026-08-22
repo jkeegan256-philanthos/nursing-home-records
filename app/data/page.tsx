@@ -128,7 +128,10 @@ export default function DataPage() {
           <p className="prov">
             This ledger records what this site served and when. It proves the
             mirror&apos;s history, not CMS&apos;s; CMS does not publish stable
-            archives of past batches to compare against. Machine-readable:{" "}
+            archives of past batches to compare against. The chain is kept in
+            two places, here and in the repository, and a build that can read
+            neither stops rather than start a new chain over the old one.
+            Machine-readable:{" "}
             <a className="mono" href={`${BP}/data/ledger.json`}>
               ledger.json
             </a>

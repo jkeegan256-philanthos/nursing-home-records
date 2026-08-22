@@ -271,3 +271,31 @@ dated beside it, and the reasoning is recorded at full length.
   believes it has vendored the engine has likely inherited the
   extension fetch too, and will not find it by reading its own
   source.
+- 2026-08-22: carried state made fail-closed, and given a second home.
+  The ledger chain and the owner-slug reservations were read from one
+  place, the deployed site, by one unauthenticated GET each. On any
+  failure -- a timeout, a DNS blip, a Pages hiccup -- the build warned
+  and carried on with nothing, which meant writing a ledger that began
+  again at one entry and a slug map that had forgotten every URL it had
+  ever reserved, then deploying that as the new truth for the next build
+  to read. The site was the only copy of the history of the site, so the
+  thing being rebuilt was also the only witness to what it had been.
+  This is deliberately the opposite call from the column contract, where
+  a renamed CMS field blanks a field and prints a note rather than
+  killing the monthly refresh, and the difference is worth stating
+  because both look like the same choice from a distance. A dented page
+  is visible, bounded, and fixes itself next batch. A truncated ledger
+  is invisible, total, and is confirmed by the next batch rather than
+  repaired by it. Where degrading is recoverable, degrade; where a green
+  build is itself the disaster, stop. So: the deployed copy is still
+  read first, because it is what readers actually got; a copy committed
+  under state/ is read second; and a build that can read neither now
+  refuses to run, before the transform rather than after it. The
+  distinction the code has to make is between a source that answers and
+  says the file is not there -- a chain that has not started cannot be
+  truncated, so that case proceeds and says so -- and a source that
+  answers nothing at all, which is the case that stops. NH_STATE_BOOTSTRAP
+  starts a chain from nothing on purpose; the deploy workflow never sets
+  it, so production cannot reach it by accident. Only builds that can
+  actually deploy write the committed copy, because a fallback that
+  records batches nobody served is not a record of anything.
