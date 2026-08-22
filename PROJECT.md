@@ -631,32 +631,32 @@ dated beside it, and the reasoning is recorded at full length.
   polarity: CMS stamps its filenames with the month, so this is silent
   across a monthly refresh, when there is nothing to compare, and
   loud across a code deploy on an unchanged batch, which is precisely
-  the only case where this pipeline can be at fault. Its blind spot, stated at full size because the first
-  draft of this entry understated it and a check whose limits are
-  written small is a check over-believed. It is not merely that a code
-  change and a data change in the same build are indistinguishable.
-  CMS stamps every filename with the month, so at every monthly
-  refresh there is no same-hash predecessor at all: the entire batch
-  arrives with nothing to compare it to, and the check is silent by
-  construction at the one moment the data actually turns over. It
-  protects held-batch code deploys, which is a real and frequent case
-  and the only one where this pipeline can be at fault. It never
-  protects the turnover. Discrimination there is genuinely impossible,
-  so the answer is not a check but an instrument: when the filename
-  changes, each moved count is reported with its before and after and
-  no verdict attached. A maintainer reading "named owners 62,077 to
-  62,431" moves on; one reading "62,077 to 41,002" investigates. The
-  human is the discriminator because nothing else can be, and saying
-  so plainly is more honest than a threshold pretending to be
-  knowledge. Counts carry their logical table as well as their file so
-  the pairing survives the rename. One boundary noted deliberately:
-  this puts two figures for successive vintages in front of readers,
-  which brushes the deferred retention feature's fence. It is judged
-  not to cross it -- the fence is around then-versus-now as a browsable
-  display, and this is a processing note about one anomaly, in the
-  channel principle 5 already makes public. Recorded so that if the
-  judgement is ever revisited it is revisited as a judgement, not
-  rediscovered as an oversight.
+  the only case where this pipeline can be at fault. Its blind spot, stated at full size because the first draft of this
+  entry understated it and a check whose limits are written small is a
+  check over-believed. It is not merely that a code change and a data
+  change in the same build are indistinguishable. CMS stamps every
+  filename with the month, so at every monthly refresh there is no
+  same-hash predecessor at all: the entire batch arrives with nothing
+  to compare it to, and the check is silent by construction at the one
+  moment the data actually turns over. It protects held-batch code
+  deploys, which is a real and frequent case and the only one where
+  this pipeline can be at fault. It never protects the turnover.
+  Discrimination there is genuinely impossible, so the answer is not a
+  check but an instrument: when the filename changes, each moved count
+  is reported with its before and after and no verdict attached. A
+  maintainer reading "named owners 62,077 to 62,431" moves on; one
+  reading "62,077 to 41,002" investigates. The human is the
+  discriminator because nothing else can be, and saying so plainly is
+  more honest than a threshold pretending to be knowledge. Counts
+  carry their logical table as well as their file so the pairing
+  survives the rename. One boundary noted deliberately: this puts two
+  figures for successive vintages in front of readers, which brushes
+  the deferred retention feature's fence. It is judged not to cross it
+  -- the fence is around then-versus-now as a browsable display, and
+  this is a processing note about one anomaly, in the channel
+  principle 5 already makes public. Recorded so that if the judgement
+  is ever revisited it is revisited as a judgement, not rediscovered
+  as an oversight.
   NH_ALLOW_COUNT_DRIFT=1 passes a drift through and writes it into the
   ledger entry, so an intentional change becomes a recorded decision
   rather than a silent pass; the deploy workflow never sets it.
