@@ -13,6 +13,11 @@ import { csvFilename } from "@/lib/csv";
 import { termAnchor } from "@/lib/glossary";
 import CsvButton from "@/components/CsvButton";
 
+// The shard build_data.py writes for rows whose state column is blank
+// or not a two-letter code. It is queried alongside the state shard,
+// never instead of it.
+const OTHER_SHARD = "_OTHER";
+
 const GLOSSARY_COLUMNS = new Set([
   "Role played by Owner or Manager in Facility",
   "Owner Type",
@@ -90,15 +95,35 @@ export default function FacilityRecords({
     return [...ranked, ...rest];
   }
 
-  function urlFor(info: TableInfo): string {
-    const rel =
-      info.mode === "by_state" ? `${info.path}/${state}.parquet` : info.path;
-    return new URL(`${BP}/${rel}`, window.location.origin).toString();
+  const abs = (rel: string) =>
+    new URL(`${BP}/${rel}`, window.location.origin).toString();
+
+  // Every file that can hold this facility's rows. For a partitioned
+  // table that is the state shard plus _OTHER, which holds the rows CMS
+  // published with a blank or non-standard state. Those rows were
+  // reachable from no page at all before: the record shown was short of
+  // the record published, silently, on exactly the rows already flagged
+  // as irregular.
+  function urlsFor(info: TableInfo): string[] {
+    if (info.mode !== "by_state") return [abs(info.path)];
+    const urls: string[] = [];
+    if (!info.states || info.states.includes(state)) {
+      urls.push(abs(`${info.path}/${state}.parquet`));
+    }
+    if (info.states?.includes(OTHER_SHARD)) {
+      urls.push(abs(`${info.path}/${OTHER_SHARD}.parquet`));
+    }
+    return urls;
+  }
+
+  function hasOtherShard(info: TableInfo): boolean {
+    return info.mode === "by_state" && !!info.states?.includes(OTHER_SHARD);
   }
 
   async function load(key: string, info: TableInfo) {
     if (!info.ccn_column) return;
-    if (info.mode === "by_state" && info.states && !info.states.includes(state)) {
+    const urls = urlsFor(info);
+    if (urls.length === 0) {
       setTabs((t) => ({
         ...t,
         [key]: {
@@ -110,7 +135,7 @@ export default function FacilityRecords({
     }
     setTabs((t) => ({ ...t, [key]: { status: "loading" } }));
     try {
-      const result = await queryParquet(urlFor(info), {
+      const result = await queryParquet(urls, {
         column: info.ccn_column,
         equals: ccn,
       });
@@ -223,7 +248,7 @@ export default function FacilityRecords({
                         map.generated_at.slice(0, 7)
                     )}
                     fetchAll={() =>
-                      queryParquetAll(urlFor(info), {
+                      queryParquetAll(urlsFor(info), {
                         column: info.ccn_column as string,
                         equals: ccn,
                       })
@@ -284,9 +309,12 @@ export default function FacilityRecords({
               </>
             ) : null}
             {info.modified_date ? <> · last modified {info.modified_date}</> : null}
-            {" "}· shown unmodified. CSV downloads carry this file&apos;s full
-            columns and every matching row, checkable against the originals on
-            the Data page.
+            {" "}· shown unmodified
+            {hasOtherShard(info)
+              ? ", including rows CMS published without a usable state code"
+              : ""}
+            . CSV downloads carry this file&apos;s full columns and every
+            matching row, checkable against the originals on the Data page.
           </p>
         </div>
       )}

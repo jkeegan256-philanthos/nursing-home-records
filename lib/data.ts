@@ -194,8 +194,11 @@ export function facilitiesFor(state: string) {
     beds: colOrNull(t, "Number of Certified Beds"),
     rating: col(t, "Overall Rating"),
   };
+  // listStates() groups on the trimmed value, so this must match it or
+  // a facility whose State is " UT " is counted on the home page and
+  // then missing from the UT table.
   return t.rows
-    .filter((r) => r[idx.state] === state)
+    .filter((r) => (r[idx.state] ?? "").trim() === state)
     .map((r) => ({
       ccn: r[idx.ccn] ?? "",
       name: r[idx.name] ?? "",

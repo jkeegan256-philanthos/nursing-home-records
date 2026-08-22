@@ -36,6 +36,9 @@ jobs:
       - name: Install site dependencies
         run: npm ci
 
+      - name: Assert the transform's fidelity rules
+        run: python3 scripts/test_build_data.py
+
       - name: Transform the fixture batch
         run: npm run fixture
 
@@ -44,6 +47,14 @@ jobs:
 
       - name: Install Chromium for the origin check
         run: npx playwright install --with-deps chromium
+
+      - name: Assert the pages say what the data says
+        # The footer claims figures are shown exactly as published, which
+        # is a claim about what the pages render and so needs a check
+        # that reads what they rendered. Ratings were drawn as five
+        # identical filled glyphs with colour as the only difference, so
+        # a copied or scraped page turned every rating into five.
+        run: npm run check:rendered
 
       - name: Assert the site talks only to itself
         # Not a denylist. The failure this replaces was a URL assembled

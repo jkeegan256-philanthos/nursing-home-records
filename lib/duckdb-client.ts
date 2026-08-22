@@ -120,23 +120,33 @@ export async function querySQL(sql: string): Promise<QueryResult> {
 /** Rows a table query returns at most; the UI's truncation notices use the same number. */
 export const ROW_LIMIT = 2000;
 
-/** Run one SELECT against a Parquet file over HTTP, filtered by equality. */
+/** One or more Parquet files, read as a single relation. Several files
+ * appear when a state-partitioned table also has an _OTHER shard: the
+ * rows CMS published without a usable state code live there, and a page
+ * that queried only <ST>.parquet would show a record that is short of
+ * the published one without saying so. */
+function parquetSource(url: string | string[]): string {
+  const urls = Array.isArray(url) ? url : [url];
+  return `read_parquet([${urls.map(sqlLit).join(", ")}])`;
+}
+
+/** Run one SELECT against Parquet over HTTP, filtered by equality. */
 export async function queryParquet(
-  url: string,
+  url: string | string[],
   where: { column: string; equals: string },
   limit = ROW_LIMIT
 ): Promise<QueryResult> {
   return querySQL(
-    `SELECT * FROM read_parquet(${sqlLit(url)}) WHERE ${sqlIdent(where.column)} = ${sqlLit(where.equals)} LIMIT ${Math.max(0, Math.floor(limit))}`
+    `SELECT * FROM ${parquetSource(url)} WHERE ${sqlIdent(where.column)} = ${sqlLit(where.equals)} LIMIT ${Math.max(0, Math.floor(limit))}`
   );
 }
 
 /** Same filter, no cap: CSV exports must contain every row, not the screen. */
 export async function queryParquetAll(
-  url: string,
+  url: string | string[],
   where: { column: string; equals: string }
 ): Promise<QueryResult> {
   return querySQL(
-    `SELECT * FROM read_parquet(${sqlLit(url)}) WHERE ${sqlIdent(where.column)} = ${sqlLit(where.equals)}`
+    `SELECT * FROM ${parquetSource(url)} WHERE ${sqlIdent(where.column)} = ${sqlLit(where.equals)}`
   );
 }

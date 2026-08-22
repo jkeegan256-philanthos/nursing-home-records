@@ -28,6 +28,13 @@ const KEY_FACTS: [string, string][] = [
   ["Average residents per day", "Average Number of Residents per Day"],
   ["Provider type", "Provider Type"],
   ["In a hospital", "Provider Resides in Hospital"],
+  // Displayed for every facility, whatever they say. Showing these only
+  // when they carry the alarming value made absence the carrier of every
+  // other value, and a reader could not tell "CMS published N" from "CMS
+  // published nothing" -- different facts. The chips below stay as
+  // emphasis on text that is now present regardless.
+  ["Abuse icon", "Abuse Icon"],
+  ["Special focus status", "Special Focus Status"],
   ["First certified", "Date First Approved to Provide Medicare and Medicaid Services"],
   ["Chain", "Chain Name"],
   ["Legal business name", "Legal Business Name"],
@@ -50,7 +57,9 @@ export default async function FacilityPage({
   const f = getFacility(ccn);
   if (!f) return <p>Facility not found in the current data batch.</p>;
 
-  const state = f.get("State");
+  // Trimmed to match listStates() and the Parquet partition names; the
+  // displayed row values stay exactly as CMS published them.
+  const state = f.get("State").trim();
   const specialFocus = f.get("Special Focus Status").trim();
   const abuse = f.get("Abuse Icon").trim().toUpperCase() === "Y";
   const ownType = f.get("Ownership Type").trim();
