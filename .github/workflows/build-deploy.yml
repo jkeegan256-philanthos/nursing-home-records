@@ -87,6 +87,14 @@ jobs:
       - name: Install Chromium for the origin check
         run: npx playwright install --with-deps chromium
 
+      - name: Assert the pages say what the data says
+        # The footer claims figures are shown exactly as published, which
+        # is a claim about what the pages render and so needs a check
+        # that reads what they rendered. Ratings were drawn as five
+        # identical filled glyphs with colour as the only difference, so
+        # a copied or scraped page turned every rating into five.
+        run: npm run check:rendered
+
       - name: Assert the deployed site will talk only to itself
         # The pull-request run checks the fixture export. This checks the
         # export that is actually about to be served, with the real batch
