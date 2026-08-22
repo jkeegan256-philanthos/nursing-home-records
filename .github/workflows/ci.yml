@@ -21,7 +21,10 @@ jobs:
           python-version: "3.12"
 
       - name: Install DuckDB
-        run: pip install duckdb
+        run: pip install duckdb pyyaml
+
+      - name: Assert the deploy workflow cannot trigger itself
+        run: python3 scripts/check_loop_guard.py
 
       - uses: actions/setup-node@v4
         with:

@@ -3,6 +3,23 @@ name: Build and deploy
 on:
   push:
     branches: [main]
+    # Loop guard, and the reason it is written down rather than assumed.
+    # The record-state job below commits state/ back to this branch after
+    # a successful deploy. Without a guard that push is a push to main,
+    # which is a build, which deploys, which commits state again: a
+    # runaway that burns minutes and writes a junk entry into the very
+    # ledger it exists to protect.
+    #
+    # Two independent things stop it, and only one of them is visible.
+    # GitHub does not raise workflow events for pushes made with the
+    # default GITHUB_TOKEN -- true today, invisible in this file, and
+    # silently void the moment anyone swaps in a PAT or a GitHub App
+    # token to satisfy branch protection. So the guard that survives
+    # that change is this one: a commit touching only state/ raises no
+    # build. A commit touching state/ and code still builds, because the
+    # code change deserves it.
+    paths-ignore:
+      - "state/**"
   workflow_dispatch:
   schedule:
     # Monthly, 09:47 UTC on the 5th. Delivery is measured to run late
@@ -119,6 +136,15 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add state
+          # paths-ignore only holds if this commit really is state-only.
+          # A future edit that widens the `git add` above would defeat
+          # the guard above without touching it, so check rather than
+          # trust.
+          if git diff --cached --name-only | grep -qv "^state/"; then
+            echo "refusing to push: this commit touches files outside state/" >&2
+            git diff --cached --name-only >&2
+            exit 1
+          fi
           git commit -m "State: record the batch served by ${GITHUB_SHA:0:7}"
           for attempt in 1 2 3; do
             git pull --rebase --autostash origin "${GITHUB_REF_NAME}" && \
