@@ -45,6 +45,13 @@ looks useful.
    warnings are public.
 6. Full record one click away. Summaries never replace access to the
    complete published record.
+7. A claim and the check that earns it ship together, or neither
+   ships. Anything this site says about its own behaviour -- what it
+   requests, what it renders, what it does when something fails -- is
+   a claim about run time, and a claim with no check that runs the
+   thing is a claim nobody has verified. Where the check cannot be
+   built yet, the claim comes down until it can. This one was learned
+   the expensive way; the 2026-08-22 entries are the receipt.
 
 ## Declined scope
 
@@ -358,9 +365,9 @@ dated beside it, and the reasoning is recorded at full length.
   to what is actually verified, and carrying its own history, because a
   claim that was once false and is now true should say so rather than
   quietly reappear.
-- 2026-08-22: two notes from watching the guards fire, kept because the
-  difference between them is the difference between evidence and
-  assumption. The state commit landed on main and no build followed it,
+- 2026-08-22: three notes from the session that shipped these changes,
+  kept because the difference between the first two is the difference
+  between evidence and assumption. The state commit landed on main and no build followed it,
   which confirms the outcome and not the mechanism: the push used the
   built-in GITHUB_TOKEN, so the platform would have suppressed that
   build whether or not paths-ignore existed. The declared guard is
@@ -374,4 +381,10 @@ dated beside it, and the reasoning is recorded at full length.
   a sentence backed only by a fixture run is a sentence backed by a
   synthetic batch, and the gap between those two would have been small,
   temporary, and exactly the shape of the gap this whole week existed
-  to close.
+  to close. Third, a process error worth recording because this
+  project's habit of reporting its own is part of why its claims are
+  worth anything: while merging, a partial conflict resolution was
+  committed with `git add -A`, putting conflict markers into README.md
+  and package.json. CI would have caught it. It should not have needed
+  to, and the fix is a repository-wide marker sweep before any push
+  rather than trusting the resolver to have finished.

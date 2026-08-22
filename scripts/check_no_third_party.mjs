@@ -133,6 +133,9 @@ const context = await browser.newContext();
 const page = await context.newPage();
 
 const offOrigin = new Set();
+// Same-origin paths are recorded too, so the run can prove it actually
+// exercised the engine rather than merely failing to catch it idle.
+const requested = new Set();
 const failed = [];
 const badStatus = [];
 
@@ -140,6 +143,7 @@ page.on("request", (r) => {
   const u = new URL(r.url());
   if (u.protocol === "data:" || u.protocol === "blob:") return;
   if (u.origin !== ORIGIN) offOrigin.add(r.url());
+  else requested.add(u.pathname);
 });
 page.on("requestfailed", (r) => {
   if (new URL(r.url()).origin === ORIGIN) {
@@ -166,7 +170,11 @@ console.log(`Serving ${DIR}/ at ${ORIGIN}\n`);
 await go("/");
 await page.fill("input[type=search]", String(ccn).slice(0, 3));
 await page.waitForTimeout(2500);
-check(true, "home page and search indexes loaded");
+check(
+  [...requested].some((p) => p.endsWith("/data/providers-slim.json")),
+  "home page pulled the facility search index",
+  "the home page never requested providers-slim.json"
+);
 
 // 2. A facility page. The full record is the query worth asserting on:
 //    it reads providers.parquet for one CCN, so it is never legitimately
@@ -208,12 +216,28 @@ if (owner) {
 
 // 4. The static pages, for fonts and anything else a page might pull.
 for (const p of ["/data/", "/about/", "/glossary/"]) await go(p);
-check(true, "static pages loaded");
+console.log("  --    static pages loaded");
 
 await browser.close();
 await new Promise((r) => server.close(r));
 
 console.log();
+
+// The check that keeps every check above from being vacuous. DuckDB only
+// reaches for its extension on the first read_parquet, so a run that
+// loaded the home page and stopped would record zero foreign requests
+// and pass while proving nothing -- it would have passed on the broken
+// build too. If no Parquet was read over HTTP, this gate has not
+// exercised the thing it exists to watch, and a green result is not
+// evidence of anything.
+const parquetReads = [...requested].filter((p) => p.endsWith(".parquet"));
+check(
+  parquetReads.length > 0,
+  `the browser issued ${parquetReads.length} Parquet read(s), so a query really ran`,
+  "no .parquet was requested: the pages above never ran a query, so this " +
+    "run proves nothing about what the engine fetches"
+);
+
 check(
   offOrigin.size === 0,
   `zero off-origin requests${offOrigin.size ? "" : " across every page above"}`,
