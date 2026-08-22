@@ -7,7 +7,7 @@ so that adapting it to another theme is a measured job, not an
 archaeology project. It is a boundary document, not a promise: per the
 charter, generalizing is consciously deferred.
 
-## The eight touchpoints
+## The ten touchpoints
 
 1. Table map. `TABLE_PATTERNS` in `scripts/build_data.py`: eighteen
    filename regexes naming this theme's files. Unknown files still
@@ -48,6 +48,26 @@ charter, generalizing is consciously deferred.
    files and headers, and CI depends on it. A fork needs a new
    fixture before it has tests.
 
+9. Carried state. `NH_STATE_URL` in `build-deploy.yml`, and the
+   `STATE_BASE` default in `scripts/build_data.py`, both point at
+   *this* deployment's `/data/`. A fork that leaves them reads this
+   site's ledger and this site's owner-slug reservations and serves
+   them as its own history. Point them at your own deployed `/data/`
+   URL. The build then stops rather than silently start a new chain,
+   so a first build whose URL does not resolve yet needs
+   `NH_STATE_BOOTSTRAP=1` once; see `state/README.md`. Not theme
+   knowledge, but the same kind of hazard: a default that is correct
+   here and wrong everywhere else, and quiet either way.
+
+10. Absolute site identity. `SITE_URL` in `lib/config.ts` is the
+    origin stamped into `sitemap.xml` and `robots.txt`; `REPO_URL`
+    is where About and the Data page send readers for the decision
+    log; `CORRECTIONS_EMAIL` is where error reports land. All three
+    default to this deployment. A fork that renames `SITE_NAME` and
+    stops there ships a site telling search engines it lives at
+    nursinghomerecords.org and telling readers to write here about
+    its data.
+
 ## Already generic, no adaptation needed
 
 Manifest validation, the all-text fidelity policy, row-count
@@ -62,3 +82,10 @@ spine-table decision with its column lists, a new fixture, and new
 copy. Roughly a few focused days. The pipeline core carries over
 untouched. That is the "real work" the first external review
 underestimated as a config change.
+
+Touchpoints 9 and 10 are the exception to the shape of that estimate.
+They cost minutes rather than days, and they were missing from this
+document until 2026-08-22, which is the more useful fact about them: a
+fork that skipped them would not fail, it would run, and it would
+inherit this deployment's history and this deployment's address while
+appearing to work. Do them first, before the first build.

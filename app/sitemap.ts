@@ -15,6 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     page("/owners/"),
     page("/data/"),
     page("/about/"),
+    page("/glossary/"),
     ...listStates().map(({ state }) => page(`/state/${state}/`)),
     ...allCCNs().map((ccn) => page(`/facility/${encodeURIComponent(ccn)}/`)),
     ...ownerPages().owners.map((o) => page(`/owner/${o.slug}/`)),

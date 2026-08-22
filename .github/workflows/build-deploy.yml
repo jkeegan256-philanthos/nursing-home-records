@@ -67,6 +67,17 @@ jobs:
       - name: Build static site
         run: npm run build
 
+      - name: Install Chromium for the origin check
+        run: npx playwright install --with-deps chromium
+
+      - name: Assert the deployed site will talk only to itself
+        # The pull-request run checks the fixture export. This checks the
+        # export that is actually about to be served, with the real batch
+        # behind it, because the claim on the Data page is about this
+        # build and not about a synthetic one. Nothing deploys if it
+        # fails.
+        run: npm run check:origins
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: out

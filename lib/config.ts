@@ -1,3 +1,6 @@
+// Forking? These identify this deployment and all default to it. See
+// ADAPTATION.md touchpoints 9 and 10 -- and note that NH_STATE_URL, in
+// .github/workflows/build-deploy.yml, needs the same treatment.
 export const SITE_NAME = "Nursing Home Records";
 export const SITE_TAGLINE =
   "Public data from the CMS Provider Data Catalog, presented exactly as published.";

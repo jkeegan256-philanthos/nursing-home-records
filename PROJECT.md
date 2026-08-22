@@ -353,3 +353,29 @@ dated beside it, and the reasoning is recorded at full length.
   three is asserted in scripts/test_build_data.py, the first test in
   this repository that checks an outcome rather than that nothing
   crashed.
+- 2026-08-22: the fork boundary corrected, and the origin gate moved
+  onto the build that actually ships. ADAPTATION.md claimed eight
+  touchpoints and had ten. The two missing ones are not theme
+  knowledge, which is why they were missed while the document was being
+  written about theme knowledge, and they share a shape worth naming:
+  each is a default that is correct for this deployment and wrong for
+  every other one, and quiet in both cases. NH_STATE_URL and STATE_BASE
+  point a fork at this site's ledger and this site's slug reservations,
+  which it would then serve as its own history; SITE_URL, REPO_URL, and
+  CORRECTIONS_EMAIL point a fork's sitemap, its decision-log links, and
+  its corrections address back here. A fork that skipped both would not
+  fail. It would build, deploy, and look right. The continuity section
+  of the charter rests on anyone being able to fork the repository and
+  run the workflow, so a boundary document that does not mention the
+  settings which make a fork someone else's mirror was not describing
+  the boundary. Both are now touchpoints, named in README's first-time
+  setup and beside the constants themselves, with the honest note that
+  they cost minutes rather than the days the other eight cost. Beside
+  that, two gaps of the same family: the glossary page was generated and
+  in no sitemap, so the page carrying CMS's verbatim role definitions,
+  which every inline role link points at, was the one page search
+  engines were never told about; and the origin check ran only on pull
+  requests against the synthetic fixture, never against the export being
+  served. The claim on the Data page is about the build readers get, so
+  the check now runs on that build, with the real batch behind it, and
+  nothing deploys if it fails.
