@@ -271,3 +271,63 @@ dated beside it, and the reasoning is recorded at full length.
   believes it has vendored the engine has likely inherited the
   extension fetch too, and will not find it by reading its own
   source.
+- 2026-08-22: carried state made fail-closed, and given a second home.
+  The ledger chain and the owner-slug reservations were read from one
+  place, the deployed site, by one unauthenticated GET each. On any
+  failure -- a timeout, a DNS blip, a Pages hiccup -- the build warned
+  and carried on with nothing, which meant writing a ledger that began
+  again at one entry and a slug map that had forgotten every URL it had
+  ever reserved, then deploying that as the new truth for the next build
+  to read. The site was the only copy of the history of the site, so the
+  thing being rebuilt was also the only witness to what it had been.
+  This is deliberately the opposite call from the column contract, where
+  a renamed CMS field blanks a field and prints a note rather than
+  killing the monthly refresh, and the difference is worth stating
+  because both look like the same choice from a distance. A dented page
+  is visible, bounded, and fixes itself next batch. A truncated ledger
+  is invisible, total, and is confirmed by the next batch rather than
+  repaired by it. Where degrading is recoverable, degrade; where a green
+  build is itself the disaster, stop. So: the deployed copy is still
+  read first, because it is what readers actually got; a copy committed
+  under state/ is read second; and a build that can read neither now
+  refuses to run, before the transform rather than after it. The
+  distinction the code has to make is between a source that answers and
+  says the file is not there -- a chain that has not started cannot be
+  truncated, so that case proceeds and says so -- and a source that
+  answers nothing at all, which is the case that stops. NH_STATE_BOOTSTRAP
+  starts a chain from nothing on purpose; the deploy workflow never sets
+  it, so production cannot reach it by accident. Only builds that can
+  actually deploy write the committed copy, because a fallback that
+  records batches nobody served is not a record of anything.
+- 2026-08-22: the deploy loop guard declared rather than inherited.
+  Committing the carried state back to main means the deploy workflow
+  writes to the branch that triggers the deploy workflow, and the
+  July scoping of Release 3 rejected exactly this path for exactly
+  this reason. It was taken anyway, on the strength of a protection
+  that was real and unwritten: GitHub raises no workflow event for a
+  push made with the default GITHUB_TOKEN. That is true today. It is
+  also invisible in the repository, holds nowhere in this file, and
+  ends silently the first time anyone swaps in a PAT or a GitHub App
+  token to satisfy branch protection -- a change whose diff would look
+  entirely reasonable, and whose consequence is a build that deploys
+  that commits that builds, burning minutes and appending a junk entry
+  to the ledger the commit exists to protect. Relying on it unwritten
+  was the same error as the extension fetch three entries above:
+  correct behaviour resting on a fact nobody could read. So the guard
+  is now declared, paths-ignore on state/**, which survives a token
+  change; the record-state job additionally refuses to push a commit
+  reaching outside state/, so widening what it stages cannot defeat
+  the trigger guard without tripping this one; and
+  scripts/check_loop_guard.py asserts both in CI, validated by
+  removing each and confirming it fails. The precise version of what
+  was wrong, because the imprecise version misleads: the guard was
+  never absent, it was the platform's rather than the repository's.
+  The general rule, since this is the second instance in one day: a
+  safety property that holds because of something outside this
+  repository is not a safety property this repository has. Write it
+  down or check it, and preferably both. The cost, recorded here so
+  nobody rediscovers it at midnight: a commit touching only state/ no
+  longer deploys, so a hand-edited ledger does not reach readers until
+  some other change rides with it or someone taps Run workflow. That
+  is a fair trade and arguably a second feature -- hand-editing the
+  ledger is something this design wants to be awkward.

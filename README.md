@@ -18,6 +18,7 @@ Rename the site in `lib/config.ts` (`SITE_NAME`), and point
     scripts/build_data.py                    zip -> Parquet + JSON, via DuckDB
     scripts/dev_fixture.py                   tiny synthetic batch for testing
     app/, components/, lib/                  Next.js site (static export)
+    state/                                   carried state: ledger, slug reservations
     .github/workflows/build-deploy.yml       CI: transform, build, deploy
 
 On every push, monthly schedule, or manual run, the Action fetches the
@@ -104,6 +105,12 @@ github.io address redirects to the domain automatically.
 For a fast production build while testing, cap the number of facility
 pages: `PAGES_LIMIT=200 npm run build`.
 
+The build carries state between batches — the ledger chain and the owner
+slug reservations — reading the deployed site first and the committed
+copy in `state/` second. If neither can be read it stops rather than
+silently start a new chain; see `state/README.md`. A local `npm run data`
+never writes to `state/`, and `npm run fixture` carries no state at all.
+
 ## The June 2026 batch, measured
 
 - Input: 613 MB of CSV across 18 datasets, 2,293,572 rows,
@@ -139,6 +146,11 @@ site links to its CMS dataset page.
   and the matching names in `lib/data.ts`.
 - Processing notes on the Data page list anything unusual the transform
   saw (unknown files, size mismatches, rows with a blank state).
+- Build fails with "unreachable ... and no committed copy exists": the
+  previous batch's ledger and slug reservations could not be read from
+  either source, and continuing would restart the chain permanently.
+  Re-run once the source is reachable. Only if you mean to start a new
+  chain — a fork's first build, say — set `NH_STATE_BOOTSTRAP=1` once.
 - The workflow log shows the same per-table report the script prints
   locally: rows, sizes, and mode for every dataset.
 

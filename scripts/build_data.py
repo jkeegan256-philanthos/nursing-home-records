@@ -10,6 +10,7 @@ Output  public/data/parquet/<table>.parquet            small tables
         public/data/downloads/         untouched zip + data dictionary + manifest
         build/providers.json           full ProviderInfo rows for the Next.js build
         build/site-meta.json           provenance for the /data page
+        state/                         committed fallback copy of the carried state
 
 Policy: every column is read as text (all_varchar). Nothing is typed,
 rounded, computed, or filtered. Leading zeros in CCNs and ZIP codes
@@ -357,41 +358,188 @@ def export_owners(
     }
 
 
-# The previously deployed site is the pipeline's only state. One base
-# feeds slug anchoring, the ledger, and the drift notes; the fixture
-# points it at local files (or empty to skip), CI at production.
+# Carried state: the slug reservations, the ledger chain, and the
+# previous data map. It lives in two places on purpose. The deployed
+# site is authoritative, because it is what readers actually got; the
+# committed copy under state/ is the fallback, because a site is not a
+# safe place to keep the only copy of the history of that site.
+#
+# NH_STATE_URL points at the deployed copy; empty opts out entirely
+# (the fixture's default) and carries no state at all.
 STATE_BASE = os.environ.get("NH_STATE_URL", "https://nursinghomerecords.org/data")
 
+# The committed fallback. Written after every state-carrying build so
+# the workflow can commit it; read when the deployed copy cannot be.
+# main() re-points this at --root when one is given.
+STATE_DIR = Path(__file__).resolve().parent.parent / "state"
 
-def fetch_state(name: str, consequence: str) -> dict | None:
-    """Read one JSON state file from the previously deployed site.
-    Empty STATE_BASE skips silently (fixture default); a fetch failure
-    degrades to a warn that names the consequence for the reader."""
+# The one deliberate way to start a chain from nothing: a first build,
+# or a fork that means to keep its own history rather than inherit one.
+# Never set in the deploy workflow, so production cannot reach it by
+# accident.
+STATE_BOOTSTRAP = os.environ.get("NH_STATE_BOOTSTRAP", "") not in ("", "0")
+
+# Only a build that can actually be deployed writes the committed
+# fallback. A local `npm run data` must never leave a state/ behind
+# claiming a batch nobody served -- the fallback's whole value is that
+# it records what readers got.
+STATE_SAVE = bool(os.environ.get("GITHUB_ACTIONS")) or os.environ.get(
+    "NH_STATE_SAVE", ""
+) not in ("", "0")
+
+
+def _read_json_dict(src: str, timeout: int = 30) -> dict:
+    if re.match(r"^https?://", src):
+        import urllib.request
+
+        with urllib.request.urlopen(src, timeout=timeout) as r:
+            data = json.load(r)
+    else:
+        data = json.loads(Path(src).read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        raise ValueError("malformed state file")
+    return data
+
+
+# Carried state is read once per name and reused: the preflight below
+# resolves all three before the transform starts, so an unreachable
+# source costs seconds instead of the whole batch.
+_STATE_CACHE: dict[str, dict | None] = {}
+
+# Every carried-state file, in the order a reader would miss them.
+STATE_FILES = ("owner-slugs.json", "ledger.json", "data-map.json")
+
+
+def fetch_state(name: str) -> dict | None:
+    """Read one carried-state file: deployed copy first, committed copy
+    second, and a dead build third.
+
+    The third case is the point. This state is append-only by design --
+    the ledger chain and the slug reservations that keep a cited owner
+    URL meaning the same name -- so continuing without it does not
+    produce a dented page the way a renamed CMS column does. It produces
+    a build that silently and permanently truncates the history it was
+    supposed to be keeping, and then deploys that truncation as the new
+    truth. A red build is recoverable; a green one here is not."""
     if not STATE_BASE:
         return None
+    if name in _STATE_CACHE:
+        return _STATE_CACHE[name]
+    value = _fetch_state_uncached(name)
+    _STATE_CACHE[name] = value
+    return value
+
+
+def _absent_not_unreachable(src: str, exc: Exception) -> bool:
+    """Did the source answer and say the file is not there?
+
+    The whole fail-closed policy turns on this. A source that answers
+    404 is telling us the truth: this file has never been published, and
+    a chain that has not started cannot be truncated. A source that
+    times out, refuses the connection, or does not resolve is telling us
+    nothing, and continuing on nothing is the disaster case."""
+    import urllib.error
+
+    if re.match(r"^https?://", src):
+        return isinstance(exc, urllib.error.HTTPError) and exc.code == 404
+    # Local path: the directory answering while the file is missing is
+    # the same statement a 404 makes.
+    return isinstance(exc, FileNotFoundError) and Path(src).parent.is_dir()
+
+
+def _fetch_state_uncached(name: str) -> dict | None:
     src = f"{STATE_BASE.rstrip('/')}/{name}"
     try:
-        if re.match(r"^https?://", src):
-            import urllib.request
-
-            with urllib.request.urlopen(src, timeout=30) as r:
-                data = json.load(r)
-        else:
-            data = json.loads(Path(src).read_text(encoding="utf-8"))
-        if not isinstance(data, dict):
-            raise ValueError("malformed state file")
-        return data
+        return _read_json_dict(src)
     except Exception as exc:
-        warn(f"{name} could not be read ({exc}); {consequence}")
+        live_error = exc
+        absent = _absent_not_unreachable(src, exc)
+
+    local = STATE_DIR / name
+    try:
+        data = _read_json_dict(str(local))
+        warn(
+            f"{name}: the deployed copy could not be read ({live_error}); "
+            f"falling back to the committed copy in state/, which may be one "
+            f"batch behind"
+        )
+        return data
+    except FileNotFoundError:
+        pass
+    except Exception as exc:
+        die(
+            f"{name}: the deployed copy could not be read ({live_error}) and "
+            f"the committed copy in state/ is unreadable ({exc}). Refusing to "
+            f"build on no carried state."
+        )
+
+    if absent:
+        warn(
+            f"{name}: not published at {STATE_BASE.rstrip('/')} yet and none "
+            f"committed in state/; this file's chain starts with this build"
+        )
         return None
+
+    if STATE_BOOTSTRAP:
+        warn(
+            f"{name}: unreachable ({live_error}) and none committed in state/; "
+            f"starting a fresh chain because NH_STATE_BOOTSTRAP is set"
+        )
+        return None
+
+    die(
+        f"{name}: unreachable at {src} ({live_error}), and no committed "
+        f"copy exists at {local}. Refusing to build: continuing here would "
+        f"restart the ledger chain and drop every owner-slug reservation, "
+        f"silently and permanently. Re-run once the source is reachable, or "
+        f"set NH_STATE_BOOTSTRAP=1 to start a new chain on purpose."
+    )
+    return None  # unreachable; die() exits
+
+
+# What each carried-state file looks like when a build legitimately
+# produces none of it -- a deployment with no ownership file has no slug
+# reservations. Recording that emptiness is not fabricating state; it is
+# the difference between "this chain is empty" and "this chain is
+# unreachable", and without it the first unreachable source would fail
+# every later build over a file that never existed.
+STATE_EMPTY: dict[str, dict] = {
+    "owner-slugs.json": {"slugs": {}},
+    "ledger.json": {"entries": []},
+    "data-map.json": {"tables": {}},
+}
+
+
+def save_state(public_data: Path) -> None:
+    """Snapshot what this build is about to serve into the committed
+    fallback, so the next build has a second place to read it from.
+    Skipped entirely when state carrying is off (the fixture) or when
+    this build cannot deploy, which is why neither a fixture run nor a
+    local `npm run data` ever touches state/."""
+    if not STATE_BASE or not STATE_SAVE:
+        return
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    saved, empty = [], []
+    for name in STATE_FILES:
+        src = public_data / name
+        if src.exists():
+            shutil.copy2(src, STATE_DIR / name)
+            saved.append(name)
+        else:
+            (STATE_DIR / name).write_text(
+                json.dumps(STATE_EMPTY[name], separators=(",", ":")),
+                encoding="utf-8",
+            )
+            empty.append(name)
+    note = f"  state: {', '.join(saved)} snapshotted to state/"
+    if empty:
+        note += f" ({', '.join(empty)} recorded empty, not produced this batch)"
+    print(note)
 
 
 def load_previous_slugs() -> dict[str, str]:
     """The live site's owner slug map, so names keep their URLs."""
-    data = fetch_state(
-        "owner-slugs.json",
-        "previously cited owner URLs may have shifted this batch",
-    )
+    data = fetch_state("owner-slugs.json")
     if not data:
         return {}
     slugs = data.get("slugs", {})
@@ -549,17 +697,13 @@ def record_history(
 ) -> None:
     """The integrity layer: drift notes against the previously served
     batch, and an append-only ledger of every served build. Both read
-    the live site's own state; both degrade to a note, never a dead
-    build. The ledger proves this mirror's history, not CMS's."""
-    prev_map = fetch_state(
-        "data-map.json",
-        "batch comparison unavailable this build; "
-        "structural changes since the last batch are not reported",
-    )
-    prev_ledger = fetch_state(
-        "ledger.json",
-        "ledger history unavailable this build; the chain restarts from this entry",
-    )
+    carried state -- the deployed copy first, the committed copy in
+    state/ second -- and fetch_state() stops the build rather than
+    continue on neither, because a ledger that quietly restarts is worse
+    than no ledger at all. The ledger proves this mirror's history, not
+    CMS's."""
+    prev_map = fetch_state("data-map.json")
+    prev_ledger = fetch_state("ledger.json")
 
     # Drift notes: structure only. Row-count deltas are normal monthly
     # movement and stay deliberately silent (retention is a deferred
@@ -632,6 +776,8 @@ def main() -> None:
     args = parser.parse_args()
 
     root = Path(args.root) if args.root else Path(__file__).resolve().parent.parent
+    global STATE_DIR
+    STATE_DIR = root / "state"
     if args.zip_path:
         zip_path = Path(args.zip_path)
     else:
@@ -652,6 +798,13 @@ def main() -> None:
             shutil.rmtree(d)
     for d in (parquet_root, downloads, build_dir, extract_dir):
         d.mkdir(parents=True, exist_ok=True)
+
+    # Resolve the carried state before doing any work. fetch_state()
+    # stops the build when a file is readable from neither source, and
+    # finding that out now costs seconds rather than a whole transform.
+    if STATE_BASE:
+        for name in STATE_FILES:
+            fetch_state(name)
 
     print(f"Source  {zip_path.name}  ({zip_path.stat().st_size:,} bytes)")
     zip_hash = sha256_of(zip_path)
@@ -767,6 +920,10 @@ def main() -> None:
         json.dumps(site_meta, ensure_ascii=False, separators=(",", ":")),
         encoding="utf-8",
     )
+
+    # Second home for the carried state, so the only copy of this
+    # mirror's history is never the mirror itself.
+    save_state(public_data)
 
     print()
     print(f"{'table':32} {'rows':>10} {'csv':>12} {'parquet':>12}  mode")
