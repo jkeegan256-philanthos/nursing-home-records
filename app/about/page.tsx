@@ -89,6 +89,12 @@ export default function AboutPage() {
           <strong>The full record, one click away.</strong> Summaries never
           replace access to the complete published record.
         </li>
+        <li>
+          <strong>A claim ships with the check that earns it.</strong>{" "}
+          Anything this site says about how it behaves is checked by
+          software that actually runs it, every build. Where that check
+          cannot be built, the claim comes down until it can.
+        </li>
       </ul>
       <p>
         When one of these rules catches a feature this site already
