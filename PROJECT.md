@@ -131,6 +131,39 @@ prerequisite for it.
 Each waits until the current site proves insufficient, and each ships
 only if it survives the principles above.
 
+## Reviewing this project
+
+Read the code, then run it. Not either one.
+
+This is here because of what it cost to learn. Four independent reviews
+read this codebase carefully and were right about everything that exists
+at rest: the transform, the fidelity rules, the principles, the copy.
+The fifth built the site and drove it in a browser, and found within
+minutes that every facility page had been fetching a file from
+extensions.duckdb.org since the day the site went live, while the Data
+page told readers no such request was ever made. The URL was assembled
+inside a WebAssembly binary at run time. It existed in no file. No
+amount of careful reading could have found it, and the check meant to
+prevent it was a grep, which is careful reading performed by a machine.
+
+The general form: static inspection proves what is in the files and
+nothing whatever about what the files go and do. Any claim this site
+makes about its own behaviour -- what it requests, what it renders, what
+it does when something fails -- is a claim about run time, and can only
+be honestly checked by running it. `npm run check:origins` is that check
+for the third-party claim. A claim of the same kind that ships without
+one is a claim nobody has verified.
+
+Two corollaries earned the same week:
+
+- A safety property that holds because of something outside this
+  repository is not a safety property this repository has. The deploy
+  loop was prevented, correctly, by a GitHub behaviour written down
+  nowhere in this tree. Declare it or check it, and preferably both.
+- The check has to be able to fail. Every gate here was validated by
+  breaking the thing it guards and confirming it goes red and says
+  which thing. A gate never seen to fail is a gate nobody has tested.
+
 ## Decision log
 
 Standing policy: a decision reversed is not a mistake hidden; it is a

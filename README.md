@@ -4,6 +4,10 @@ A static site that republishes the CMS Provider Data Catalog nursing
 homes theme exactly as CMS ships it. No calculations, no filtering, no
 editorial layer. One zip goes in each month; a browsable site comes out.
 
+Reviewing or changing this? `PROJECT.md` has a short "Reviewing this
+project" section on why reading the code is not enough here, and what
+to run instead.
+
 Read `PROJECT.md` first. It holds the goals, the principles, and the
 declined scope that every change must respect. Its decision log also
 records the features this project shipped and then reversed, with the
