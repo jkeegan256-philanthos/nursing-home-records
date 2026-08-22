@@ -434,119 +434,121 @@ dated beside it, and the reasoning is recorded at full length.
   quietly reappear.
 - 2026-08-22: four notes from the session that shipped these changes,
   kept because the difference between the first two is the difference
-  between evidence and assumption. The state commit landed on main and no build followed it,
-  which confirms the outcome and not the mechanism: the push used the
-  built-in GITHUB_TOKEN, so the platform would have suppressed that
-  build whether or not paths-ignore existed. The declared guard is
-  therefore still proven only by control tests, and remains insurance
-  against a future token swap rather than something production has
-  exercised. Saying so costs nothing and keeps the ledger of what is
-  actually known accurate. Second, the deploy-path origin check moved
-  forward into the release that restores the third-party claim, rather
-  than riding one release later with the smaller documentation work.
-  The claim and the check that earns it ship together or neither ships:
-  a sentence backed only by a fixture run is a sentence backed by a
-  synthetic batch, and the gap between those two would have been small,
-  temporary, and exactly the shape of the gap this whole week existed
-  to close. Third, a process error worth recording because this
-  project's habit of reporting its own is part of why its claims are
-  worth anything: while merging, a partial conflict resolution was
-  committed with `git add -A`, putting conflict markers into README.md
-  and package.json. CI would have caught it. It should not have needed
-  to, and the fix is a repository-wide marker sweep before any push
-  rather than trusting the resolver to have finished. A second control followed from the same
-  mistake later the same day. When a stacked branch had to absorb a
-  squash-merged main across six conflicted files, the blunt
-  resolution -- keep ours everywhere -- was verified rather than
-  trusted: the branch-to-main diff was confirmed one-directional,
-  and thirteen named features from both releases were probed
-  individually before the push. Both controls exist because one
-  careless `git add -A` proved that a resolution nobody checked is
-  a resolution nobody knows the shape of, and a stacked branch
-  absorbing a squash merge is exactly where that goes unnoticed.
-  Fourth, caught the same day and fixed in this release because it is
-  the same failure wearing a reader's clothes: star ratings were drawn
-  as five identical filled glyphs, the unearned ones separated only by
-  CSS colour. Colour exists in a browser and nowhere else. Copy a page,
-  scrape it, save it as text, or read it with anything that does not
-  paint stylesheets, and a facility CMS rated one came out as five
-  filled stars, indistinguishable from a facility rated five, on every
-  page carrying a rating. The footer says figures are shown exactly as
+  between evidence and assumption. The state commit landed on main and
+  no build followed it, which confirms the outcome and not the
+  mechanism: the push used the built-in GITHUB_TOKEN, so the platform
+  would have suppressed that build whether or not paths-ignore
+  existed. The declared guard is therefore still proven only by
+  control tests, and remains insurance against a future token swap
+  rather than something production has exercised. Saying so costs
+  nothing and keeps the ledger of what is actually known accurate.
+  Second, the deploy-path origin check moved forward into the release
+  that restores the third-party claim, rather than riding one release
+  later with the smaller documentation work. The claim and the check
+  that earns it ship together or neither ships: a sentence backed only
+  by a fixture run is a sentence backed by a synthetic batch, and the
+  gap between those two would have been small, temporary, and exactly
+  the shape of the gap this whole week existed to close. Third, a
+  process error worth recording because this project's habit of
+  reporting its own is part of why its claims are worth anything:
+  while merging, a partial conflict resolution was committed with `git
+  add -A`, putting conflict markers into README.md and package.json.
+  CI would have caught it. It should not have needed to, and the fix
+  is a repository-wide marker sweep before any push rather than
+  trusting the resolver to have finished. A second control followed
+  from the same mistake later the same day. When a stacked branch had
+  to absorb a squash-merged main across six conflicted files, the
+  blunt resolution -- keep ours everywhere -- was verified rather than
+  trusted: the branch-to-main diff was confirmed one-directional, and
+  thirteen named features from both releases were probed individually
+  before the push. Both controls exist because one careless `git add
+  -A` proved that a resolution nobody checked is a resolution nobody
+  knows the shape of, and a stacked branch absorbing a squash merge is
+  exactly where that goes unnoticed. Fourth, caught the same day and
+  fixed in this release because it is the same failure wearing a
+  reader's clothes: star ratings were drawn as five identical filled
+  glyphs, the unearned ones separated only by CSS colour. Colour
+  exists in a browser and nowhere else. Copy a page, scrape it, save
+  it as text, or read it with anything that does not paint
+  stylesheets, and a facility CMS rated one came out as five filled
+  stars, indistinguishable from a facility rated five, on every page
+  carrying a rating. The footer says figures are shown exactly as
   published; that sentence was false for every rating below five the
   moment the page left the screen, which makes this a principle 1
-  violation that principle 7 is what caught. The unearned stars are now
-  a different character, and the number itself rides in the text out of
-  the layout, so a clipboard, a scraper, a screen reader, or a model
-  gets the published value rather than a shape it has to count. A
-  reader also no longer sees a dash where CMS published something
+  violation that principle 7 is what caught. The unearned stars are
+  now a different character, and the number itself rides in the text
+  out of the layout, so a clipboard, a scraper, a screen reader, or a
+  model gets the published value rather than a shape it has to count.
+  A reader also no longer sees a dash where CMS published something
   unrecognised: the dash now means only that CMS published nothing.
   scripts/check_rendered_values.mjs reads the built pages and compares
   their text to the published numerals, and was validated against the
   broken export first, where it named the one-star facility rendering
-  as five. The general rule, which is the reader-facing form of the two
-  test-harness notes above: colour, position, and shape are decoration,
-  and decoration must never be the only thing carrying a published
-  value. Three instances of one pattern landed in a single day -- an
-  assertion that printed ok while asserting nothing, a gate that went
-  green having run no query, and a grey star shaped exactly like an
-  earned one. Each was an artifact wearing the appearance of the thing
-  it was not. The instance that explains why five readers walked past
-  the stars is the fourth disguise: the class was called `off`. A name
-  that describes intent rather than implementation is documentation
-  living inside an identifier, and it carried no check, so every reader
-  who saw `off` supplied "hollow" from the name and moved on -- the
-  author of this fix included, having read the component on the first
-  pass and registered the class without ever asking what it emitted. A
-  variable name is a claim about behaviour, and principle 7 applies to
-  it exactly as it applies to a sentence on a page.
-- 2026-08-22: decoration audit, run because the star bug proved the rule
-  needed one and recorded here because an audit that finds nothing is
-  worth exactly what the rule it confirms is worth. The question asked
-  of every rendering surface: is colour, position, or shape the only
-  thing carrying a value CMS published? Findings, in full.
-  Violations, both fixed in the same release: the star glyphs, above;
-  and a published value the star component did not recognise being
-  replaced with a dash, which is the site editing CMS data at the exact
-  spot its footer promises it does not. Clean: no images, icons, SVG,
-  CSS background images, or generated ::before/::after content exist
-  anywhere in the site, so there is no non-text element that could
-  carry a value. Every dash on every surface -- eighteen of them across
-  seven files -- was checked individually and each is guarded by an
-  emptiness test on the value it stands for, so a dash means CMS
-  published nothing and never stands in for something CMS published.
-  The remaining colour-only styles carry emphasis on text that is
-  already there, not values: chip-warn colours a chip whose text is the
-  published string, muted greys a dash or a label, quiet-link dots an
-  underline under a role that is spelled out beside it. Sort arrows in
-  the state tables are interface state, not data, and carry aria-sort
-  besides. Considered and judged not a violation, with the reasoning
-  recorded so the judgment can be revisited rather than rediscovered:
-  the facility header shows an abuse chip only when the Abuse Icon is
-  Y, so its absence covers N, blank, and anything unrecognised alike.
-  That is the facts grid being a curated subset, which it has always
-  been and which ADAPTATION.md names as a touchpoint, rather than a
-  depiction that contradicts the data; the published string is one
-  click away in the full record under principle 6. Adding Abuse Icon
-  and Special Focus Status to the key facts would close it completely
-  and is a two-line change, but it alters what every facility page
-  displays, which is a design decision and not an audit's to make. Escalated, and decided the other way, which is
-  recorded here as a separate fact from the audit's finding because an
-  audit that quietly makes design decisions is one whose clean rows
-  nobody can trust. Both fields are now displayed for every facility,
-  on two grounds the audit had not reached. First, the rule from this
-  same morning in its weakest form but the same form: the chip carries
-  "Y" in text, but for every other facility the published value was
-  carried by absence, and absence is a shape -- a reader could not tell
-  "CMS published N" from "CMS published nothing", which are different
-  facts. Second, and heavier for this charter: surfacing a field only
-  when it says the alarming thing is closer to flagging than to
-  display, and principle 4 means every facility shows its value
-  whatever that value says. The change also converts the chips into
-  exactly the pattern the sweep's clean rows describe -- emphasis on
-  text present elsewhere on the page rather than the sole carrier of
-  it. scripts/check_rendered_values.mjs now asserts both labels appear
-  on every sampled facility page, so the field cannot quietly revert to
-  appearing only when it has something alarming to say.
+  as five. The general rule, which is the reader-facing form of the
+  two test-harness notes above: colour, position, and shape are
+  decoration, and decoration must never be the only thing carrying a
+  published value. Three instances of one pattern landed in a single
+  day -- an assertion that printed ok while asserting nothing, a gate
+  that went green having run no query, and a grey star shaped exactly
+  like an earned one. Each was an artifact wearing the appearance of
+  the thing it was not. The instance that explains why five readers
+  walked past the stars is the fourth disguise: the class was called
+  `off`. A name that describes intent rather than implementation is
+  documentation living inside an identifier, and it carried no check,
+  so every reader who saw `off` supplied "hollow" from the name and
+  moved on -- the author of this fix included, having read the
+  component on the first pass and registered the class without ever
+  asking what it emitted. A variable name is a claim about behaviour,
+- d principle 7 applies to it exactly as it applies to a sentence on a
+  page. - 2026-08-22: decoration audit, run because the star bug
+  proved the rule needed one and recorded here because an audit that
+  finds nothing is worth exactly what the rule it confirms is worth.
+  The question asked of every rendering surface: is colour, position,
+  or shape the only thing carrying a value CMS published? Findings, in
+  full. Violations, both fixed in the same release: the star glyphs,
+  above; and a published value the star component did not recognise
+  being replaced with a dash, which is the site editing CMS data at
+  the exact spot its footer promises it does not. Clean: no images,
+  icons, SVG, CSS background images, or generated ::before/::after
+  content exist anywhere in the site, so there is no non-text element
+  that could carry a value. Every dash on every surface -- eighteen of
+  them across seven files -- was checked individually and each is
+  guarded by an emptiness test on the value it stands for, so a dash
+  means CMS published nothing and never stands in for something CMS
+  published. The remaining colour-only styles carry emphasis on text
+  that is already there, not values: chip-warn colours a chip whose
+  text is the published string, muted greys a dash or a label, quiet-
+  link dots an underline under a role that is spelled out beside it.
+  Sort arrows in the state tables are interface state, not data, and
+  carry aria-sort besides. Considered and judged not a violation, with
+  the reasoning recorded so the judgment can be revisited rather than
+  rediscovered: the facility header shows an abuse chip only when the
+  Abuse Icon is Y, so its absence covers N, blank, and anything
+  unrecognised alike. That is the facts grid being a curated subset,
+  which it has always been and which ADAPTATION.md names as a
+  touchpoint, rather than a depiction that contradicts the data; the
+  published string is one click away in the full record under
+  principle 6. Adding Abuse Icon and Special Focus Status to the key
+  facts would close it completely and is a two-line change, but it
+  alters what every facility page displays, which is a design decision
+  and not an audit's to make. Escalated, and decided the other way,
+  which is recorded here as a separate fact from the audit's finding
+  because an audit that quietly makes design decisions is one whose
+  clean rows nobody can trust. Both fields are now displayed for every
+  facility, on two grounds the audit had not reached. First, the rule
+  from this same morning in its weakest form but the same form: the
+  chip carries "Y" in text, but for every other facility the published
+  value was carried by absence, and absence is a shape -- a reader
+  could not tell "CMS published N" from "CMS published nothing", which
+  are different facts. Second, and heavier for this charter: surfacing
+  a field only when it says the alarming thing is closer to flagging
+  than to display, and principle 4 means every facility shows its
+  value whatever that value says. The change also converts the chips
+  into exactly the pattern the sweep's clean rows describe -- emphasis
+  on text present elsewhere on the page rather than the sole carrier
+  of it. scripts/check_rendered_values.mjs now asserts both labels
+  appear on every sampled facility page, so the field cannot quietly
+  revert to appearing only when it has something alarming to say.
 - 2026-08-22: three fidelity fixes in the transform and the record
   pages, from the same review. The load-bearing one is principle 6.
   Rows CMS publishes with a blank or non-standard state code are put in
