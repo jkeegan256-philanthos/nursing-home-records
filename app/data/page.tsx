@@ -4,6 +4,7 @@ import {
   CMS_DATASET_URL,
   CORRECTIONS_EMAIL,
   CORRECTIONS_URL,
+  REPO_URL,
 } from "@/lib/config";
 import { ledger, missingProviderColumns, siteMeta } from "@/lib/data";
 
@@ -152,9 +153,20 @@ export default function DataPage() {
         will be fixed.
       </p>
       <p>
-        This site makes no third-party requests: the fonts and the query
-        engine are served from this domain, alongside the data. A check in
-        the build pipeline fails any change that would break that.
+        The fonts and the query engine are served from this domain, alongside
+        the data. One request is not. The first time a page runs a query, the
+        engine fetches its Parquet reader from{" "}
+        <span className="mono">extensions.duckdb.org</span>, which tells that
+        host your IP address and that you loaded a page here. Until this site
+        serves that file itself, the record tables and the owner search also
+        stop working on any network that blocks it; the downloads above do
+        not. This page previously said the site made no third-party requests
+        at all, and that a build check enforced it. Both were untrue. The
+        retraction is dated in the{" "}
+        <a href={`${REPO_URL}/blob/main/PROJECT.md`} rel="noopener noreferrer">
+          decision log
+        </a>
+        , and the sentence returns only when it is true again.
       </p>
 
       {notes.length ? (

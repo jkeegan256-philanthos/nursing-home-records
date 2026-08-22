@@ -132,8 +132,12 @@ export default function AboutPage() {
       <h2>Limitations</h2>
       <p>
         The per-facility record tables and the live owner search run a
-        database engine inside your browser. On a network or browser that
-        blocks it, those views show an error message instead of silently
+        database engine inside your browser. Two things can stop it: a
+        browser or network that blocks the engine itself, and — until this
+        is fixed — a network that blocks{" "}
+        <span className="mono">extensions.duckdb.org</span>, where the engine
+        currently fetches its Parquet reader the first time it runs a query.
+        Either way those views show an error message instead of silently
         failing, and every one of them links to the untouched source files
         on the <a href={`${BP}/data/`}>Data page</a>. The pre-rendered
         owner pages and every facility, state, and download page work
