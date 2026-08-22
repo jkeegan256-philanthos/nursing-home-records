@@ -183,6 +183,10 @@ site links to its CMS dataset page.
   and the matching names in `lib/data.ts`.
 - Processing notes on the Data page list anything unusual the transform
   saw (unknown files, size mismatches, rows with a blank state).
+- Processing note "batch change: <count> N -> M": a headline figure moved
+  at a monthly refresh. The source filename changed too, so nothing can
+  say whether CMS moved it or the pipeline did; read the size of the
+  move. A few hundred either way is ordinary. A collapse is not.
 - Build fails with "a published count changed while its source file did
   not": a number this site displays moved while the CMS file it derives
   from is byte-identical to an earlier build, so CMS cannot have caused

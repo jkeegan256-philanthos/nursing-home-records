@@ -111,8 +111,14 @@ derived_counts: dict[str, dict] = {}
 COUNT_DRIFT_OVERRIDE = os.environ.get("NH_ALLOW_COUNT_DRIFT", "") not in ("", "0")
 
 
-def record_count(name: str, value: int, source_file: str | None) -> None:
-    derived_counts[name] = {"value": int(value), "source_file": source_file}
+def record_count(
+    name: str, value: int, source_file: str | None, table: str | None = None
+) -> None:
+    derived_counts[name] = {
+        "value": int(value),
+        "source_file": source_file,
+        "table": table,
+    }
 
 
 
@@ -334,8 +340,8 @@ def export_owners(
     total_owners = con.execute(
         f"SELECT count(DISTINCT \"Owner Name\") FROM ({named})"
     ).fetchone()[0]
-    record_count("ownership_rows", own_meta["rows"], own_meta.get("source_file"))
-    record_count("named_owners", total_owners, own_meta.get("source_file"))
+    record_count("ownership_rows", own_meta["rows"], own_meta.get("source_file"), "ownership")
+    record_count("named_owners", total_owners, own_meta.get("source_file"), "ownership")
     blank_rows = own_meta["rows"] - con.execute(
         f"SELECT count(*) FROM ({named})"
     ).fetchone()[0]
@@ -695,7 +701,7 @@ def export_owner_pages(
         ),
         encoding="utf-8",
     )
-    record_count("owner_pages", len(owners), own_meta.get("source_file"))
+    record_count("owner_pages", len(owners), own_meta.get("source_file"), "ownership")
     write_slug_map({o["name"]: o["slug"] for o in owners})
     anchored = sum(1 for o in owners if prev.get(o["name"]) == o["slug"])
     print(
@@ -721,7 +727,7 @@ def export_providers(con: duckdb.DuckDBPyConnection, csv_path: Path, build_dir: 
         encoding="utf-8",
     )
     slim_sel = ", ".join(qident(c) for c in SLIM_COLUMNS)
-    record_count("facilities", len(rows), csv_path.name)
+    record_count("facilities", len(rows), csv_path.name, "providers")
     record_count(
         "states",
         con.execute(
@@ -729,6 +735,7 @@ def export_providers(con: duckdb.DuckDBPyConnection, csv_path: Path, build_dir: 
             f'WHERE trim("State") <> \'\''
         ).fetchone()[0],
         csv_path.name,
+        "providers",
     )
     slim_rows = con.execute(f"SELECT {slim_sel} FROM {rel} ORDER BY {order}").fetchall()
     (public_data / "providers-slim.json").write_text(
@@ -778,6 +785,41 @@ def check_count_drift(entries: list[dict], file_hashes: dict[str, str]) -> list[
                 f"({now_hash[:12]})"
             )
             (allowed if COUNT_DRIFT_OVERRIDE else defects).append(msg)
+            break
+
+    # The blind spot, instrumented rather than papered over. CMS stamps
+    # every filename with the month, so at a monthly refresh there is no
+    # same-hash predecessor and the comparison above has nothing to say
+    # -- which is to say the check is silent at the one moment the data
+    # actually turns over. Discrimination is genuinely impossible there,
+    # so this reports the movement and attaches no verdict. A maintainer
+    # reading "named owners 62,077 -> 62,431" moves on; one reading
+    # "62,077 -> 41,002" investigates. The human is the discriminator
+    # because nothing else can be, and saying so is more honest than a
+    # threshold pretending to be knowledge.
+    for name, cur in sorted(derived_counts.items()):
+        if any(name in d for d in defects + allowed):
+            continue
+        src = cur.get("source_file")
+        if not src or src not in file_hashes:
+            continue
+        if any(
+            (past.get("files") or {}).get(src, {}).get("sha256") == file_hashes[src]
+            for past in entries
+        ):
+            continue  # same file seen before; the check above already spoke
+        for past in reversed(entries):
+            was = (past.get("counts") or {}).get(name)
+            if not was:
+                continue
+            if was.get("value") != cur["value"]:
+                warn(
+                    f"batch change: {name.replace('_', ' ')} "
+                    f"{was['value']:,} -> {cur['value']:,} "
+                    f"({was.get('source_file')} -> {src}). A new source file, "
+                    f"so this is CMS's change to read, not a defect; no check "
+                    f"can tell a data change from a pipeline change here."
+                )
             break
 
     for msg in allowed:
