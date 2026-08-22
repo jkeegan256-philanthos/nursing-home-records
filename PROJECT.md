@@ -447,7 +447,46 @@ dated beside it, and the reasoning is recorded at full length.
   assertion that printed ok while asserting nothing, a gate that went
   green having run no query, and a grey star shaped exactly like an
   earned one. Each was an artifact wearing the appearance of the thing
-  it was not.
+  it was not. The instance that explains why five readers walked past
+  the stars is the fourth disguise: the class was called `off`. A name
+  that describes intent rather than implementation is documentation
+  living inside an identifier, and it carried no check, so every reader
+  who saw `off` supplied "hollow" from the name and moved on -- the
+  author of this fix included, having read the component on the first
+  pass and registered the class without ever asking what it emitted. A
+  variable name is a claim about behaviour, and principle 7 applies to
+  it exactly as it applies to a sentence on a page.
+- 2026-08-22: decoration audit, run because the star bug proved the rule
+  needed one and recorded here because an audit that finds nothing is
+  worth exactly what the rule it confirms is worth. The question asked
+  of every rendering surface: is colour, position, or shape the only
+  thing carrying a value CMS published? Findings, in full.
+  Violations, both fixed in the same release: the star glyphs, above;
+  and a published value the star component did not recognise being
+  replaced with a dash, which is the site editing CMS data at the exact
+  spot its footer promises it does not. Clean: no images, icons, SVG,
+  CSS background images, or generated ::before/::after content exist
+  anywhere in the site, so there is no non-text element that could
+  carry a value. Every dash on every surface -- eighteen of them across
+  seven files -- was checked individually and each is guarded by an
+  emptiness test on the value it stands for, so a dash means CMS
+  published nothing and never stands in for something CMS published.
+  The remaining colour-only styles carry emphasis on text that is
+  already there, not values: chip-warn colours a chip whose text is the
+  published string, muted greys a dash or a label, quiet-link dots an
+  underline under a role that is spelled out beside it. Sort arrows in
+  the state tables are interface state, not data, and carry aria-sort
+  besides. Considered and judged not a violation, with the reasoning
+  recorded so the judgment can be revisited rather than rediscovered:
+  the facility header shows an abuse chip only when the Abuse Icon is
+  Y, so its absence covers N, blank, and anything unrecognised alike.
+  That is the facts grid being a curated subset, which it has always
+  been and which ADAPTATION.md names as a touchpoint, rather than a
+  depiction that contradicts the data; the published string is one
+  click away in the full record under principle 6. Adding Abuse Icon
+  and Special Focus Status to the key facts would close it completely
+  and is a two-line change, but it alters what every facility page
+  displays, which is a design decision and not an audit's to make.
 - 2026-08-22: three fidelity fixes in the transform and the record
   pages, from the same review. The load-bearing one is principle 6.
   Rows CMS publishes with a blank or non-standard state code are put in
