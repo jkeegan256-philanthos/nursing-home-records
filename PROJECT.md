@@ -387,7 +387,16 @@ dated beside it, and the reasoning is recorded at full length.
   committed with `git add -A`, putting conflict markers into README.md
   and package.json. CI would have caught it. It should not have needed
   to, and the fix is a repository-wide marker sweep before any push
-  rather than trusting the resolver to have finished.
+  rather than trusting the resolver to have finished. A second control followed from the same
+  mistake later the same day. When a stacked branch had to absorb a
+  squash-merged main across six conflicted files, the blunt
+  resolution -- keep ours everywhere -- was verified rather than
+  trusted: the branch-to-main diff was confirmed one-directional,
+  and thirteen named features from both releases were probed
+  individually before the push. Both controls exist because one
+  careless `git add -A` proved that a resolution nobody checked is
+  a resolution nobody knows the shape of, and a stacked branch
+  absorbing a squash merge is exactly where that goes unnoticed.
   Fourth, caught the same day and fixed in this release because it is
   the same failure wearing a reader's clothes: star ratings were drawn
   as five identical filled glyphs, the unearned ones separated only by
