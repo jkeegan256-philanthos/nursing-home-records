@@ -204,6 +204,17 @@ Two corollaries earned the same week:
 - The check has to be able to fail. Every gate here was validated by
   breaking the thing it guards and confirming it goes red and says
   which thing. A gate never seen to fail is a gate nobody has tested.
+- Verify that an edit applied by pattern actually changed the file. A
+  pattern that matches nothing returns the text unchanged and reports
+  success, so the change is announced, committed, and absent. This is
+  not a personal habit: this file is a coordination layer across AI
+  working sessions, and such a session edits by scripted replace
+  essentially always, which makes the failure structural to this
+  project's expected contributor rather than incidental to one of
+  them. Assert both that the pattern was found and that the bytes
+  differ; either alone leaves a hole. The 2026-08-22 entry records
+  what it cost, including the two edits documenting the rule that
+  would themselves have vanished silently.
 
 ## Decision log
 
