@@ -30,7 +30,7 @@
 //
 //   node scripts/check_no_third_party.mjs [--dir out] [--port 8123]
 
-import { createReadStream, existsSync, readFileSync, statSync } from "node:fs";
+import { createReadStream, existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { createServer } from "node:http";
 import { extname, join, normalize } from "node:path";
 
@@ -285,8 +285,25 @@ if (owner) {
   );
 }
 
-// 4. The static pages, for fonts and anything else a page might pull.
-for (const p of ["/data/", "/about/", "/glossary/"]) await go(p);
+// 4. The remaining page types. The state and pre-rendered owner pages
+//    run no query, but they are page types this site serves and so
+//    they are page types this check has to open.
+const anyState = existsSync(join(DIR, "state"))
+  ? readdirSync(join(DIR, "state"))[0]
+  : null;
+const anyOwner = existsSync(join(DIR, "owner"))
+  ? readdirSync(join(DIR, "owner"))[0]
+  : null;
+for (const p of [
+  "/data/",
+  "/about/",
+  "/glossary/",
+  anyState && `/state/${anyState}/`,
+  anyOwner && `/owner/${anyOwner}/`,
+  "/404/",
+]) {
+  if (p) await go(p);
+}
 console.log("  --    static pages loaded");
 
 await browser.close();
@@ -301,6 +318,68 @@ console.log();
 // build too. If no Parquet was read over HTTP, this gate has not
 // exercised the thing it exists to watch, and a green result is not
 // evidence of anything.
+// Coverage of page types, derived from the export rather than declared,
+// so it cannot drift. A page type added later shows up here, nothing
+// visits it, and this fails asking to be driven -- rather than quietly
+// sitting outside the sample while everyone assumes it is inside.
+const ASSET_DIRS = new Set(["_next", "duckdb", "fonts", "data"]);
+const routeTypes = readdirSync(DIR, { withFileTypes: true })
+  .filter((d) => d.isDirectory() && !ASSET_DIRS.has(d.name))
+  .map((d) => d.name);
+const visitedTypes = new Set(
+  [...requested].map((p) => p.split("/")[1]).filter(Boolean)
+);
+const unvisited = routeTypes.filter((t) => !visitedTypes.has(t));
+check(
+  unvisited.length === 0,
+  `every page type in the export was opened (${routeTypes.length}: ${routeTypes.sort().join(", ")})`,
+  `the export serves page type(s) this check never opens: ${unvisited.join(", ")}. ` +
+    `Open one of each, or this run is silent about them while reading as green`
+);
+
+// Coverage of query paths. This one has to be declared, because nothing
+// can infer which call sites a browser run actually reached. Declaring
+// it is the point: a new query call site changes this map and fails the
+// check, which forces someone to drive it here rather than assume the
+// shared helper makes it safe. That assumption is what missed the
+// extension fetch and the star glyphs both.
+const KNOWN_QUERY_CALLERS = {
+  "components/FullRecord.tsx": 1,
+  "components/FacilityRecords.tsx": 2,
+  "components/OwnerExplorer.tsx": 4,
+};
+const QUERY_CALL = /\b(querySQL|queryParquet|queryParquetAll)\(/g;
+const actualCallers = {};
+for (const dir of ["components", "lib", "app"]) {
+  const walk = (d) => {
+    for (const e of readdirSync(d, { withFileTypes: true })) {
+      const full = join(d, e.name);
+      if (e.isDirectory()) walk(full);
+      else if (/\.tsx?$/.test(e.name) && full !== join("lib", "duckdb-client.ts")) {
+        const n = (readFileSync(full, "utf8").match(QUERY_CALL) || []).length;
+        if (n) actualCallers[full.split("\\").join("/")] = n;
+      }
+    }
+  };
+  if (existsSync(dir)) walk(dir);
+}
+const callerDrift = [];
+for (const [f, n] of Object.entries(actualCallers)) {
+  if (KNOWN_QUERY_CALLERS[f] !== n) {
+    callerDrift.push(`${f}: ${n} call(s), expected ${KNOWN_QUERY_CALLERS[f] ?? 0}`);
+  }
+}
+for (const f of Object.keys(KNOWN_QUERY_CALLERS)) {
+  if (!(f in actualCallers)) callerDrift.push(`${f}: no query calls found any more`);
+}
+check(
+  callerDrift.length === 0,
+  `${Object.values(actualCallers).reduce((a, b) => a + b, 0)} query call site(s) accounted for`,
+  `the site's query call sites changed: ${callerDrift.join("; ")}. Drive the ` +
+    `new path in this check and update KNOWN_QUERY_CALLERS — a shared helper ` +
+    `is not evidence that a new path behaves`
+);
+
 const parquetReads = [...requested].filter((p) => p.endsWith(".parquet"));
 check(
   parquetReads.length > 0,

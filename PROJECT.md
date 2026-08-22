@@ -172,6 +172,18 @@ interactions a green result covers. When a page type or an interaction
 is added, it goes in that list, or the gate quietly stops covering the
 thing everyone assumes it covers.
 
+That last sentence is a rule, and a rule that depends on someone reading
+this file is not self-maintaining, so the gate asserts its own coverage
+instead. Page types it derives from the export and compares against what
+the browser actually opened, which cannot drift: a page type added later
+appears in the export, nothing visits it, and the run fails naming it.
+Query call sites it cannot derive -- nothing can infer which of them a
+browser run reached -- so those are declared, and declaring them is the
+point: adding a query anywhere changes the count and fails the check,
+forcing whoever added it to drive it here rather than reason that the
+shared helper makes it safe. That reasoning is precisely what missed the
+extension fetch and the star glyphs.
+
 Two corollaries earned the same week:
 
 - A safety property that holds because of something outside this
