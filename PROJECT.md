@@ -319,8 +319,15 @@ dated beside it, and the reasoning is recorded at full length.
   reaching outside state/, so widening what it stages cannot defeat
   the trigger guard without tripping this one; and
   scripts/check_loop_guard.py asserts both in CI, validated by
-  removing each and confirming it fails. The general rule, since this
-  is the second instance in one day: a safety property that holds
-  because of something outside this repository is not a safety
-  property this repository has. Write it down or check it, and
-  preferably both.
+  removing each and confirming it fails. The precise version of what
+  was wrong, because the imprecise version misleads: the guard was
+  never absent, it was the platform's rather than the repository's.
+  The general rule, since this is the second instance in one day: a
+  safety property that holds because of something outside this
+  repository is not a safety property this repository has. Write it
+  down or check it, and preferably both. The cost, recorded here so
+  nobody rediscovers it at midnight: a commit touching only state/ no
+  longer deploys, so a hand-edited ledger does not reach readers until
+  some other change rides with it or someone taps Run workflow. That
+  is a fair trade and arguably a second feature -- hand-editing the
+  ledger is something this design wants to be awkward.
