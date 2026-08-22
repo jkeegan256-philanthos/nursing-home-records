@@ -146,6 +146,17 @@ the first build on a fresh clone needs network.
 - Transform: about 2.5 minutes. Full static build: about 4 minutes,
   14,751 pages. Deployed site: about 545 MB.
 
+## Run time, measured
+
+A healthy end-to-end run is roughly 4 to 6 minutes, and the spread is
+mostly not ours. Measured 2026-08-22 on the real batch: transform 1m,
+`next build` 1m30s, Chromium install 22s, origin check 10s, Pages
+artifact upload 15s. The deploy job itself swung from 26s to 1m55s
+between two consecutive runs on a 130 MB artifact, which is GitHub's
+variance, not the pipeline's. Judge a slow run by the build job, not
+the run total; a build job much past 4 minutes is worth looking at,
+a slow deploy job usually is not.
+
 ## Hosting notes
 
 - GitHub Pages caps a published site at 1 GB. The current export is
