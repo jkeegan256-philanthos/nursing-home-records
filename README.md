@@ -25,6 +25,10 @@ On every push, monthly schedule, or manual run, the Action fetches the
 current CMS theme zip (or uses one committed in `data/`), then runs the
 transform and `next build`:
 
+0. `scripts/vendor-assets.mjs` copies the DuckDB engine and the fonts out
+   of `node_modules`, asks the engine its own version, and downloads the
+   matching Parquet extension. Without that last step the engine fetches
+   the extension from `extensions.duckdb.org` in every reader's browser.
 1. The zip is unzipped and checked against the CMS `manifest.json`
    inside it (file presence and byte sizes). The zip's SHA-256 is
    recorded and shown on the site.
@@ -105,11 +109,21 @@ github.io address redirects to the domain automatically.
 For a fast production build while testing, cap the number of facility
 pages: `PAGES_LIMIT=200 npm run build`.
 
+`npm run check:origins` loads the built site in a browser and fails on
+any request that leaves this origin. It is the gate that proves the site
+is self-contained; a grep over the export cannot, because DuckDB builds
+its extension URL at run time. It runs on every pull request against the
+fixture, and on every deploy against the export about to be served.
+
 The build carries state between batches — the ledger chain and the owner
 slug reservations — reading the deployed site first and the committed
 copy in `state/` second. If neither can be read it stops rather than
 silently start a new chain; see `state/README.md`. A local `npm run data`
 never writes to `state/`, and `npm run fixture` carries no state at all.
+
+`npm run build` downloads the DuckDB Parquet extension once, into
+`public/duckdb/extensions/` (gitignored), and reuses it after that, so
+the first build on a fresh clone needs network.
 
 ## The June 2026 batch, measured
 

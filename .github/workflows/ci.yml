@@ -1,8 +1,10 @@
 name: CI
 
-# Runs the synthetic fixture through the full pipeline and builds the
-# site from it, so a broken transform or type error fails the PR
-# instead of the next monthly refresh.
+# Runs the synthetic fixture through the full pipeline, builds the site
+# from it, then loads that site in a browser and fails on any request
+# that leaves this origin. A broken transform, a type error, or a
+# re-introduced third-party fetch fails the PR instead of the next
+# monthly refresh.
 
 on:
   pull_request:
@@ -40,22 +42,24 @@ jobs:
       - name: Build static site from the fixture
         run: npm run build
 
-      - name: Assert zero third-party loads
-        # Links are not loads: anchors to CMS or GitHub are fine. This
-        # gate fails on resource CDNs anywhere, on any external origin
-        # in a loading position, and on missing vendored assets.
+      - name: Install Chromium for the origin check
+        run: npx playwright install --with-deps chromium
+
+      - name: Assert the site talks only to itself
+        # Not a denylist. The failure this replaces was a URL assembled
+        # inside a WebAssembly binary at run time, which appears nowhere
+        # in the export -- no grep of the files could ever have seen it.
+        # This loads the built site in a real browser, exercises both
+        # DuckDB-backed views, and fails on any request to a host that
+        # is not the one serving the site.
+        run: npm run check:origins
+
+      - name: Assert the vendored files are present
         run: |
           set -euo pipefail
-          if grep -rIlE "fonts\.googleapis\.com|fonts\.gstatic\.com|jsdelivr|unpkg\.com|cdnjs\.cloudflare\.com|esm\.sh" out/; then
-            echo "FAIL: resource CDN reference in the export"; exit 1; fi
-          if grep -rIE '<script[^>]{0,300}src="https?://' out/ --include='*.html'; then
-            echo "FAIL: external script load"; exit 1; fi
-          if grep -rIE '<link[^>]{0,300}href="https?://' out/ --include='*.html'; then
-            echo "FAIL: external link load"; exit 1; fi
-          if grep -rIE 'url\(\s*["'"'"']?https?://' out/ --include='*.css'; then
-            echo "FAIL: external css url()"; exit 1; fi
           test -f out/duckdb/duckdb-eh.wasm
           test -f out/duckdb/duckdb-mvp.wasm
           test -f out/fonts/public-sans-latin-wght-normal.woff2
           test -f out/fonts/LICENSE-public-sans.txt
-          echo "zero third-party loads confirmed"
+          ls out/duckdb/extensions/*/wasm_eh/parquet.duckdb_extension.wasm
+          ls out/duckdb/extensions/*/wasm_mvp/parquet.duckdb_extension.wasm

@@ -156,20 +156,21 @@ export default function DataPage() {
         will be fixed.
       </p>
       <p>
-        The fonts and the query engine are served from this domain, alongside
-        the data. One request is not. The first time a page runs a query, the
-        engine fetches its Parquet reader from{" "}
-        <span className="mono">extensions.duckdb.org</span>, which tells that
-        host your IP address and that you loaded a page here. Until this site
-        serves that file itself, the record tables and the owner search also
-        stop working on any network that blocks it; the downloads above do
-        not. This page previously said the site made no third-party requests
-        at all, and that a build check enforced it. Both were untrue. The
-        retraction is dated in the{" "}
+        This site makes no third-party requests: the fonts, the query engine,
+        and the engine&apos;s Parquet extension are all served from this
+        domain, alongside the data. Every build loads the finished site in a
+        browser, records every request it makes, and fails if any of them
+        goes to another host. That check is why this sentence is here. It was
+        here once before while it was untrue — the engine was fetching its
+        Parquet reader from{" "}
+        <span className="mono">extensions.duckdb.org</span> on every facility
+        page, and the check at the time only searched the published files for
+        known hostnames, which cannot see a URL that the engine assembles
+        while it runs. Both the retraction and the return are dated in the{" "}
         <a href={`${REPO_URL}/blob/main/PROJECT.md`} rel="noopener noreferrer">
           decision log
         </a>
-        , and the sentence returns only when it is true again.
+        .
       </p>
 
       {notes.length ? (

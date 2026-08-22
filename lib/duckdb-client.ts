@@ -18,6 +18,20 @@ function withTimeout<T>(p: Promise<T>, ms: number, what: string): Promise<T> {
   });
 }
 
+// Where the engine looks for extensions. DuckDB appends
+// /<version>/<platform>/<name>.duckdb_extension.wasm to this, and
+// scripts/vendor-assets.mjs writes the matching tree under
+// public/duckdb/extensions at build time.
+//
+// Setting this is not a nicety. Left at its default the engine fetches
+// the Parquet reader from extensions.duckdb.org the first time any page
+// runs a query — which it did, on every facility page, for the first
+// three weeks this site was live. Serving duckdb-*.wasm from your own
+// origin does not prevent that; only redirecting the repository does.
+function extensionRepository(): string {
+  return new URL(`${BP}/duckdb/extensions`, window.location.origin).toString();
+}
+
 async function init(): Promise<duckdb.AsyncDuckDB> {
   // Engine files are vendored into public/duckdb by
   // scripts/vendor-assets.mjs — same origin, so the worker loads
@@ -35,6 +49,36 @@ async function init(): Promise<duckdb.AsyncDuckDB> {
   const worker = new Worker(bundle.mainWorker!);
   const db = new duckdb.AsyncDuckDB(new duckdb.VoidLogger(), worker);
   await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+
+  // Point the engine at this origin, then load Parquet up front so a
+  // failure surfaces here — where every caller already shows the
+  // "use the original files on the Data page" message — instead of
+  // halfway through a reader's first query.
+  //
+  // Each statement is best-effort on purpose. A future DuckDB that
+  // renames one of these settings would otherwise throw here and take
+  // the whole interactive layer down with it, which is a worse outcome
+  // than the one being prevented. What keeps that tolerance honest is
+  // scripts/check_no_third_party.mjs: if these ever stop redirecting
+  // the engine, the build fails before anyone is served.
+  const repo = extensionRepository();
+  const conn = await db.connect();
+  try {
+    for (const sql of [
+      `SET custom_extension_repository = '${repo}'`,
+      `SET autoinstall_extension_repository = '${repo}'`,
+      "INSTALL parquet",
+      "LOAD parquet",
+    ]) {
+      try {
+        await conn.query(sql);
+      } catch (err) {
+        console.error(`DuckDB setup step failed: ${sql}`, err);
+      }
+    }
+  } finally {
+    await conn.close();
+  }
   return db;
 }
 
