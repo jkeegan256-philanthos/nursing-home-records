@@ -237,3 +237,37 @@ dated beside it, and the reasoning is recorded at full length.
   slots. Permanent cron set to 09:47 UTC on the 5th, probe workflow
   retired, tap documented as the backup whenever the 5th passes
   without a Scheduled run.
+- 2026-08-22: the zero-third-party claim retracted, copy first and
+  alone. A project review built the site and drove it in a browser --
+  the first check to do that rather than read the code and infer -- and
+  recorded an outbound request to extensions.duckdb.org on every
+  facility page load. DuckDB-WASM 1.32.0 does not statically link the
+  Parquet reader into the bundle this site serves; the first
+  read_parquet call autoloads it from duckdb.org. The Data page said,
+  flatly, that the site makes no third-party requests and that a build
+  check enforced it. Both halves were untrue. The check greps the
+  exported files for a list of CDN hostnames, and the URL in question
+  is assembled inside a WebAssembly binary at run time, where no grep
+  of the export can reach it: the gate could not have caught this, and
+  a longer denylist would not have helped. The sequencing here is
+  deliberate and is the point of this entry. The false sentence comes
+  down today, in a change that touches nothing but copy, because a
+  claim that is untrue should stop being made at the first moment it
+  can, not at the moment its subject is repaired -- shipping the
+  correction and the fix together would leave the untrue sentence
+  standing for however long the fix takes, which is a choice about
+  convenience wearing the costume of tidiness. What replaces it names
+  the request, names what it discloses, and names what breaks when a
+  network blocks it. Vendoring the extension so this site serves it,
+  and replacing the grep with a headless page load that records every
+  request and fails on any host that is not this one, follow as their
+  own changes; the sentence returns only with its own dated entry, when
+  it is true again. Distinguished from the 2026-08-07 reversal on
+  purpose: that was a judgment defended and then overturned on
+  reflection; this is not a judgment at all but a statement of fact
+  that was wrong, and the remedy for a wrong fact is retraction, not
+  reconsideration. Noted for reusers: this failure mode is not
+  particular to this site. Any static site that ships DuckDB-WASM and
+  believes it has vendored the engine has likely inherited the
+  extension fetch too, and will not find it by reading its own
+  source.
