@@ -487,11 +487,18 @@ dated beside it, and the reasoning is recorded at full length.
   as five. The general rule, which is the reader-facing form of the
   two test-harness notes above: colour, position, and shape are
   decoration, and decoration must never be the only thing carrying a
-  published value. Three instances of one pattern landed in a single
-  day -- an assertion that printed ok while asserting nothing, a gate
-  that went green having run no query, and a grey star shaped exactly
-  like an earned one. Each was an artifact wearing the appearance of
-  the thing it was not. The instance that explains why five readers
+  published value. The general form, stated before the instances rather
+  than after them because it is what makes them one thing: an absence
+  wearing the shape of a presence. Six landed in a single day. An
+  assertion that printed ok without asserting. A gate that went green
+  having run no query. A class named off that turned nothing off. A
+  grey star shaped exactly like an earned one. A commit that captured
+  conflict markers. An edit whose pattern matched nothing, reporting
+  success while leaving the file untouched. The last is the purest, and
+  the one now mechanized rather than watched for: the edit helper
+  asserts both that the pattern was found and that the file's bytes
+  changed, so an edit that does nothing fails instead of announcing
+  itself. The instance that explains why five readers
   walked past the stars is the fourth disguise: the class was called
   `off`. A name that describes intent rather than implementation is
   documentation living inside an identifier, and it carried no check,
@@ -652,17 +659,23 @@ dated beside it, and the reasoning is recorded at full length.
   because nothing else can be, and saying so plainly is more honest
   than a threshold pretending to be knowledge. Counts carry their
   logical table as well as their file so the pairing survives the
-  rename. One boundary noted deliberately: this puts two figures for
-  successive vintages in front of readers, which brushes the deferred
-  retention feature's fence. It is judged not to cross it -- the fence
-  is around then-versus-now as a browsable display, and this is a
-  processing note about one anomaly, in the channel principle 5
-  already makes public. Recorded so that if the judgement is ever
-  revisited it is revisited as a judgement, not rediscovered as an
-  oversight. NH_ALLOW_COUNT_DRIFT=1 passes a drift through and writes
-  it into the ledger entry, so an intentional change becomes a
-  recorded decision rather than a silent pass; the deploy workflow
-  never sets it.
+  rename. One boundary noted deliberately, and drawn around the object
+  rather than the quantity, because "two numbers is fine and three is
+  not" would not survive being revisited. The deferred retention fence
+  encircles displaying change in CMS's data about facilities and
+  owners: a browsable then-and-now of ratings, citations, or holdings.
+  This note reports change in the mirror's own operation, a different
+  object and already the ledger's stated job. The same distinction
+  settles the question one level up, since the ledger's entries are
+  themselves a public history and now carry counts: still fine, same
+  reason. What would cross is a page inviting a reader to compare
+  batches of CMS data. This is a processing note about one anomaly, in
+  the channel principle 5 already makes public. Recorded so that if
+  the judgement is ever revisited it is revisited as a judgement, not
+  rediscovered as an oversight. NH_ALLOW_COUNT_DRIFT=1 passes a drift
+  through and writes it into the ledger entry, so an intentional
+  change becomes a recorded decision rather than a silent pass; the
+  deploy workflow never sets it.
 - 2026-08-23: the competitive landscape corrected, and what actually
   distinguishes this site written down instead of assumed. An earlier
   review reported that no direct competitor was found. It searched
