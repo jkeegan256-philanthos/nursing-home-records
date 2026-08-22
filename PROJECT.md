@@ -486,7 +486,24 @@ dated beside it, and the reasoning is recorded at full length.
   click away in the full record under principle 6. Adding Abuse Icon
   and Special Focus Status to the key facts would close it completely
   and is a two-line change, but it alters what every facility page
-  displays, which is a design decision and not an audit's to make.
+  displays, which is a design decision and not an audit's to make. Escalated, and decided the other way, which is
+  recorded here as a separate fact from the audit's finding because an
+  audit that quietly makes design decisions is one whose clean rows
+  nobody can trust. Both fields are now displayed for every facility,
+  on two grounds the audit had not reached. First, the rule from this
+  same morning in its weakest form but the same form: the chip carries
+  "Y" in text, but for every other facility the published value was
+  carried by absence, and absence is a shape -- a reader could not tell
+  "CMS published N" from "CMS published nothing", which are different
+  facts. Second, and heavier for this charter: surfacing a field only
+  when it says the alarming thing is closer to flagging than to
+  display, and principle 4 means every facility shows its value
+  whatever that value says. The change also converts the chips into
+  exactly the pattern the sweep's clean rows describe -- emphasis on
+  text present elsewhere on the page rather than the sole carrier of
+  it. scripts/check_rendered_values.mjs now asserts both labels appear
+  on every sampled facility page, so the field cannot quietly revert to
+  appearing only when it has something alarming to say.
 - 2026-08-22: three fidelity fixes in the transform and the record
   pages, from the same review. The load-bearing one is principle 6.
   Rows CMS publishes with a blank or non-standard state code are put in

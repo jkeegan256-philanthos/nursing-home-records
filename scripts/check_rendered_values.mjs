@@ -130,6 +130,29 @@ check(
     `mangles some ratings and not others could pass`
 );
 
+// Fields that must appear on every facility page whatever they say.
+// Surfacing one only when it carries the alarming value makes absence
+// the carrier of every other value, and a reader cannot tell "CMS
+// published N" from "CMS published nothing".
+const ALWAYS_SHOWN = ["Abuse icon", "Special focus status"];
+const missingLabel = [];
+for (const c of facilities) {
+  const f = join(facDir, c, "index.html");
+  if (!existsSync(f)) continue;
+  const html = readFileSync(f, "utf8");
+  for (const label of ALWAYS_SHOWN) {
+    if (!html.includes(`<dt>${label}</dt>`)) missingLabel.push(`${c}: ${label}`);
+  }
+}
+check(
+  facilities.length > 0 && missingLabel.length === 0,
+  `${ALWAYS_SHOWN.join(" and ")} shown on all ${facilities.length} sampled facility page(s)`,
+  facilities.length === 0
+    ? "no facility pages were sampled, so this run proves nothing"
+    : `a field is displayed only when it carries a value, so absence has ` +
+      `to stand for every other value: ${missingLabel.slice(0, 5).join(", ")}`
+);
+
 if (problems.length) {
   console.error(`\nFAIL  ${problems.length} problem(s):\n`);
   for (const p of problems) console.error(`  - ${p}`);
