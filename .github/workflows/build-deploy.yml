@@ -85,6 +85,16 @@ jobs:
         run: npm run build
 
       - name: Install Chromium for the origin check
+        # Measured cost of putting a browser on the deploy path, on the
+        # real batch: 22s to install Chromium plus 10s to run the check.
+        # Do not read it off the run total. On 2026-08-22 the run total
+        # went 3m55s to 5m52s across these two runs, but the browser was
+        # 32s of that and the rest was the Pages deploy job swinging 26s
+        # to 1m55s on a 130 MB artifact, which is GitHub's variance and
+        # not ours. The honest baseline for a healthy run is roughly
+        # 4 to 6 minutes, with deploy variance the dominant term.
+        # Conflating the two would have someone read a slow Pages deploy
+        # as a regression in this workflow.
         run: npx playwright install --with-deps chromium
 
       - name: Assert the pages say what the data says
