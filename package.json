@@ -11,7 +11,8 @@
     "prebuild": "node scripts/vendor-assets.mjs",
     "build": "next build",
     "data": "python3 scripts/build_data.py",
-    "fixture": "python3 scripts/dev_fixture.py && NH_PARTITION_MIN_BYTES=500 NH_OWNER_PAGE_MIN=2 NH_STATE_URL= python3 scripts/build_data.py --zip build/fixture/theme_fixture.zip"
+    "fixture": "python3 scripts/dev_fixture.py && NH_PARTITION_MIN_BYTES=500 NH_OWNER_PAGE_MIN=2 NH_STATE_URL= python3 scripts/build_data.py --zip build/fixture/theme_fixture.zip",
+    "check:origins": "node scripts/check_no_third_party.mjs"
   },
   "dependencies": {
     "@duckdb/duckdb-wasm": "^1.29.0",
@@ -26,6 +27,7 @@
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "playwright": "^1.55.0",
     "typescript": "^5.6.0"
   }
 }

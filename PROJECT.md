@@ -299,3 +299,30 @@ dated beside it, and the reasoning is recorded at full length.
   it, so production cannot reach it by accident. Only builds that can
   actually deploy write the committed copy, because a fallback that
   records batches nobody served is not a record of anything.
+- 2026-08-22: the zero-third-party claim earned back, and the gate
+  rebuilt around what it failed to see. The Parquet extension is now
+  vendored at build time and the engine is pointed at this origin to
+  find it, so no reader's browser contacts duckdb.org. Two details are
+  the substance. First, the build asks the engine its own version rather
+  than carrying a hardcoded one, because DuckDB composes the extension
+  path from that version, and a version that drifted from the shipped
+  binary would send every reader quietly back to duckdb.org for a file
+  this site believed it was serving -- the same failure again, wearing
+  a fix. Second, the check. The old one grepped the exported files for
+  a list of CDN hostnames, and the thing it was built to prevent was
+  invisible to it in principle: the URL is assembled inside a
+  WebAssembly binary while the page runs, so it exists in no file at any
+  point where a grep could look. Lengthening that list would not have
+  helped, and the temptation to lengthen it is the reason this is
+  written down. The replacement loads the finished site in a browser,
+  exercises both DuckDB-backed views, records every request, and fails
+  on any host that is not the one serving the site. It was validated by
+  removing the fix and confirming it fails, naming the exact URL. The
+  general form, kept because the next instance will not look like this
+  one: a claim about what software does at run time can only be checked
+  by running it. Static inspection of what was shipped can prove what is
+  in the files and nothing whatever about what the files go and do. With
+  that check standing, the sentence returns to the Data page -- narrowed
+  to what is actually verified, and carrying its own history, because a
+  claim that was once false and is now true should say so rather than
+  quietly reappear.
