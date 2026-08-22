@@ -90,6 +90,37 @@ STATE_CANDIDATES = ["State", "Provider State"]
 
 warnings: list[str] = []
 
+# Headline numbers this site derives from the batch and shows to readers.
+# Recorded in every ledger entry so the next build can ask the one
+# question the pipeline could not previously answer about itself: when a
+# count moves, was it CMS or was it us?
+#
+# The discriminator needs no thresholds and no judgement. A count that
+# moved while its source file is byte-identical cannot have moved because
+# the data changed, so it moved because this code changed, and that is
+# always a defect. A count that moved alongside a changed source file is
+# ordinary monthly movement and stays silent -- deliberately, because
+# reporting normal volume change to readers is the noise the Release 3
+# spec was right to refuse. This is a diagnostic that never reaches a
+# reader; it only ever stops a build.
+derived_counts: dict[str, dict] = {}
+
+# The one deliberate way past it, same shape as NH_STATE_BOOTSTRAP: never
+# set in the deploy workflow, so an intentional change becomes a recorded
+# decision instead of a silent pass.
+COUNT_DRIFT_OVERRIDE = os.environ.get("NH_ALLOW_COUNT_DRIFT", "") not in ("", "0")
+
+
+def record_count(
+    name: str, value: int, source_file: str | None, table: str | None = None
+) -> None:
+    derived_counts[name] = {
+        "value": int(value),
+        "source_file": source_file,
+        "table": table,
+    }
+
+
 
 def warn(msg: str) -> None:
     warnings.append(msg)
@@ -309,6 +340,8 @@ def export_owners(
     total_owners = con.execute(
         f"SELECT count(DISTINCT \"Owner Name\") FROM ({named})"
     ).fetchone()[0]
+    record_count("ownership_rows", own_meta["rows"], own_meta.get("source_file"), "ownership")
+    record_count("named_owners", total_owners, own_meta.get("source_file"), "ownership")
     blank_rows = own_meta["rows"] - con.execute(
         f"SELECT count(*) FROM ({named})"
     ).fetchone()[0]
@@ -668,6 +701,7 @@ def export_owner_pages(
         ),
         encoding="utf-8",
     )
+    record_count("owner_pages", len(owners), own_meta.get("source_file"), "ownership")
     write_slug_map({o["name"]: o["slug"] for o in owners})
     anchored = sum(1 for o in owners if prev.get(o["name"]) == o["slug"])
     print(
@@ -693,11 +727,115 @@ def export_providers(con: duckdb.DuckDBPyConnection, csv_path: Path, build_dir: 
         encoding="utf-8",
     )
     slim_sel = ", ".join(qident(c) for c in SLIM_COLUMNS)
+    record_count("facilities", len(rows), csv_path.name, "providers")
+    record_count(
+        "states",
+        con.execute(
+            f'SELECT count(DISTINCT trim("State")) FROM {rel} '
+            f'WHERE trim("State") <> \'\''
+        ).fetchone()[0],
+        csv_path.name,
+        "providers",
+    )
     slim_rows = con.execute(f"SELECT {slim_sel} FROM {rel} ORDER BY {order}").fetchall()
     (public_data / "providers-slim.json").write_text(
         json.dumps({"columns": SLIM_COLUMNS, "rows": slim_rows}, ensure_ascii=False, separators=(",", ":")),
         encoding="utf-8",
     )
+
+
+def check_count_drift(entries: list[dict], file_hashes: dict[str, str]) -> list[str]:
+    """Did a headline count move without its source moving?
+
+    A count and the bytes it was derived from travel together. If the
+    bytes are identical and the count is not, nothing about CMS's data
+    explains it, so this code explains it, and a pipeline whose whole
+    product is fidelity has no business deploying that quietly.
+
+    Each count is compared against the most recent earlier build that
+    saw the same source file at the same hash -- not merely the previous
+    build -- so an unrelated batch in between cannot hide a regression.
+    In practice CMS stamps its filenames with the month, which means
+    this is silent across a monthly refresh (new filename, nothing to
+    compare) and loud across a code deploy on an unchanged batch, which
+    is exactly the polarity wanted: the second case is the only one
+    where the pipeline can be at fault.
+
+    Returns the drifts allowed through by NH_ALLOW_COUNT_DRIFT, for the
+    caller to write into the ledger entry."""
+    defects: list[str] = []
+    allowed: list[str] = []
+
+    for name, cur in sorted(derived_counts.items()):
+        src = cur.get("source_file")
+        if not src or src not in file_hashes:
+            continue
+        now_hash = file_hashes[src]
+        # Walk back to the newest build that read this exact file.
+        for past in reversed(entries):
+            prev_file = (past.get("files") or {}).get(src)
+            if not prev_file or prev_file.get("sha256") != now_hash:
+                continue
+            was = (past.get("counts") or {}).get(name)
+            if not was or was.get("value") == cur["value"]:
+                break
+            msg = (
+                f"{name}: {was['value']:,} -> {cur['value']:,} while {src} is "
+                f"byte-identical to the build of {past.get('generated_at')} "
+                f"({now_hash[:12]})"
+            )
+            (allowed if COUNT_DRIFT_OVERRIDE else defects).append(msg)
+            break
+
+    # The blind spot, instrumented rather than papered over. CMS stamps
+    # every filename with the month, so at a monthly refresh there is no
+    # same-hash predecessor and the comparison above has nothing to say
+    # -- which is to say the check is silent at the one moment the data
+    # actually turns over. Discrimination is genuinely impossible there,
+    # so this reports the movement and attaches no verdict. A maintainer
+    # reading "named owners 62,077 -> 62,431" moves on; one reading
+    # "62,077 -> 41,002" investigates. The human is the discriminator
+    # because nothing else can be, and saying so is more honest than a
+    # threshold pretending to be knowledge.
+    for name, cur in sorted(derived_counts.items()):
+        if any(name in d for d in defects + allowed):
+            continue
+        src = cur.get("source_file")
+        if not src or src not in file_hashes:
+            continue
+        if any(
+            (past.get("files") or {}).get(src, {}).get("sha256") == file_hashes[src]
+            for past in entries
+        ):
+            continue  # same file seen before; the check above already spoke
+        for past in reversed(entries):
+            was = (past.get("counts") or {}).get(name)
+            if not was:
+                continue
+            if was.get("value") != cur["value"]:
+                warn(
+                    f"batch change: {name.replace('_', ' ')} "
+                    f"{was['value']:,} -> {cur['value']:,} "
+                    f"({was.get('source_file')} -> {src}). A new source file, "
+                    f"so this is CMS's change to read, not a defect; no check "
+                    f"can tell a data change from a pipeline change here."
+                )
+            break
+
+    for msg in allowed:
+        warn(f"count drift allowed by NH_ALLOW_COUNT_DRIFT: {msg}")
+
+    if defects:
+        die(
+            "a published count changed while its source file did not:\n    "
+            + "\n    ".join(defects)
+            + "\n  CMS cannot have caused this, so this pipeline did, and a "
+            "count that moves for our reasons is a fidelity defect rather "
+            "than a batch. Find the change. If it is genuinely intended, "
+            "NH_ALLOW_COUNT_DRIFT=1 lets it through and records it in the "
+            "ledger entry as a decision."
+        )
+    return allowed
 
 
 def record_history(
@@ -755,6 +893,8 @@ def record_history(
                     "filename did not"
                 )
 
+    overrides = check_count_drift(entries, file_hashes)
+
     by_file = {t["source_file"]: t for t in tables}
     entries.append(
         {
@@ -770,6 +910,8 @@ def record_history(
                 }
                 for fname in sorted(file_hashes)
             },
+            "counts": dict(derived_counts),
+            **({"count_drift_override": overrides} if overrides else {}),
         }
     )
     (public_data / "ledger.json").write_text(

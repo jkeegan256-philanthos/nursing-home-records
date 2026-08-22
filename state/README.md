@@ -4,7 +4,8 @@ The pipeline's memory between batches. Three files, written by
 `scripts/build_data.py` and committed by the deploy workflow after every
 successful deploy:
 
-    ledger.json        the append-only record of every build this site served
+    ledger.json        the append-only record of every build this site served,
+                       with per-file checksums and the counts derived from them
     owner-slugs.json   the owner-name -> URL reservations, so a cited link
                        never comes to mean a different name
     data-map.json      the previous batch's table structure, for drift notes
