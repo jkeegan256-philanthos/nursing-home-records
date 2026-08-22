@@ -184,6 +184,17 @@ forcing whoever added it to drive it here rather than reason that the
 shared helper makes it safe. That reasoning is precisely what missed the
 extension fetch and the star glyphs.
 
+The honest limit of the declared half: nothing stops someone satisfying
+the count by raising the number instead of driving the interaction. It
+is a tripwire, not a proof, and the two are worth distinguishing because
+a tripwire mistaken for a proof is this whole file's recurring failure
+in yet another costume. What makes a tripwire worth having anyway is
+where it fires and what it says when it does: at the moment of the
+change, to the person making it, naming the specific reasoning it exists
+to interrupt. Someone who reads that message and bumps the number has
+made a decision rather than an oversight, and a decision is the thing
+this log can hold.
+
 Two corollaries earned the same week:
 
 - A safety property that holds because of something outside this
