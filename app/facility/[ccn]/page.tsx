@@ -28,6 +28,13 @@ const KEY_FACTS: [string, string][] = [
   ["Average residents per day", "Average Number of Residents per Day"],
   ["Provider type", "Provider Type"],
   ["In a hospital", "Provider Resides in Hospital"],
+  // Displayed for every facility, whatever they say. Showing these only
+  // when they carry the alarming value made absence the carrier of every
+  // other value, and a reader could not tell "CMS published N" from "CMS
+  // published nothing" -- different facts. The chips below stay as
+  // emphasis on text that is now present regardless.
+  ["Abuse icon", "Abuse Icon"],
+  ["Special focus status", "Special Focus Status"],
   ["First certified", "Date First Approved to Provide Medicare and Medicaid Services"],
   ["Chain", "Chain Name"],
   ["Legal business name", "Legal Business Name"],
