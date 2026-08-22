@@ -14,6 +14,20 @@
 // of check that could have caught it, and it catches the next one too,
 // whatever the hostname turns out to be.
 //
+// What a green result covers, written down because the strength of this
+// check is exactly its sample and nothing beyond it. Pages visited: the
+// home page, one facility page, the owners page, an owner detail page,
+// and the Data, About and glossary pages. Interactions driven, which
+// matters as much as the pages because three query paths are reachable
+// only by acting: the home search box is typed into, the full record's
+// <details> is opened, each record tab with an _OTHER shard is clicked,
+// and the owner search is typed into and submitted with Enter. Every
+// DuckDB query path the site has is therefore fired at least once.
+//
+// What it does not cover: any page type not in that list, and any
+// future interaction added without being added here. A green result is
+// evidence about the sample, not about the site.
+//
 //   node scripts/check_no_third_party.mjs [--dir out] [--port 8123]
 
 import { createReadStream, existsSync, readFileSync, statSync } from "node:fs";
@@ -229,7 +243,33 @@ if (sharded.length === 0) {
   }
 }
 
-// 3. The owner explorer, which is the other DuckDB-backed view.
+// 3a. Owner search: type and press Enter. A distinct query from the
+//     ones above -- an aggregate over the whole ownership file rather
+//     than a filtered read -- and the only one reached solely through
+//     an interaction. Loading pages and waiting would never fire it.
+if (owner) {
+  const needle = String(owner).replace(/[^A-Za-z]/g, "").slice(0, 4);
+  if (needle.length >= 3) {
+    await go("/owners/");
+    await page.fill("input[type=search]", needle);
+    await page.press("input[type=search]", "Enter");
+    await page
+      .locator(".search-results li")
+      .first()
+      .waitFor({ timeout: 45_000 })
+      .catch(() => {});
+    const hits = await page.locator(".search-results li").count();
+    check(
+      hits > 0,
+      `owner search for "${needle}" returned ${hits} name(s) from an aggregate query`,
+      `searching "${needle}" returned nothing; the owner-search query path ` +
+        `is the one no page load reaches, so this is the path most likely ` +
+        `to break unnoticed`
+    );
+  }
+}
+
+// 3b. The owner detail view, reached by URL rather than by typing.
 if (owner) {
   await go(`/owners/?name=${encodeURIComponent(owner)}`);
   await page

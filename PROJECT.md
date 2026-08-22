@@ -161,6 +161,17 @@ be honestly checked by running it. `npm run check:origins` is that check
 for the third-party claim. A claim of the same kind that ships without
 one is a claim nobody has verified.
 
+A run-time check is only as strong as its sample, and its sample is not
+just which pages it opens but which interactions it performs. Three of
+this site's query paths are reachable only by acting: the full record
+fires on a `<details>` toggle, the owner search on Enter, a record tab
+on a click. A check that loaded pages and waited would exercise none of
+them and go green having proved nothing about them. So the origin gate
+drives each one, and its header lists exactly which pages and which
+interactions a green result covers. When a page type or an interaction
+is added, it goes in that list, or the gate quietly stops covering the
+thing everyone assumes it covers.
+
 Two corollaries earned the same week:
 
 - A safety property that holds because of something outside this
