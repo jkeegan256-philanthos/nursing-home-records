@@ -124,7 +124,8 @@ pages: `PAGES_LIMIT=200 npm run build`.
 `npm run check:origins` loads the built site in a browser and fails on
 any request that leaves this origin. It is the gate that proves the site
 is self-contained; a grep over the export cannot, because DuckDB builds
-its extension URL at run time. CI runs it on every pull request.
+its extension URL at run time. It runs on every pull request against the
+fixture, and on every deploy against the export about to be served.
 
 The build carries state between batches — the ledger chain and the owner
 slug reservations — reading the deployed site first and the committed

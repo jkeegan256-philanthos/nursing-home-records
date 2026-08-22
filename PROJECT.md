@@ -391,6 +391,23 @@ dated beside it, and the reasoning is recorded at full length.
   to what is actually verified, and carrying its own history, because a
   claim that was once false and is now true should say so rather than
   quietly reappear.
+- 2026-08-22: two notes from watching the guards fire, kept because the
+  difference between them is the difference between evidence and
+  assumption. The state commit landed on main and no build followed it,
+  which confirms the outcome and not the mechanism: the push used the
+  built-in GITHUB_TOKEN, so the platform would have suppressed that
+  build whether or not paths-ignore existed. The declared guard is
+  therefore still proven only by control tests, and remains insurance
+  against a future token swap rather than something production has
+  exercised. Saying so costs nothing and keeps the ledger of what is
+  actually known accurate. Second, the deploy-path origin check moved
+  forward into the release that restores the third-party claim, rather
+  than riding one release later with the smaller documentation work.
+  The claim and the check that earns it ship together or neither ships:
+  a sentence backed only by a fixture run is a sentence backed by a
+  synthetic batch, and the gap between those two would have been small,
+  temporary, and exactly the shape of the gap this whole week existed
+  to close.
 - 2026-08-22: three fidelity fixes in the transform and the record
   pages, from the same review. The load-bearing one is principle 6.
   Rows CMS publishes with a blank or non-standard state code are put in
