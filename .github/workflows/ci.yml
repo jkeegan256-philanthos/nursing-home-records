@@ -25,6 +25,17 @@ jobs:
       - name: Install DuckDB
         run: pip install duckdb pyyaml
 
+      - name: Assert the decision log is intact
+        # PROJECT.md claims every decision and reversal is recorded at
+        # full length, and it was the one artifact with no check while
+        # the code accumulated five. An entry had been malformed since
+        # the day it was written -- a scripted edit turned a
+        # continuation into a bullet and swallowed the next entry --
+        # and a human reading the file was the only thing that found
+        # it. Structure only: this cannot tell whether an entry is
+        # honest, only whether it is there.
+        run: npm run check:doc
+
       - name: Assert the deploy workflow cannot trigger itself
         run: python3 scripts/check_loop_guard.py
 
