@@ -223,6 +223,11 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
+This log holds 29 entries. `scripts/check_project_doc.py` asserts that
+number, along with the shape of every entry, so an entry lost or mangled
+by a bad edit fails a build instead of disappearing quietly. Appending
+one means updating the number; that is the point of it.
+
 - 2025: first version built by hand over about nine months; expired
   July 2026.
 - 2026-07-22: rebuild agreed. Zip-in, static-out, provenance
@@ -517,8 +522,9 @@ dated beside it, and the reasoning is recorded at full length.
   moved on -- the author of this fix included, having read the
   component on the first pass and registered the class without ever
   asking what it emitted. A variable name is a claim about behaviour,
-- d principle 7 applies to it exactly as it applies to a sentence on a
-  page. - 2026-08-22: decoration audit, run because the star bug
+  and principle 7 applies to it exactly as it applies to a sentence on
+  a page.
+- 2026-08-22: decoration audit, run because the star bug
   proved the rule needed one and recorded here because an audit that
   finds nothing is worth exactly what the rule it confirms is worth.
   The question asked of every rendering surface: is colour, position,
@@ -738,3 +744,87 @@ dated beside it, and the reasoning is recorded at full length.
   byline renders only when it is set, so the name is data rather than
   markup, a fork inherits nothing by default, and the decision can be
   reversed by clearing one string.
+- 2026-08-23: the pattern reached a stylesheet, and that is the
+  seventh instance. `thead th { position: sticky; top: 0 }` had been
+  in `app/globals.css` since the original design session and had
+  never once stuck: `.tablewrap` sets `overflow-x: auto`, which makes
+  it a scroll container on both axes, but nothing constrained its
+  height, so the header was anchored to a box that could not scroll
+  vertically. Measured at three widths before touching anything:
+  `scrollHeight === clientHeight` every time. The six earlier
+  instances were assertions, gates, class names, glyphs, commits, and
+  edits -- all of them code that runs or text that ships. A CSS
+  declaration is neither, which is why five reviews read past it, and
+  it is the purest form of the shape yet: not a check that passed
+  without checking, but a rule that never fired at all. Nothing
+  observable changes when it is deleted, which is precisely the
+  argument for deleting it.
+  The fix is split by breakpoint rather than applied everywhere. Above
+  640px the wrapper gets a `max-height` and the declaration moves
+  there, so it finally does what it says. On phones it is deleted
+  outright: a `max-height` there would make a 1,200-row table a nested
+  scroll container, and a thumb swipe inside one scrolls the table
+  instead of the page, trapping the reader in a box with no visible
+  way out. A header that scrolls away is the better of those two.
+  Verified as behaviour, not as CSS text -- at 1280px, scrolling 600px
+  inside the wrapper leaves the header at the top of the box; at 320px
+  and 390px the same scroll moves the page and the header leaves the
+  viewport, which is the intended trade rather than a regression.
+  Two things fell out of running that measurement, both recorded
+  because neither was on the list. First, a real overflow bug the
+  measurement caught on its first pass: state pages scrolled sideways
+  50px at 320px. The cause was the `.sr-only` span added in the star
+  fix. It is absolutely positioned, `.tablewrap` was not a positioned
+  ancestor, so it resolved its containing block against the page,
+  escaped the wrapper's clipping at its static position inside the
+  scrolled-away part of a wide table, and dragged the document's
+  horizontal scroll width past the viewport. An accessibility fix
+  quietly created a layout defect two releases later, visible only
+  below 390px and only on pages with a wide table. Fixed with
+  `position: relative` on the wrapper. Second, the instrument lied
+  once before it told the truth: the first sticky measurement reported
+  the page had not scrolled, because `html { scroll-behavior: smooth }`
+  animates an assignment to `scrollTop` and the read two frames later
+  caught the start of the journey. A measurement harness is subject to
+  principle 7 exactly as the site is.
+  Also repaired here: a decision-log entry above had been mangled by an
+  earlier scripted edit, leaving `- d principle 7 applies...` where
+  continuation text belonged and swallowing the following entry's
+  bullet, so the decoration audit had not rendered as its own entry
+  since the day it was written. Found by reading the file, not by a
+  check. The standing policy is that entries are appended and never
+  rewritten; restoring text an edit corrupted is not a rewrite of the
+  decision, and the corruption is recorded here so the repair is
+  itself in the log.
+- 2026-08-23: principle 7 turned on this file. The corrupted entry
+  repaired above had been malformed since the day it was written and
+  was found by a person reading, not by anything automated -- which is
+  the whole finding. By this date the code carried five gates and this
+  document carried none, and it is the artifact a stranger learns the
+  most from and the one that coordinates work across sessions that
+  cannot see each other. A log that can silently hold one fewer entry
+  than it claims is worth less than one that cannot, because the only
+  thing it sells is completeness. `scripts/check_project_doc.py`
+  asserts three things, one per way that failure presents: every entry
+  opens with a date, no continuation line has acquired a bullet and no
+  dated entry has been swallowed mid-line, and the entry count matches
+  the total this document declares. The third is the one that catches
+  a loss rather than a malformation, and it is deliberately mildly
+  annoying: appending an entry now means updating a number. That cost
+  is the mechanism. Validated the way the others were, by breaking the
+  thing it guards -- the checker was run against the corruption before
+  the repair and named the line and the swallowed entry, and against a
+  count off by one and said so. Two boundaries, written as limits
+  rather than left to be read as coverage. It runs on pull requests
+  only, not in the deploy workflow, so an edit that reaches main
+  without a pull request is unchecked -- and the likeliest one is a
+  correction typed straight into the GitHub web editor, which is a
+  normal thing to do to a prose file. "Every edit so far came through
+  a PR" describes a habit, not a constraint, and stating it as
+  coverage is exactly how an assumed presence gets born. And it does
+  not read: it cannot tell whether an entry is honest, only whether it
+  is there. That is the same boundary every check here has, and it is
+  worth stating because a green structural check on a dishonest log
+  would be the purest instance yet of the pattern this file spent a
+  day naming. Structure is checkable; truth is not, and this log's
+  value rests on a discipline no script can enforce.
