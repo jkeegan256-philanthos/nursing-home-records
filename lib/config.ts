@@ -10,6 +10,13 @@ export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://nursinghomerecords.org";
 // The repository, where the charter and its decision log live.
 export const REPO_URL = "https://github.com/jkeegan256-philanthos/nursing-home-records";
+// Bare host and path, for the footer line that shows the URL rather
+// than hiding it behind link text. Derived so the two cannot diverge.
+export const REPO_LABEL = REPO_URL.replace(/^https?:\/\//, "");
+// The person accountable for this site. Empty is a valid state and the
+// byline simply does not render, so a fork does not inherit a name and
+// a blank never ships as a half-finished attribution.
+export const SITE_AUTHOR = "";
 // Where readers can report an error. Point this anywhere you like.
 export const CORRECTIONS_URL = `${REPO_URL}/issues`;
 export const CORRECTIONS_EMAIL = "NursingHomeRecords.org@gmail.com";

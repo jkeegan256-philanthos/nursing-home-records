@@ -61,12 +61,21 @@ charter, generalizing is consciously deferred.
 
 10. Absolute site identity. `SITE_URL` in `lib/config.ts` is the
     origin stamped into `sitemap.xml` and `robots.txt`; `REPO_URL`
-    is where About and the Data page send readers for the decision
-    log; `CORRECTIONS_EMAIL` is where error reports land. All three
-    default to this deployment. A fork that renames `SITE_NAME` and
-    stops there ships a site telling search engines it lives at
-    nursinghomerecords.org and telling readers to write here about
-    its data.
+    is where About, the Data page, and the sitewide footer send
+    readers for the source and the decision log;
+    `CORRECTIONS_EMAIL` is where error reports land; `SITE_AUTHOR`
+    is the byline on About. All four default to this deployment. A
+    fork that renames `SITE_NAME` and stops there ships a site
+    telling search engines it lives at nursinghomerecords.org and
+    telling readers to write here about its data.
+
+    `SITE_AUTHOR` is the sharpest of the four, because it names a
+    person rather than a place. It ships empty and the byline
+    renders only when it is set, so a fork inherits no name by
+    default -- but a fork that copies a populated `lib/config.ts`
+    inherits one silently, and the reader has no way to tell. Set
+    it to yourself or leave it empty. Both are correct; keeping
+    someone else's is not.
 
 ## Already generic, no adaptation needed
 

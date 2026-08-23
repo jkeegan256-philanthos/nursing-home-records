@@ -4,6 +4,7 @@ import {
   CORRECTIONS_EMAIL,
   CORRECTIONS_URL,
   REPO_URL,
+  SITE_AUTHOR,
 } from "@/lib/config";
 
 export const metadata: Metadata = { title: "About" };
@@ -28,6 +29,24 @@ export default function AboutPage() {
         disclosures are public records, but public is only meaningful if
         people can actually find and read them. This site exists to close
         that gap — nothing more.
+      </p>
+
+      {/* A reader who has just been told why the site exists asks who
+          made it next. The byline renders only when SITE_AUTHOR is set;
+          the repository link is unconditional, because the source is
+          the part of the answer that does not depend on a name. */}
+      <h2>Who built this</h2>
+      {SITE_AUTHOR ? <p>{SITE_AUTHOR} built and maintains this site.</p> : null}
+      <p>
+        This site is an independent project, not affiliated with CMS or
+        with any facility, owner, or operator named in the data. All of it
+        is open: the{" "}
+        <a href={REPO_URL} rel="noopener noreferrer">
+          source repository
+        </a>{" "}
+        holds the pages, the transform that builds them, the checks that
+        run on every deploy, and the decision log that records every
+        choice and every reversal.
       </p>
 
       <h2>What the data is</h2>
