@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { BP, SITE_NAME, SITE_TAGLINE } from "@/lib/config";
+import { BP, REPO_LABEL, REPO_URL, SITE_NAME, SITE_TAGLINE } from "@/lib/config";
 import { dataMap } from "@/lib/data";
 import CitePage from "@/components/CitePage";
 
@@ -66,6 +66,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <p>
               Current data batch processed {generated}.{" "}
               <CitePage vintage={generated} />
+            </p>
+            {/* Every page says how it was made; until now no page said
+                where. The URL is shown rather than hidden behind link
+                text, so a printed or pasted page carries it too. */}
+            <p>
+              Source code and method:{" "}
+              <a href={REPO_URL} rel="noopener noreferrer">
+                {REPO_LABEL}
+              </a>
             </p>
           </div>
         </footer>

@@ -717,3 +717,24 @@ dated beside it, and the reasoning is recorded at full length.
   and it points outreach at auditability and freshness rather than at
   existence. One of those sites advertises a 2023 build; this one can
   prove what it served this morning.
+- 2026-08-23: the site began linking its own front door, and moved
+  from a GitHub handle toward a named author. Six audits read this
+  repository and none noticed that `REPO_URL` appeared exactly twice,
+  both deep-linking `/blob/main/PROJECT.md`, so the repository root
+  was reachable from nowhere and a reader on any of the 14,693
+  facility pages had no path to the source at all. A project whose
+  entire argument is auditability was, in the only place a reader
+  looks, unlinked. Fixed with a footer line on every page and a "Who
+  built this" section on About. The authorship half is a privacy
+  decision and is recorded as one so it reads later as a judgement
+  rather than an oversight: a site that asks readers to hold nursing
+  home operators to their filed disclosures is in a weak position
+  publishing anonymously, and accountable publishing is the thing
+  this project is trying to model. So the byline is a real name. It
+  is a name only -- no biography, no standing, no years of experience
+  -- because the credential is what the checks prove, not who ran
+  them, and because the smallest disclosure that carries
+  accountability is the right one. `SITE_AUTHOR` ships empty and the
+  byline renders only when it is set, so the name is data rather than
+  markup, a fork inherits nothing by default, and the decision can be
+  reversed by clearing one string.
