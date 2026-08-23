@@ -66,13 +66,20 @@ h2 { font-family: var(--serif); font-weight: 600; font-size: 21px; margin: 36px 
 .prov .mono { color: var(--spruce-deep); }
 
 /* tables */
-.tablewrap { overflow-x: auto; border: 1px solid var(--rule); background: var(--card); }
+/* position: relative is load-bearing, not decoration. Absolutely
+   positioned descendants -- the .sr-only span that carries a star
+   rating's number -- take their containing block from the nearest
+   positioned ancestor. Without one they resolve against the page, which
+   means they escape this wrapper's clipping, sit at their static
+   position inside the scrolled-away part of a wide table, and drag the
+   document's own horizontal scroll width out past the viewport. A
+   narrow phone then scrolls sideways on a page with nothing wide on it. */
+.tablewrap { position: relative; overflow-x: auto; border: 1px solid var(--rule); background: var(--card); }
 table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
 th, td { text-align: left; padding: 7px 12px; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
 thead th {
   font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em;
   color: var(--faint); background: var(--paper); border-bottom: 1px solid var(--rule);
-  position: sticky; top: 0;
 }
 tbody tr:hover { background: #f4f6f3; }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
@@ -183,8 +190,61 @@ details.fullrecord[open] summary { margin-bottom: 10px; }
   .record-head { padding: 16px; }
   table { font-size: 12.5px; }
   th, td { padding: 6px 8px; }
-  .factgrid { grid-template-columns: 1fr 1fr; }
   .count-line.has-button { flex-wrap: wrap; }
   .search-results a { gap: 6px 10px; padding: 8px 10px; }
   .tablewrap { -webkit-overflow-scrolling: touch; }
+
+  /* Four links on one line at 320px. The nav takes the full width of
+     its own row and spreads, rather than clustering left and wrapping
+     the last link onto a second line. */
+  .site-header .container { gap: 10px; padding-top: 14px; padding-bottom: 8px; }
+  .wordmark { font-size: 19px; }
+  .site-nav { width: 100%; justify-content: space-between; gap: 8px; font-size: 12.5px; }
+  .site-nav a { padding: 9px 0; }
+
+  /* The facts grid had `1fr 1fr` here, which forced two columns onto a
+     320px phone: fourteen fields in cells about 134px wide, where a
+     value like "Not in the program" wraps to three ragged lines. The
+     override was fighting the base rule rather than helping it. Deleted
+     -- the base `auto-fit, minmax(180px, 1fr)` already gives one column
+     on a phone and two once there is room for two. */
+
+  /* Thumb-sized hit areas. The header's own vertical padding shrinks by
+     what the button gains, so the row is the height it was and the
+     target is the size a thumb needs. */
+  .csv-button { padding: 9px 14px; }
+  thead th { padding-top: 0; padding-bottom: 0; }
+  .th-sort { padding: 12px 0; }
+}
+
+/* Sticky column headers, above the phone breakpoint only.
+
+   `position: sticky` lived in the base `thead th` rule and had never
+   once stuck: .tablewrap sets overflow-x, which makes it a scroll
+   container on both axes, but nothing constrained its height, so the
+   header was anchored to a box that could not scroll vertically
+   (scrollHeight === clientHeight, measured, at every width). A
+   declaration that has never fired is worse than a missing one; it
+   reads to the next person as a solved problem.
+
+   The max-height that makes the wrapper a real vertical scrollport is
+   deliberately not applied on phones. There a nested scroll container
+   is a trap: a thumb swipe inside a 1,200-row table scrolls the table
+   instead of the page, with no visible way out. A header that scrolls
+   away is the better of those two, so on a phone the rule is simply
+   gone rather than reanimated. A table shorter than the cap does not
+   scroll at all, so short tables are untouched.
+
+   The bottom rule becomes an inset shadow because `border-collapse:
+   collapse` means Chrome and Safari stop painting borders on a stuck
+   `th` -- the header would lose its rule at exactly the moment it
+   started working. */
+@media (min-width: 641px) {
+  .tablewrap { max-height: 70vh; }
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    box-shadow: inset 0 -1px 0 var(--rule);
+  }
 }
