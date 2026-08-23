@@ -69,15 +69,22 @@ export default function AboutPage() {
         provable even though CMS&apos;s is not.
       </p>
 
-      <h2>Who this serves today</h2>
+      <h2>Who this serves</h2>
       <p>
-        Right now this is a professional tool that happens to be free and
-        public: discharge planners, state agencies vetting owners,
-        reporters, researchers, and workers deciding where to work.
-        Families are welcome, and the ergonomics work that will serve them
-        properly on any device is planned; until it ships, this site makes
-        no claim to be the easiest way for a family to choose a facility —
-        only the most faithful place to check who stands behind one.
+        This is a professional tool that happens to be free and public:
+        discharge planners, state agencies vetting owners, reporters,
+        researchers, and workers deciding where to work.
+      </p>
+      <p>
+        Families are welcome, and it is worth being plain about what they
+        will find. CMS&apos;s own Care Compare publishes star ratings,
+        inspection summaries, and side-by-side comparison — the things a
+        family weighing facilities usually wants. This site answers a
+        narrower question: who stands behind a given building, in what
+        disclosed role, since when. It answers that without interpreting,
+        and it does not rank, score, or recommend. That is a different
+        question rather than a smaller version of the same one, and it
+        stays different however polished this site gets.
       </p>
 
       <h2>The rules this site follows</h2>
