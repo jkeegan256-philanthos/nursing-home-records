@@ -16,7 +16,7 @@ export const REPO_LABEL = REPO_URL.replace(/^https?:\/\//, "");
 // The person accountable for this site. Empty is a valid state and the
 // byline simply does not render, so a fork does not inherit a name and
 // a blank never ships as a half-finished attribution.
-export const SITE_AUTHOR = "";
+export const SITE_AUTHOR = "Joseph Keegan";
 // Where readers can report an error. Point this anywhere you like.
 export const CORRECTIONS_URL = `${REPO_URL}/issues`;
 export const CORRECTIONS_EMAIL = "NursingHomeRecords.org@gmail.com";
