@@ -15,7 +15,7 @@ export default function AboutPage() {
       <h1>About this site</h1>
       <p className="lede">
         Nursing Home Records republishes the ownership and inspection data
-        that CMS already makes public, exactly as CMS publishes it, in a form
+        CMS already makes public, exactly as CMS publishes it, in a form
         built to be searched, read, and cited.
       </p>
 
@@ -24,11 +24,14 @@ export default function AboutPage() {
         Most people assume nursing homes are government institutions. The
         federal data says otherwise: roughly three in four are operated for
         profit, and every facility in the file holds Medicare or Medicaid
-        certification. Federal law requires these facilities to disclose
-        their owners, officers, directors, and managing employees. Those
-        disclosures are public records, but public is only meaningful if
-        people can actually find and read them. This site exists to close
-        that gap — nothing more.
+        certification. Federal law requires them to disclose their owners,
+        officers, directors, and managing employees.
+      </p>
+      <p>
+        Those disclosures are public records. But public is only meaningful
+        if people can find and read them, and today they arrive as a zip
+        file of wide CSVs. This site exists to close that gap — nothing
+        more.
       </p>
 
       {/* A reader who has just been told why the site exists asks who
@@ -54,25 +57,35 @@ export default function AboutPage() {
         These are disclosures filed by the facilities and their parties
         themselves. CMS publishes them as filed and does not independently
         verify them. Gaps and layered structures in the filings appear here
-        as gaps. The checksums on the{" "}
-        <a href={`${BP}/data/`}>Data page</a> prove this site matches what
-        CMS published; they say nothing about whether a filing matches
-        reality. Both facts are worth knowing before quoting a number. The
-        Data page&apos;s batch history goes one step further: an append-only
-        ledger of every build this mirror has served, with per-file
-        checksums, so the site&apos;s own history is provable even though
-        CMS&apos;s is not.
+        as gaps and layered structures. That is worth knowing before
+        quoting any number on this site.
+      </p>
+      <p>
+        The checksums on the <a href={`${BP}/data/`}>Data page</a> prove
+        this site matches what CMS published; they say nothing about
+        whether a filing matches reality. The batch history goes one step
+        further — an append-only ledger of every build this mirror has
+        served, with per-file checksums — so the site&apos;s own history is
+        provable even though CMS&apos;s is not.
       </p>
 
-      <h2>Who this serves today</h2>
+      <h2>Who this serves</h2>
       <p>
-        Right now this is a professional tool that happens to be free and
-        public: discharge planners, state agencies vetting owners,
-        reporters, researchers, and workers deciding where to work.
-        Families are welcome, and the ergonomics work that will serve them
-        properly on any device is planned; until it ships, this site makes
-        no claim to be the easiest way for a family to choose a facility —
-        only the most faithful place to check who stands behind one.
+        This is a professional tool that happens to be free and public:
+        discharge planners, state agencies vetting owners, reporters,
+        researchers, and workers deciding where to work.
+      </p>
+      <p>
+        Families are welcome, and it is worth being plain about what they
+        will find. This site publishes the same CMS star ratings and
+        inspection records a family would see on Care Compare, shown as
+        CMS files them. What it does not do is compare, rank, or
+        recommend. Care Compare puts facilities side by side, which is
+        what choosing between them requires; this site answers a narrower
+        question, who stands behind a given building, in what disclosed
+        role, since when, and it answers that without interpreting. That
+        is a different question rather than a smaller version of the same
+        one, and it stays different however polished this site gets.
       </p>
 
       <h2>The rules this site follows</h2>
@@ -118,22 +131,22 @@ export default function AboutPage() {
       <p>
         When one of these rules catches a feature this site already
         shipped, the feature is reversed and the reversal is written
-        down: the project&apos;s{" "}
+        down. The{" "}
         <a
           href={`${REPO_URL}/blob/main/PROJECT.md`}
           rel="noopener noreferrer"
         >
           public decision log
         </a>{" "}
-        records every correction, at full length, next to the rules that
-        forced it.
+        records every correction at full length, next to the rule that
+        forced it — including the corrections that were embarrassing.
       </p>
 
       <h2>What this site does not do</h2>
       <p>
         No money flows, cost reports, or margins. No entity resolution or
         name merging of our own. No editorial layer: no adjectives, no
-        verdicts, no &quot;worst of&quot; lists. If a fact on this site seems
+        verdicts, no &quot;worst of&quot; lists. If a fact here seems
         significant, that significance comes from the public record itself.
       </p>
 
@@ -144,28 +157,33 @@ export default function AboutPage() {
         filings, and government enforcement and exclusion databases, each
         maintained by the court or agency that creates it. This site links
         to none of them and attaches none of them to any name, because a
-        matching name string is not a matching person. Many names in the
-        disclosure file are common; some of those databases exist only to
-        record wrongdoing, so a coincidental hit there reads as a verdict;
-        and the official verification steps for the most consequential of
-        them require identifiers the public does not hold. The copy button
-        under each name does the one part a website can do honestly: it
-        preserves the exact filed spelling for wherever the reader&apos;s
-        own judgment takes it.
+        matching name string is not a matching person.
+      </p>
+      <p>
+        Many names in the disclosure file are common. Some of those
+        databases exist only to record wrongdoing, so a coincidental hit
+        reads as a verdict. And the official verification steps for the
+        most consequential of them require identifiers the public does not
+        hold. The copy button under each name does the one part a website
+        can do honestly: it preserves the exact filed spelling for wherever
+        the reader&apos;s own judgment takes it.
       </p>
 
       <h2>Limitations</h2>
       <p>
         The per-facility record tables and the live owner search run a
         database engine inside your browser. On a network or browser that
-        blocks it, those views show an error message instead of silently
-        failing, and every one of them links to the untouched source files
+        blocks it, those views show an error message rather than failing
+        silently, and every one of them links to the untouched source files
         on the <a href={`${BP}/data/`}>Data page</a>. The engine and
-        everything it needs come from this domain, so there is no third
-        party whose availability the record depends on. The pre-rendered
-        owner pages and every facility, state, and download page work
-        without it. That is the designed floor: when the interactive layer
-        cannot run, the record is still there, just less convenient.
+        everything it needs come from this domain, so no third party&apos;s
+        availability decides whether the record can be read.
+      </p>
+      <p>
+        The pre-rendered owner pages and every facility, state, and
+        download page work without the engine at all. That is the designed
+        floor: when the interactive layer cannot run, the record is still
+        there, just less convenient.
       </p>
 
       <h2>Continuity</h2>
@@ -173,10 +191,10 @@ export default function AboutPage() {
         This site is built to outlive attention. The code is MIT-licensed,
         the data is public and re-fetchable from CMS, the pipeline is
         documented for adaptation, and the hosting has no bill that can
-        lapse. Every page carries its data batch's date, so if this mirror
-        ever goes unmaintained it degrades into a labeled archive rather
-        than a silent lie — and anyone can fork the repository, run the
-        monthly workflow, and have a current copy serving again.
+        lapse. Every page carries its data batch&apos;s date, so if this
+        mirror ever goes unmaintained it degrades into a labeled archive
+        rather than a silent lie — and anyone can fork the repository, run
+        the monthly workflow, and have a current copy serving again.
       </p>
 
       <h2>Corrections</h2>

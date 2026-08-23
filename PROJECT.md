@@ -223,7 +223,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 29 entries. `scripts/check_project_doc.py` asserts that
+This log holds 30 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -828,3 +828,42 @@ one means updating the number; that is the point of it.
   would be the purest instance yet of the pattern this file spent a
   day naming. Structure is checkable; truth is not, and this log's
   value rests on a discipline no script can enforce.
+- 2026-08-23: the family-readiness hedge rewritten rather than kept or
+  retired, because the sentence was right and its reason was wrong.
+  About said families were welcome but that the ergonomics work "will
+  serve them properly on any device is planned; until it ships, this
+  site makes no claim to be the easiest way for a family to choose a
+  facility." That made the hedge a promissory note with an expiry date,
+  and the release it was waiting on shipped, which is why it read as an
+  open question tonight and why tonight's phone pass pushed it further
+  from true. Retiring it would have promoted the site to family-ready
+  as a side effect of a CSS commit. Keeping it would have left a claim
+  whose justification had lapsed. The better reason was never
+  ergonomics. The first draft of the paragraph got the contrast wrong:
+  it listed star ratings, inspection summaries and side-by-side
+  comparison as the things Care Compare provides, in a structure
+  implying this site provides none of them. Two of the three were
+  already here. The facility page renders four ratings in its facts
+  grid and health citations is the first record tab, so a reader who
+  clicked one facility after reading that paragraph would have found
+  the page underselling itself. Only side-by-side comparison is
+  genuinely exclusive, and it is also the real differentiator, because
+  comparison is what choosing requires and a record does not supply
+  it. So the paragraph now names the overlap: this site publishes the
+  same ratings and inspection records as CMS files them, and does not
+  compare, rank or recommend. What separates the two is structural and
+  survives any amount of polish, so the paragraph describes that
+  instead of promising to fix it. The heading loses its "today" and the
+  paragraph its "right now", since both carried the temporal claim and
+  would have contradicted the text beneath them. "Professional tool" stays: the
+  2026-08-05 entry records it as a calibration of audience claims, so
+  it is logged language, and a first draft here replaced it with
+  "working tool" before that was caught -- a recorded decision is
+  exactly the kind of thing an edit pass overwrites without noticing.
+  The one outward claim added, that Care Compare puts facilities side
+  by side, is a fact about a public CMS product rather than a
+  comparison drawn in this site's favour; nothing here says better,
+  only different, and the difference is visible on the page. This is also the first entry to
+  meet the speed bump installed hours earlier: the declared total went
+  29 to 30 or the build fails, and the mechanism bit on its own next
+  commit rather than some distant one.
