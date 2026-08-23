@@ -839,24 +839,31 @@ one means updating the number; that is the point of it.
   from true. Retiring it would have promoted the site to family-ready
   as a side effect of a CSS commit. Keeping it would have left a claim
   whose justification had lapsed. The better reason was never
-  ergonomics: a family weighing facilities wants ratings, comparisons
-  and guidance, and CMS's own Care Compare publishes exactly that,
-  while this site answers a narrower question -- who stands behind a
-  given building, in what disclosed role, since when -- and answers it
-  without interpreting. That distinction is structural and survives any
-  amount of polish, so the paragraph now describes it instead of
-  promising to fix it. The heading loses its "today" and the paragraph
-  its "right now", since both carried the temporal claim and would have
-  contradicted the text beneath them. "Professional tool" stays: the
+  ergonomics. The first draft of the paragraph got the contrast wrong:
+  it listed star ratings, inspection summaries and side-by-side
+  comparison as the things Care Compare provides, in a structure
+  implying this site provides none of them. Two of the three were
+  already here. The facility page renders four ratings in its facts
+  grid and health citations is the first record tab, so a reader who
+  clicked one facility after reading that paragraph would have found
+  the page underselling itself. Only side-by-side comparison is
+  genuinely exclusive, and it is also the real differentiator, because
+  comparison is what choosing requires and a record does not supply
+  it. So the paragraph now names the overlap: this site publishes the
+  same ratings and inspection records as CMS files them, and does not
+  compare, rank or recommend. What separates the two is structural and
+  survives any amount of polish, so the paragraph describes that
+  instead of promising to fix it. The heading loses its "today" and the
+  paragraph its "right now", since both carried the temporal claim and
+  would have contradicted the text beneath them. "Professional tool" stays: the
   2026-08-05 entry records it as a calibration of audience claims, so
   it is logged language, and a first draft here replaced it with
   "working tool" before that was caught -- a recorded decision is
   exactly the kind of thing an edit pass overwrites without noticing.
-  The one outward claim added, that Care Compare publishes star
-  ratings, inspection summaries and side-by-side comparison, is a fact
-  about a public CMS product rather than a comparison drawn in this
-  site's favour; nothing here says better, only different, and the
-  difference is visible on the page. This is also the first entry to
+  The one outward claim added, that Care Compare puts facilities side
+  by side, is a fact about a public CMS product rather than a
+  comparison drawn in this site's favour; nothing here says better,
+  only different, and the difference is visible on the page. This is also the first entry to
   meet the speed bump installed hours earlier: the declared total went
   29 to 30 or the build fails, and the mechanism bit on its own next
   commit rather than some distant one.

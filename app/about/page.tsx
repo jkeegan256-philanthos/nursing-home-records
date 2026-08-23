@@ -77,14 +77,15 @@ export default function AboutPage() {
       </p>
       <p>
         Families are welcome, and it is worth being plain about what they
-        will find. CMS&apos;s own Care Compare publishes star ratings,
-        inspection summaries, and side-by-side comparison — the things a
-        family weighing facilities usually wants. This site answers a
-        narrower question: who stands behind a given building, in what
-        disclosed role, since when. It answers that without interpreting,
-        and it does not rank, score, or recommend. That is a different
-        question rather than a smaller version of the same one, and it
-        stays different however polished this site gets.
+        will find. This site publishes the same CMS star ratings and
+        inspection records a family would see on Care Compare, shown as
+        CMS files them. What it does not do is compare, rank, or
+        recommend. Care Compare puts facilities side by side, which is
+        what choosing between them requires; this site answers a narrower
+        question, who stands behind a given building, in what disclosed
+        role, since when, and it answers that without interpreting. That
+        is a different question rather than a smaller version of the same
+        one, and it stays different however polished this site gets.
       </p>
 
       <h2>The rules this site follows</h2>
