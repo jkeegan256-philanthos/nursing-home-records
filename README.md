@@ -13,19 +13,14 @@ declined scope that every change must respect. Its decision log also
 records the features this project shipped and then reversed, with the
 reasoning at full length. Reversals are documented here, not erased.
 
-Forking? Set `SITE_NAME`, `SITE_URL`, `REPO_URL`, `CORRECTIONS_EMAIL`,
-and `SITE_AUTHOR` in `lib/config.ts`, and `NH_STATE_URL` in
-`.github/workflows/build-deploy.yml`. All six default to this
-deployment, and a fork that leaves them will still build. It will just
-tell search engines it lives at this domain and read this site's batch
-history as its own. `ADAPTATION.md` lists them as touchpoints 9 and 10.
-
-`SITE_AUTHOR` is the one to look at twice, because it names a person
-rather than a place. It ships empty in a fresh checkout and the byline
-on the About page renders only when it is set, so nothing is inherited
-by default. A fork that copies a populated `lib/config.ts` inherits a
-real name silently, and a reader has no way to tell. Set it to yourself
-or clear it. Both are correct; keeping someone else's is not.
+Forking? Work through the touchpoints in `ADAPTATION.md`, which is the
+only place they are listed. This file deliberately does not repeat them
+or count them, because a list kept in two places drifts in one of them
+silently, and the drift that matters here is not cosmetic: several
+touchpoints carry this deployment's identity, one of them names a real
+person, and a fork that misses them still builds. It just tells search
+engines it lives at this domain, reads this site's batch history as its
+own, and publishes somebody else's name as its author.
 
 ## How it works
 
