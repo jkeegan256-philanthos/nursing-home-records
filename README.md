@@ -11,14 +11,21 @@ to run instead.
 Read `PROJECT.md` first. It holds the goals, the principles, and the
 declined scope that every change must respect. Its decision log also
 records the features this project shipped and then reversed, with the
-reasoning at full length — reversals are documented here, not erased.
+reasoning at full length. Reversals are documented here, not erased.
 
-Forking? Set `SITE_NAME`, `SITE_URL`, `REPO_URL`, and
-`CORRECTIONS_EMAIL` in `lib/config.ts`, and `NH_STATE_URL` in
-`.github/workflows/build-deploy.yml`. All five default to this
-deployment, and a fork that leaves them will still build — it will just
+Forking? Set `SITE_NAME`, `SITE_URL`, `REPO_URL`, `CORRECTIONS_EMAIL`,
+and `SITE_AUTHOR` in `lib/config.ts`, and `NH_STATE_URL` in
+`.github/workflows/build-deploy.yml`. All six default to this
+deployment, and a fork that leaves them will still build. It will just
 tell search engines it lives at this domain and read this site's batch
 history as its own. `ADAPTATION.md` lists them as touchpoints 9 and 10.
+
+`SITE_AUTHOR` is the one to look at twice, because it names a person
+rather than a place. It ships empty in a fresh checkout and the byline
+on the About page renders only when it is set, so nothing is inherited
+by default. A fork that copies a populated `lib/config.ts` inherits a
+real name silently, and a reader has no way to tell. Set it to yourself
+or clear it. Both are correct; keeping someone else's is not.
 
 ## How it works
 
@@ -127,8 +134,8 @@ is self-contained; a grep over the export cannot, because DuckDB builds
 its extension URL at run time. It runs on every pull request against the
 fixture, and on every deploy against the export about to be served.
 
-The build carries state between batches — the ledger chain and the owner
-slug reservations — reading the deployed site first and the committed
+The build carries state between batches, the ledger chain and the owner
+slug reservations, reading the deployed site first and the committed
 copy in `state/` second. If neither can be read it stops rather than
 silently start a new chain; see `state/README.md`. A local `npm run data`
 never writes to `state/`, and `npm run fixture` carries no state at all.
@@ -196,7 +203,8 @@ site links to its CMS dataset page.
   previous batch's ledger and slug reservations could not be read from
   either source, and continuing would restart the chain permanently.
   Re-run once the source is reachable. Only if you mean to start a new
-  chain — a fork's first build, say — set `NH_STATE_BOOTSTRAP=1` once.
+  chain, a fork's first build for instance, set `NH_STATE_BOOTSTRAP=1`
+  once.
 - The workflow log shows the same per-table report the script prints
   locally: rows, sizes, and mode for every dataset.
 

@@ -36,6 +36,14 @@ jobs:
         # honest, only whether it is there.
         run: npm run check:doc
 
+      - name: Assert the house prose style holds
+        # One character, in prose a stranger reads. Hard to catch by
+        # reading, trivial to catch by grep, and left unwritten it
+        # recurs in every copy pass forever. The rule and its carve-out
+        # for the append-only decision log are in PROJECT.md. This is
+        # where prose gating stops.
+        run: npm run check:prose
+
       - name: Assert the deploy workflow cannot trigger itself
         run: python3 scripts/check_loop_guard.py
 

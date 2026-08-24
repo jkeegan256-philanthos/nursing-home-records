@@ -165,7 +165,7 @@ export default function DataPage() {
         domain, alongside the data. Every build loads the finished site in a
         browser, records every request it makes, and fails if any of them
         goes to another host. That check is why this sentence is here. It was
-        here once before while it was untrue — the engine was fetching its
+        here once before while it was untrue. The engine was fetching its
         Parquet reader from{" "}
         <span className="mono">extensions.duckdb.org</span> on every facility
         page, and the check at the time only searched the published files for

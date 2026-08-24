@@ -14,8 +14,8 @@ export default function GlossaryPage() {
     <>
       <h1>Role definitions</h1>
       <p className="lede">
-        The ownership file discloses many kinds of parties, not just owners —
-        lenders, consultants, and accounting firms are required filings too.
+        The ownership file discloses many kinds of parties, not just owners.
+        Lenders, consultants, and accounting firms are required filings too.
         This page reproduces exactly what the CMS data dictionary says about
         that file: the column definitions verbatim, and the complete list of
         role values.
@@ -51,7 +51,7 @@ export default function GlossaryPage() {
         ambiguity is in the published source, not introduced here. In federal
         regulation the term behind ADP is &quot;additional disclosable
         party&quot;, defined at 42 CFR 424.502, which sets out the disclosure
-        requirements these filings satisfy — including parties who lease or
+        requirements these filings satisfy, including parties who lease or
         operate the facility, lend to it, or manage it under contract. For
         what a specific filing means, the role string and the regulation are
         the record; this site does not interpret them.
@@ -65,7 +65,7 @@ export default function GlossaryPage() {
           NH_Data_Dictionary.pdf
         </a>
         . If CMS revises a definition, the next monthly batch carries the
-        revision and this page moves with it — the dictionary&apos;s own
+        revision and this page moves with it. The dictionary&apos;s own
         revision table (its Table 16) dates every change to the role list.
       </p>
     </>

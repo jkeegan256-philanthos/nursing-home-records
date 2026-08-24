@@ -30,7 +30,7 @@ export default function AboutPage() {
       <p>
         Those disclosures are public records. But public is only meaningful
         if people can find and read them, and today they arrive as a zip
-        file of wide CSVs. This site exists to close that gap — nothing
+        file of wide CSVs. This site exists to close that gap and nothing
         more.
       </p>
 
@@ -64,9 +64,9 @@ export default function AboutPage() {
         The checksums on the <a href={`${BP}/data/`}>Data page</a> prove
         this site matches what CMS published; they say nothing about
         whether a filing matches reality. The batch history goes one step
-        further — an append-only ledger of every build this mirror has
-        served, with per-file checksums — so the site&apos;s own history is
-        provable even though CMS&apos;s is not.
+        further. It is an append-only ledger of every build this mirror
+        has served, with per-file checksums, so the site&apos;s own history
+        is provable even though CMS&apos;s is not.
       </p>
 
       <h2>Who this serves</h2>
@@ -139,7 +139,7 @@ export default function AboutPage() {
           public decision log
         </a>{" "}
         records every correction at full length, next to the rule that
-        forced it — including the corrections that were embarrassing.
+        forced it, including the corrections that were embarrassing.
       </p>
 
       <h2>What this site does not do</h2>
@@ -193,8 +193,8 @@ export default function AboutPage() {
         documented for adaptation, and the hosting has no bill that can
         lapse. Every page carries its data batch&apos;s date, so if this
         mirror ever goes unmaintained it degrades into a labeled archive
-        rather than a silent lie — and anyone can fork the repository, run
-        the monthly workflow, and have a current copy serving again.
+        rather than a silent lie. Anyone can fork the repository, run the
+        monthly workflow, and have a current copy serving again.
       </p>
 
       <h2>Corrections</h2>

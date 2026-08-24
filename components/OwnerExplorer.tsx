@@ -443,8 +443,8 @@ export default function OwnerExplorer() {
                 ) : null}
                 . Overall ratings shown from the Provider information dataset.
                 Values are shown unmodified. CSV downloads carry the ownership
-                file&apos;s own columns only — full rows, no joined ratings —
-                checkable against the originals on the Data page.
+                file&apos;s own columns only, full rows with no joined
+                ratings, checkable against the originals on the Data page.
               </p>
             </>
           )}
