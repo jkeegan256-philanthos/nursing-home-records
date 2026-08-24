@@ -81,15 +81,15 @@ laundering is provenance of a deeper kind.
 
 ## Named individuals
 
-The disclosure file names natural persons — owners, officers, managing
-employees — and this site makes those names searchable nationwide,
-which CMS's own site does not. That is deliberate. The disclosure
-exists so the public can see who stands behind a facility, and a
-public record that cannot be found is not meaningfully public. The
+The disclosure file names natural persons, owners and officers and
+managing employees, and this site makes those names searchable
+nationwide, which CMS's own site does not. That is deliberate. The
+disclosure exists so the public can see who stands behind a facility,
+and a public record that cannot be found is not meaningfully public. The
 safeguards are the principles above, applied without exception: exact
 strings with no merging or identity claims (2), every name shown with
 its role (3), the identical layout and neutral sort for every name
-with no one singled out (4), and the declined scope — no money flows,
+with no one singled out (4), and the declined scope: no money flows,
 no editorial layer, no single-name campaigns. Corrections to the
 underlying record belong with CMS; corrections to our display of it
 belong on the corrections link.
@@ -216,6 +216,48 @@ Two corollaries earned the same week:
   what it cost, including the two edits documenting the rule that
   would themselves have vanished silently.
 
+### House style: no em dash in prose a stranger reads
+
+No em dash (U+2014) in site copy or in this file, README.md, or
+ADAPTATION.md. En dash (U+2013) is fine for ranges, and hyphens are
+ordinary punctuation; the rule names one character, by codepoint rather
+than by glyph so that stating it does not violate it. Code comments, commit
+messages, and identifiers are working surfaces and are out of scope,
+because extending a style rule into them is how a one-line rule becomes
+a chore.
+
+Nothing breaks if this is ignored. No claim becomes false and plenty of
+good writing uses the character. It is written down anyway because of an
+asymmetry: unwritten, the preference recurs in every copy pass forever
+and is invisible to every session that reads only the repository, while
+written, it costs one line and one grep. That asymmetry is the same
+argument that put the pattern-verification rule above into this file,
+and it settles the question without needing the preference to be
+objectively defensible.
+
+The reason it is a preference worth having: heavy em dash use now reads
+as a tell for machine-written prose, and this site's credibility rests
+on being accountably human-authored, with a name on the About page.
+Copy that pattern-matches to generated text works against the thing the
+site is for.
+
+When replacing one, look at the job it was doing. A parenthetical aside
+wants commas, an abrupt turn wants a colon or a full stop, and an
+interruption usually wants to be two sentences. A blanket replace with
+commas produces worse prose than the dashes it removes.
+
+`scripts/check_prose_style.py` enforces this, and one carve-out belongs
+in the rule rather than only in the script: **the decision log below is
+exempt.** Its entries are append-only, so sweeping punctuation through
+them would be editing the permanent record for aesthetics, which is the
+worse violation. Existing entries keep their dashes as artifacts of when
+they were written. New entries should follow the rule even though
+nothing checks them.
+
+This is where prose gating stops. A style gate invites more style gates,
+and this project already knows what a review pipeline does with room to
+generate its own work.
+
 ## Decision log
 
 Standing policy: a decision reversed is not a mistake hidden; it is a
@@ -223,7 +265,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 30 entries. `scripts/check_project_doc.py` asserts that
+This log holds 31 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -867,3 +909,53 @@ one means updating the number; that is the point of it.
   meet the speed bump installed hours earlier: the declared total went
   29 to 30 or the build fails, and the mechanism bit on its own next
   commit rather than some distant one.
+- 2026-08-24: a house style rule written down, swept, and gated, and
+  the reasoning for gating a matter of taste at all. No em dash
+  (U+2014) in prose a stranger reads: site copy, this file, README.md,
+  ADAPTATION.md. Not code comments, not commit messages, not
+  identifiers, because extending a style rule into working surfaces is
+  how a one-line rule becomes a chore. The rule is not necessary in any
+  strict sense. Nothing breaks, no claim becomes false, and plenty of
+  good writing uses the character. Necessity is the wrong test. The
+  cost of leaving a preference unwritten is that it recurs in every
+  copy pass forever and is invisible to every session that reads only
+  this repository; the cost of writing it down is one line and one
+  grep. That asymmetry settles it without the preference needing to be
+  objectively defensible, and it is the same argument that put the
+  pattern-verification rule into this file two days ago. Why this
+  particular preference: heavy em dash use now reads as a tell for
+  machine-written prose, and a site whose credibility rests on being
+  accountably human-authored, with a name on the About page since the
+  2026-08-23 entry above, is undercut by copy that pattern-matches to
+  generated text. Nineteen instances swept, judged one at a time,
+  because an aside wants commas, an abrupt turn wants a colon or a full
+  stop, and an interruption usually wants to be two sentences; a
+  blanket replace with commas would have produced worse prose than the
+  dashes it removed. The carve-out is a rule and not a convenience:
+  entries in this log keep theirs, because they are append-only and
+  sweeping punctuation through the permanent record for aesthetics is
+  the worse violation. New entries follow the rule with nothing
+  checking them, which is stated rather than left to be discovered.
+  scripts/check_prose_style.py was validated the way the others were,
+  by breaking what it guards: a dash in site copy exits 1, a dash in
+  README exits 1, a dash in a code comment does not fire, a dash inside
+  the exempt log does not fire. The first pass of that validation
+  reported exit 0 for the failing cases because the harness piped the
+  script into head and read head's status, which is the measurement
+  instrument lying for the third time in two days and the reason its
+  numbers get checked before its verdict is believed. Two findings fell
+  out of writing the rule. The rule as first drafted named the
+  character by glyph and so failed its own check, fixed by naming it by
+  codepoint. And the checker as first written scanned code comments,
+  contradicting the scope in the same paragraph that defined it, fixed
+  by skipping comment lines structurally. Also repaired here, and
+  unrelated to style: README's fork instructions still said "all five"
+  and omitted SITE_AUTHOR, which the 2026-08-23 entry added. A fork
+  following README to the letter would have inherited a real person's
+  name while believing it had cleared every touchpoint, which is
+  precisely the hazard ADAPTATION touchpoint 10 exists to prevent. The
+  gap was introduced by the commit that created the constant and was
+  found by reading the file for a different reason entirely. This is
+  where prose gating stops. A style gate invites more style gates, and
+  this project knows what a review pipeline does with room to generate
+  its own work.
