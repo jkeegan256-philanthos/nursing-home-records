@@ -7,7 +7,12 @@ so that adapting it to another theme is a measured job, not an
 archaeology project. It is a boundary document, not a promise: per the
 charter, generalizing is consciously deferred.
 
-## The ten touchpoints
+## The touchpoints
+
+Numbered for reference, not counted in the heading. A count in a
+heading is one more fact to keep true when an eleventh is added, and
+this file is the single source for the list precisely so that no such
+number exists anywhere to drift.
 
 1. Table map. `TABLE_PATTERNS` in `scripts/build_data.py`: eighteen
    filename regexes naming this theme's files. Unknown files still
@@ -64,12 +69,12 @@ charter, generalizing is consciously deferred.
     is where About, the Data page, and the sitewide footer send
     readers for the source and the decision log;
     `CORRECTIONS_EMAIL` is where error reports land; `SITE_AUTHOR`
-    is the byline on About. All four default to this deployment. A
-    fork that renames `SITE_NAME` and stops there ships a site
+    is the byline on About. All of them default to this deployment.
+    A fork that renames `SITE_NAME` and stops there ships a site
     telling search engines it lives at nursinghomerecords.org and
     telling readers to write here about its data.
 
-    `SITE_AUTHOR` is the sharpest of the four, because it names a
+    `SITE_AUTHOR` is the sharpest of them, because it names a
     person rather than a place. It ships empty and the byline
     renders only when it is set, so a fork inherits no name by
     default -- but a fork that copies a populated `lib/config.ts`

@@ -265,7 +265,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 31 entries. `scripts/check_project_doc.py` asserts that
+This log holds 32 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -959,3 +959,32 @@ one means updating the number; that is the point of it.
   where prose gating stops. A style gate invites more style gates, and
   this project knows what a review pipeline does with room to generate
   its own work.
+- 2026-08-24: a duplicated fact deleted rather than gated. The
+  README gap repaired hours earlier, where fork instructions said "all
+  five" and omitted SITE_AUTHOR, existed because the list of identity
+  touchpoints was stated in two documents. Two copies of one fact drift
+  in one of them silently, and this drift had a safety consequence: a
+  fork following README to the letter would have published a real
+  person's name while believing it had cleared every touchpoint, which
+  is exactly what ADAPTATION touchpoint 10 exists to prevent. The
+  obvious response was a check asserting that README's count matches
+  ADAPTATION's. The better response is to have no second copy. README
+  now points at ADAPTATION.md as the only place the touchpoints are
+  listed, and enumerates nothing. No number to drift, no check to
+  maintain, and the next touchpoint added is covered everywhere the
+  moment it is written down once. Two further counts fell to the same
+  reasoning while the file was open: the heading "The ten touchpoints"
+  became "The touchpoints", and touchpoint 10's "All four default to
+  this deployment" became "All of them", because a count inside the
+  single source is still a number that can go stale. There are now no
+  counts of touchpoints anywhere in the tree. Worth being explicit that
+  this is not the prose gating declared finished in the entry above:
+  that rule concerned taste, this concerns a factual inconsistency with
+  a safety consequence, and the fix removes the possibility rather than
+  adding a gate, which is the stronger move whenever it is available.
+  The uncomfortable part, recorded because it is the honest argument
+  for the change: the original gap was found by accident, while
+  counting em dashes in the same file for an unrelated reason. That is
+  luck rather than process, and the next drift of this kind will not
+  arrive with a convenient sweep attached, which is precisely why the
+  answer had to be structural rather than vigilant.
