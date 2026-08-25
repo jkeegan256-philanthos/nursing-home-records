@@ -9,9 +9,9 @@ project" section on why reading the code is not enough here, and what
 to run instead.
 
 Read `PROJECT.md` first. It holds the goals, the principles, and the
-declined scope that every change must respect. Its decision log also
-records the features this project shipped and then reversed, with the
-reasoning at full length. Reversals are documented here, not erased.
+declined scope that every change must respect. `DECISIONS.md` is the
+log beside it: every feature this project shipped and then reversed,
+dated and at full length. Reversals are documented here, not erased.
 
 Forking? Work through the touchpoints in `ADAPTATION.md`, which is the
 only place they are listed. This file deliberately does not repeat them
