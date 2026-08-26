@@ -141,6 +141,18 @@ divergent codebases arrive that nobody can reason about; with it, every
 divergence is documented and deliberate. That is also where the advice
 stops: it holds at two properties and it does not hold at ten.
 
+And the charter does not travel automatically either. A second
+repository starts with no principles, no checks, and no log unless
+someone carries them across deliberately. This was learned the cheap
+way on 2026-08-24: a second repository had existed for one day, holding
+nothing but a profile README, and a broken link reached a live page
+there within minutes of being written. The same link could not have
+reached the site, because the site has gates and that repository has
+none. Every check in this project is repository-scoped, so the
+apparatus protects exactly one tree and no other. Copying the discipline
+means copying the files that enforce it, not only the ones that
+describe it.
+
 ## Future phases, in order of value, none started
 
 1. CMS chain performance layer: display CMS's own per-chain averages,
@@ -230,6 +242,18 @@ Two corollaries earned the same week:
   differ; either alone leaves a hole. The 2026-08-22 entry records
   what it cost, including the two edits documenting the rule that
   would themselves have vanished silently.
+- Chain shell steps with `&&`, or `set -e`. A failed command followed
+  by an unconditional one produces a success that papers over it, and
+  the papering is invisible in the transcript because only the last
+  status survives. On 2026-08-24 a `git revert` rejected a bad flag
+  and did nothing, and the `git commit --amend` on the next line ran
+  anyway, producing a commit whose message announced a revert its tree
+  did not contain. Only the push rejection stopped it reaching a
+  branch. This is the same shape as the two rules above and as a
+  pipeline whose exit status comes from `head` rather than from the
+  script: a failure followed by a success that hides it. Sequencing is
+  a claim that each step happened, and an unguarded `;` or newline
+  makes that claim without checking it.
 
 ### House style: no em dash in prose a stranger reads
 
