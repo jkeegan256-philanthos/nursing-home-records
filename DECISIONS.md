@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 33 entries. `scripts/check_project_doc.py` asserts that
+This log holds 34 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -791,3 +791,45 @@ one means updating the number; that is the point of it.
   that the touchpoints are enumerated; without that document, copying a
   pipeline is how two divergent codebases arrive that nobody can reason
   about. The advice holds at two properties and stops holding at ten.
+- 2026-08-25: two rules the profile-repository incident earned, both
+  written into PROJECT.md rather than left in conversation. The
+  incident: minutes after the split above was pushed to a branch, the
+  profile repository's README was updated to link DECISIONS.md on
+  main. That file was not on main yet. The profile page is live, so
+  the link was a 404 from the moment it landed, and it was written by
+  the same session that had just argued, in the split's own pull
+  request, that a file and its links must enter main in one commit so
+  that no tree exists where the anchor is live and the target is not.
+  The reasoning failure is precise and worth naming: atomicity is a
+  property of a commit, and a commit cannot span two repositories. The
+  guarantee was applied correctly inside this repository and then
+  assumed to cover a change in a different one, where it structurally
+  cannot. A cross-repository link has no atomic option; the ordering is
+  sequenced by hand or it is broken.
+  The larger version, and the reason it is recorded under Continuity
+  rather than only here: as of 2026-08-23 there is a second repository,
+  and it inherits none of this project's apparatus. Every gate here is
+  repository-scoped, so the protection covers exactly one tree. That is
+  precisely why a broken link could reach a live page in the profile
+  repository and could not reach one on the site. The entry above says
+  the charter travels and the code does not; this refines it. The
+  charter does not travel automatically either, and a second property
+  starts with no principles, no checks, and no log until someone
+  carries them across on purpose.
+  The second rule is the mechanizable half. The first attempt to fix
+  the broken link ran `git revert --no-edit <sha> -q`, where `-q` is
+  not a revert flag. The revert failed and did nothing. The
+  `git commit --amend` on the next line ran anyway, because nothing
+  chained them, and produced a commit whose message announced a revert
+  its tree did not contain. Only the push rejection stopped it. That is
+  the same shape as a `.replace()` matching nothing while reporting
+  success, and as a pipeline taking its exit status from `head`: a
+  failure followed by a success that hides it. So the rule joins the
+  other two in the reviewing section, and it is mechanizable rather
+  than watchable: chain with `&&`, or `set -e`, because sequencing is a
+  claim that each step happened and an unguarded newline makes that
+  claim without checking it.
+  Recorded at this length because the failure was committed by the
+  session that had just written the rule against it, in the document
+  arguing for the rule. A log that records only other people's errors
+  is worth less than one that records its author's.
