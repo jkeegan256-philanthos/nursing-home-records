@@ -26,12 +26,15 @@ a line that also carries code will be flagged. That residue is left
 rather than chased, because the alternative is parsing JSX to tell a
 string from a comment, and the cost of a false positive is one comma.
 
-One carve-out, and it is a rule rather than a convenience. PROJECT.md's
-decision log is append-only. Sweeping punctuation through past entries
-would be editing the permanent record for aesthetics, which is a worse
-violation than the dashes, so entries keep theirs as artifacts of when
-they were written. That does mean a new entry can carry one and this
-check will not say so. Stated here rather than discovered later.
+One carve-out, and it is a rule rather than a convenience. DECISIONS.md
+is append-only. Sweeping punctuation through past entries would be
+editing the permanent record for aesthetics, which is a worse violation
+than the dashes, so entries keep theirs as artifacts of when they were
+written. That does mean a new entry can carry one and this check will
+not say so. Stated here rather than discovered later. Before
+2026-08-24 the log lived inside PROJECT.md and the exemption was a
+section of that file; now it is a whole file, which is the same rule
+with one fewer way to get it wrong.
 
     python3 scripts/check_prose_style.py
 """
@@ -45,29 +48,29 @@ ROOT = Path(__file__).resolve().parent.parent
 EM_DASH = "—"
 
 DOCS = ["PROJECT.md", "README.md", "ADAPTATION.md"]
+# Exempt in full. The log moved out of PROJECT.md on 2026-08-24, so the
+# carve-out is now a whole file rather than a section of one, which is
+# simpler to state and impossible to get subtly wrong.
+EXEMPT = ["DECISIONS.md"]
 CODE_DIRS = ["app", "components"]
 CODE_SUFFIXES = {".tsx", ".ts"}
 
-# Everything from this heading to the end of PROJECT.md is exempt.
-LOG_HEADING = "## Decision log"
 
 problems: list[str] = []
 scanned = 0
 
 
-def scan(path: Path, skip_from: str | None = None, skip_comments: bool = False) -> None:
+def scan(path: Path, skip_comments: bool = False) -> None:
     global scanned
     rel = path.relative_to(ROOT)
+    if rel.name in EXEMPT:
+        # Enforced rather than achieved by leaving it off a list, so
+        # that adding it to DOCS by mistake still cannot scan it.
+        return
     lines = path.read_text(encoding="utf-8").splitlines()
-    stop = len(lines)
-    if skip_from is not None:
-        for i, line in enumerate(lines):
-            if line.strip() == skip_from:
-                stop = i
-                break
     scanned += 1
     in_block = False
-    for n, line in enumerate(lines[:stop], start=1):
+    for n, line in enumerate(lines, start=1):
         if skip_comments:
             s = line.strip()
             if in_block:
@@ -87,7 +90,7 @@ def scan(path: Path, skip_from: str | None = None, skip_comments: bool = False) 
 for name in DOCS:
     p = ROOT / name
     if p.exists():
-        scan(p, skip_from=LOG_HEADING if name == "PROJECT.md" else None)
+        scan(p)
 
 for d in CODE_DIRS:
     base = ROOT / d
@@ -112,5 +115,5 @@ if problems:
     sys.exit(1)
 
 print(f"  ok    no em dash in {scanned} file(s) of reader-facing prose")
-print(f"  --    PROJECT.md's decision log is exempt and was not scanned")
+print(f"  --    {', '.join(EXEMPT)} is append-only and was not scanned")
 print("\nthe prose reads as written by a person")

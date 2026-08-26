@@ -133,7 +133,7 @@ export default function AboutPage() {
         shipped, the feature is reversed and the reversal is written
         down. The{" "}
         <a
-          href={`${REPO_URL}/blob/main/PROJECT.md`}
+          href={`${REPO_URL}/blob/main/DECISIONS.md`}
           rel="noopener noreferrer"
         >
           public decision log

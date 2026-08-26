@@ -171,7 +171,7 @@ export default function DataPage() {
         page, and the check at the time only searched the published files for
         known hostnames, which cannot see a URL that the engine assembles
         while it runs. Both the retraction and the return are dated in the{" "}
-        <a href={`${REPO_URL}/blob/main/PROJECT.md`} rel="noopener noreferrer">
+        <a href={`${REPO_URL}/blob/main/DECISIONS.md`} rel="noopener noreferrer">
           decision log
         </a>
         .

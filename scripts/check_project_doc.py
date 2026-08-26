@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Assert the decision log in PROJECT.md is structurally intact.
+Assert the decision log in DECISIONS.md is structurally intact.
 
 Principle 7 says a claim ships with the check that earns it. PROJECT.md
 makes the largest claim in the repository -- that every decision and
@@ -60,7 +60,9 @@ import re
 import sys
 from pathlib import Path
 
-DOC = Path(__file__).resolve().parent.parent / "PROJECT.md"
+ROOT = Path(__file__).resolve().parent.parent
+DOC = ROOT / "DECISIONS.md"
+CHARTER = ROOT / "PROJECT.md"
 
 # "- 2026-08-23: " or, for the one pre-rebuild entry, "- 2025: ".
 ENTRY = re.compile(r"^- (\d{4}(?:-\d{2}-\d{2})?): \S")
@@ -68,51 +70,60 @@ ENTRY = re.compile(r"^- (\d{4}(?:-\d{2}-\d{2})?): \S")
 SWALLOWED = re.compile(r"\S\s+- \d{4}(?:-\d{2}-\d{2})?: ")
 DECLARED = re.compile(r"log holds (\d+) entries")
 
-text = DOC.read_text(encoding="utf-8")
-lines = text.splitlines()
-
 problems: list[str] = []
 
-# Isolate the decision log: from its heading to the next section or EOF.
-try:
-    start = lines.index("## Decision log")
-except ValueError:
-    print("FAIL  PROJECT.md has no '## Decision log' section")
+# The charter points at this file, and a pointer is a claim like any
+# other. Grep finds the references that exist today and says nothing
+# about tomorrow, so the link that survives a future rename is the
+# checked one. This is the same failure README's touchpoint count had:
+# a fact stated in one document about another, with nothing keeping
+# them agreed.
+if not CHARTER.exists():
+    print("FAIL  PROJECT.md is missing")
+    sys.exit(1)
+if DOC.name not in CHARTER.read_text(encoding="utf-8"):
+    print(
+        f"FAIL  PROJECT.md never mentions {DOC.name}, so the charter "
+        f"points at nothing. The log was split out of it on 2026-08-24; "
+        f"if the log moved again, point the charter at wherever it went."
+    )
+    sys.exit(1)
+if not DOC.exists():
+    print(
+        f"FAIL  PROJECT.md points at {DOC.name} and no such file exists"
+    )
     sys.exit(1)
 
-end = len(lines)
-for i in range(start + 1, len(lines)):
-    if lines[i].startswith("## "):
-        end = i
-        break
-body = lines[start + 1 : end]
+text = DOC.read_text(encoding="utf-8")
+lines = text.splitlines()
+body = lines
 
 first_entry = next((i for i, l in enumerate(body) if l.startswith("- ")), None)
 if first_entry is None:
-    print("FAIL  the decision log contains no entries at all")
+    print(f"FAIL  {DOC.name} contains no entries at all")
     sys.exit(1)
 
 entries = 0
-for offset, line in enumerate(body[first_entry:], start=start + 1 + first_entry):
+for offset, line in enumerate(body[first_entry:], start=first_entry):
     n = offset + 1  # 1-indexed, to match an editor
     if line.startswith("- "):
         if ENTRY.match(line):
             entries += 1
         else:
             problems.append(
-                f"PROJECT.md:{n}: an entry that does not open with a date. "
+                f"{DOC.name}:{n}: an entry that does not open with a date. "
                 f"A continuation line that acquires a list marker looks "
                 f"exactly like this: {line[:60]!r}"
             )
     elif line and not line.startswith("  "):
         problems.append(
-            f"PROJECT.md:{n}: a continuation line that is not indented two "
+            f"{DOC.name}:{n}: a continuation line that is not indented two "
             f"spaces, so it will render outside the entry it belongs to: "
             f"{line[:60]!r}"
         )
     if SWALLOWED.search(line):
         problems.append(
-            f"PROJECT.md:{n}: a dated entry appears inside another line "
+            f"{DOC.name}:{n}: a dated entry appears inside another line "
             f"instead of starting one, so it has lost its own bullet: "
             f"{line[:70]!r}"
         )
@@ -124,13 +135,13 @@ if not problems:
 m = DECLARED.search(text)
 if m is None:
     problems.append(
-        "PROJECT.md does not declare how many entries its log holds, so a "
+        f"{DOC.name} does not declare how many entries it holds, so a "
         "vanished entry cannot be detected. Add 'This log holds N entries' "
-        "to the Decision log section."
+        "near the top of the file."
     )
 elif int(m.group(1)) != entries:
     problems.append(
-        f"PROJECT.md declares {m.group(1)} decision-log entries and has "
+        f"{DOC.name} declares {m.group(1)} entries and has "
         f"{entries}. Either an entry was lost to a bad edit, or one was "
         f"appended without updating the declared total."
     )
