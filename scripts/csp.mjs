@@ -34,11 +34,19 @@
 // is unaffected. This is an origin policy, not an XSS defence, and it
 // should not be described as one.
 //
-// No 'wasm-unsafe-eval'. The document never compiles WebAssembly; the
-// engine does that inside its worker, which is outside this policy. The
-// measurement behind that, and the version it was taken against, are in
-// the 2026-08-27 entry in DECISIONS.md rather than here, because a
-// figure in a comment is a figure nothing will re-check.
+// 'wasm-unsafe-eval' is retained for browser coverage, not because the
+// document needs it in the browser it was measured in. In Chromium the
+// main thread only ever calls WebAssembly.validate, which the wasm
+// gate does not cover, and the engine's compilation happens in the
+// worker, outside this policy. But both of those are single-browser
+// measurements: a browser that gates validate, or one that applies a
+// document's policy to its workers (which the spec forbids and some
+// have done anyway), would kill the engine with no visible violation
+// and no error beyond the site's own fallback message. The directive
+// permits no host, so retaining it costs the origin property nothing.
+// The measurement, and the version it was taken against, are in the
+// 2026-08-27 entry in DECISIONS.md rather than here, because a figure
+// in a comment is a figure nothing will re-check.
 //
 // frame-ancestors, report-uri and sandbox are absent because a browser
 // ignores them when the policy arrives in a meta tag, and a directive
@@ -48,7 +56,7 @@
 // different thing from a directive the parser discards.
 export const CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data:",
   "font-src 'self'",

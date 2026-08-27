@@ -931,17 +931,27 @@ one means updating the number; that is the point of it.
   with the violation event to prove the policy was live, while a
   same-origin worker created by that same page fetched the second
   origin and got HTTP 200 with a body.
-  'wasm-unsafe-eval' was tested and left out. Against duckdb-wasm
-  1.32.0, engine v1.4.3, the main-thread bundle contains only
-  WebAssembly.validate, four calls, the platform probes; every Module,
-  instantiate and instantiateStreaming lives in the worker bundle,
-  which the finding above puts outside the policy. Probed directly:
-  under script-src 'self' 'unsafe-inline', validate returns true with
-  no violation while new WebAssembly.Module and WebAssembly.instantiate
-  both throw CompileError and raise script-src / wasm-eval. The gate is
-  real and the document never reaches it. Recorded so nobody re-adds
-  the directive defensively; if a future duckdb-wasm compiles on the
-  main thread, the origin gate goes red and this entry says why.
+  'wasm-unsafe-eval' was measured unnecessary in Chromium and retained
+  anyway, for browser coverage, and the order of those two facts is the
+  substance. Against duckdb-wasm 1.32.0, engine v1.4.3, the main-thread
+  bundle contains only WebAssembly.validate, four calls, the platform
+  probes; every Module, instantiate and instantiateStreaming lives in
+  the worker bundle, which the finding above puts outside the policy.
+  Probed directly: under script-src 'self' 'unsafe-inline', validate
+  returns true with no violation while new WebAssembly.Module and
+  WebAssembly.instantiate both throw CompileError and raise
+  script-src / wasm-eval. So the green run is explained by the main
+  thread never compiling, not by lax enforcement. What stopped the drop
+  is that both facts making it safe, validate being ungated and the
+  worker sitting outside the document policy, are measurements of one
+  browser, taken in an environment holding only that browser, and the
+  failure mode in a browser where either fails is the worst available:
+  the entire interactive layer dead for that reader, no violation
+  visible to anyone, on the phone-heavy audience this site serves. The
+  directive permits no host, so retaining it costs the origin property
+  nothing. Recorded at this length so the retention is not read later
+  as an untested default: it was tested, the test says Chromium does
+  not need it, and it stays because Chromium is not every browser.
   'unsafe-inline' on script-src is required, because a Next.js static
   export puts the RSC payload in inline scripts on every page. It
   permits inline code and never another host, so the origin property is
