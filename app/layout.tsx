@@ -69,18 +69,34 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 one was being answered. The processing date says when this
                 mirror last rebuilt, and it advances on every code merge
                 whether or not CMS published anything, so alone it reads as
-                freshness the data may not have. CMS's own dates are shown
-                as a range, never as the newest alone: some datasets in the
-                theme are annual, so a batch legitimately spans many
-                months, and the widest honest claim is both ends of it.
-                The word "to" rather than a dash, because a dash between
-                two hyphenated ISO dates is unreadable. */}
+                freshness the data may not have. CMS's own dates span the
+                batch: some datasets in the theme are annual, so a wide
+                spread is the ordinary condition, and both ends of it are
+                disclosed. The newest date leads, because the question a
+                reader has on a facility page is whether the numbers in
+                front of them are the old part, and a sentence led by the
+                oldest date reads as though the whole batch is that old.
+                The old end is a pointer, not a warning: which dataset
+                carries which date is answered on the Data page. */}
             <p>
-              {vintage
-                ? vintage.min === vintage.max
-                  ? `CMS files in this batch are dated ${vintage.max}; last processed ${generated}.`
-                  : `CMS files in this batch are dated ${vintage.min} to ${vintage.max}; last processed ${generated}.`
-                : `Current data batch processed ${generated}.`}{" "}
+              {vintage ? (
+                vintage.min === vintage.max ? (
+                  <>
+                    CMS files in this batch are dated {vintage.max}; last
+                    processed {generated}.
+                  </>
+                ) : (
+                  <>
+                    CMS files in this batch are dated through {vintage.max},
+                    with older files back to {vintage.min}; each
+                    dataset&apos;s own date is on the{" "}
+                    <a href={`${BP}/data/`}>Data page</a>. Last processed{" "}
+                    {generated}.
+                  </>
+                )
+              ) : (
+                <>Current data batch processed {generated}.</>
+              )}{" "}
               <CitePage vintage={generated} />
             </p>
             {/* Every page says how it was made; until now no page said

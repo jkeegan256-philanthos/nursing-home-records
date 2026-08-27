@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 40 entries. `scripts/check_project_doc.py` asserts that
+This log holds 42 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -1089,3 +1089,51 @@ one means updating the number; that is the point of it.
   drives a reversed-order query on every run, because the hint's
   promise that word order does not matter is a claim about a query
   nothing else runs, and principle 7 does not exempt search hints.
+- 2026-08-27: the footer's vintage line reordered after outside
+  verification of the first deploy carrying it, because both first
+  sight reactions agreed. The line led with the oldest date, "dated
+  2025-11-01 to 2026-08-01", and on a facility page the reader's
+  actual question is whether the numbers in front of them are the old
+  part. They are not: the hub dataset carries the newest date, and the
+  old end of the range belongs to annual files. A sentence led by its
+  oldest date reads as though the whole batch is that old, which is
+  the freshness misdirection this line was added to end, pointed the
+  other way. It now leads with the newest date, discloses the old end,
+  and points at the Data page, where every dataset's own date already
+  lives: "dated through 2026-08-01, with older files back to
+  2025-11-01; each dataset's own date is on the Data page." One
+  deliberate deviation from the wording as proposed: "two annual
+  datasets" named a count and a cadence, and neither is computable
+  from the data map, which carries dates and not why they differ. A
+  typed count in sitewide copy is the touchpoint-count defect with a
+  monthly chance to go stale, so the sentence says "older files" and
+  lets the Data page say which. Both ends of the range and the newest
+  date remain computed from the batch, never typed.
+- 2026-08-27: two process rules sharpened by a failure that got past
+  the existing one, recorded because the failure was the author's, in
+  the session running the review. While restacking a branch, a
+  `git cherry-pick <sha> -q` failed with a usage error, because
+  cherry-pick takes no `-q`, and the force-push two lines later ran
+  anyway and briefly overwrote the remote branch with a copy of main.
+  `set -e` was set at the top of that script and did not stop the
+  sequence in this harness's shell. Recovered from the reflog, and the
+  recovered branch verified by diff and by every check before being
+  pushed again. The charter's rule had offered chaining with `&&` or
+  `set -e` as equivalents; the evidence says they are not equivalent
+  everywhere, so the rule now names `&&` as the half that holds and
+  `set -e` as a supplement. And this is the second time a `-q` from
+  memory was passed to a git subcommand that does not take it, the
+  first being the 2026-08-24 revert, so the flag half is now its own
+  rule: a flag recalled from memory is a guess wearing certainty, and
+  the pair of a wrong flag and an unguarded sequence is what turns a
+  typo into a wrong push.
+  The same session produced the same shape in a watcher. A monitor
+  polled an unauthenticated API through a proxy, the responses started
+  coming back empty, and the loop read empty as not-finished-yet, so
+  it waited forever on a question nobody was answering while the thing
+  it watched completed. Absence wearing the shape of a presence, in
+  the instrument rather than the site. The general form, which joins
+  the measurement-harness lessons already in this log: a monitor must
+  distinguish no-result-yet from no-answer-available, or its silence
+  is indistinguishable from progress. The authenticated lens answered
+  in one call what the watcher had failed to see for fifteen minutes.
