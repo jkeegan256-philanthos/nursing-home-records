@@ -19,9 +19,11 @@ import Stars from "@/components/Stars";
 const NAMED =
   `"Owner Name" IS NOT NULL AND trim("Owner Name") <> '' AND "Owner Name" <> 'None'`;
 
-// Verified headroom, not a live cap: the largest name in the 2026-07
-// batch has 424 disclosure rows. The header counts come from SQL over
-// all rows either way, and a notice appears if the table is ever cut.
+// Headroom, not a live cap: sized far above any footprint a batch has
+// produced, and deliberately not annotated with the current maximum,
+// because that is a fact about one batch and this comment outlives
+// batches. The header counts come from SQL over all rows either way,
+// and the rendered notice says so if a batch ever exceeds this.
 const DETAIL_ROW_LIMIT = 3000;
 
 type Hit = { name: string; types: string; facilities: number };

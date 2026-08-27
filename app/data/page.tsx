@@ -128,7 +128,11 @@ export default function DataPage() {
           <p className="prov">
             This ledger records what this site served and when. It proves the
             mirror&apos;s history, not CMS&apos;s; CMS does not publish stable
-            archives of past batches to compare against. The chain is kept in
+            archives of past batches to compare against. Each entry records
+            what CMS was serving at the moment of that build&apos;s fetch, so
+            several entries carrying one checksum are one batch served across
+            many builds, and an entry&apos;s date is when this site last
+            asked, not when CMS last changed. The chain is kept in
             two places, here and in the repository, and a build that can read
             neither stops rather than start a new chain over the old one.
             Each entry also records the counts this site derives from that
