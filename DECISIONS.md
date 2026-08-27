@@ -876,6 +876,29 @@ one means updating the number; that is the point of it.
   text that the same pass enlarged for tap targets, so the property that
   pass stated is relaxed deliberately at the narrowest width rather than
   silently.
+  That relaxation superseded a claim living in the tree, which is the
+  part worth recording. app/globals.css carried the comment "Four links
+  on one line at 320px", written by the phone pass and true when
+  written. The fifth link falsified it, in a code comment, where no gate
+  looks: the prose check scopes out comments by design and nothing
+  checks whether a comment is still true. The comment now describes the
+  current behaviour and deliberately does not restate the number of
+  links, because a count in a comment is a count that goes stale, which
+  is the same lesson as the touchpoint count in README. Found by going
+  looking for it rather than by anything failing.
+  The capacity threshold now reads NH_METHODS_FACILITY_MIN, exactly as
+  the partition size reads NH_PARTITION_MIN_BYTES, and the fixture sets
+  it to 2. Before that change the populated branch of the page had never
+  executed anywhere: the fixture produced zeros, so CI rendered only the
+  omission path and the first run of the populated path would have been
+  in production. That is the situation the origin check and the render
+  check were both built to eliminate, reproduced in a new page by
+  reasoning about thresholds instead of reusing the pattern already in
+  the repository. Driving it immediately paid: the populated path
+  rendered "of the 1 individuals ... 1 hold", because plural agreement
+  had been assumed rather than computed. A count of one is not
+  hypothetical, and the sentence that teaches readers to be careful
+  cannot itself be ungrammatical. Agreement is now computed.
   The origin gate behaved as designed: it derives page-type coverage
   from the export, noticed a page type it had never opened, and failed
   until the new page joined its visit list. Eight page types now, and

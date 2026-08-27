@@ -102,7 +102,12 @@ OWNER_TYPE_CANDIDATES = ["Owner Type"]
 OWNERSHIP_ROLE_MARKER = "OWNERSHIP INTEREST"
 # A name has to appear at this many facilities before its capacity mix
 # is interesting. Uniform threshold, applied to every name alike.
-METHODS_FACILITY_THRESHOLD = 50
+# Override with NH_METHODS_FACILITY_MIN, exactly as NH_PARTITION_MIN_BYTES
+# is overridden: the fixture sets it low so CI renders the populated
+# branch of the Methods page. Without that, the only execution of the
+# populated path would be in production, which is the situation the
+# origin check and the render check were both built to eliminate.
+METHODS_FACILITY_THRESHOLD = int(os.environ.get("NH_METHODS_FACILITY_MIN", 50))
 
 warnings: list[str] = []
 

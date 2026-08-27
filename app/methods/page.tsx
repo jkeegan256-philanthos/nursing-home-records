@@ -14,6 +14,13 @@ export const metadata: Metadata = {
 // move with it: one rotation moved the facility count by three and one
 // firm's footprint by one, inside a day. A figure typed into this page
 // would be a claim about a batch that is no longer the batch on it.
+// Counts of one are not hypothetical: the fixture produces them, and a
+// real batch could too. A figure that reads "1 individuals ... 1 hold"
+// undermines the sentence it appears in, so agreement is computed
+// rather than assumed.
+const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
+const verb = (n: number) => (n === 1 ? "holds" : "hold");
+
 function footprint(name: string) {
   const row = ownersTop()?.top.find((t) => t.name === name);
   return row ? { facilities: row.facilities, states: row.states } : null;
@@ -141,16 +148,19 @@ export default function MethodsPage() {
       {capacity ? (
         <p>
           In the current batch, of the{" "}
-          {capacity.people.toLocaleString()} individuals disclosed at{" "}
-          {capacity.threshold} or more facilities,{" "}
-          {capacity.none_owning.toLocaleString()} hold no role whose
-          published description contains the words{" "}
+          {capacity.people.toLocaleString()}{" "}
+          {plural(capacity.people, "individual", "individuals")} disclosed
+          at {capacity.threshold} or more facilities,{" "}
+          {capacity.none_owning.toLocaleString()}{" "}
+          {verb(capacity.none_owning)} no role whose published description
+          contains the words{" "}
           <span className="mono">{capacity.ownership_marker.toLowerCase()}</span>{" "}
           anywhere in the file. Of the{" "}
-          {capacity.some_owning.toLocaleString()} who hold such a role
-          somewhere, {capacity.mixed.toLocaleString()} hold it at only
-          some of their facilities. A single label applied to any of them
-          would be wrong at some of the buildings they are attached to.
+          {capacity.some_owning.toLocaleString()} who {verb(capacity.some_owning)}{" "}
+          such a role somewhere, {capacity.mixed.toLocaleString()}{" "}
+          {verb(capacity.mixed)} it at only some of their facilities. A
+          single label applied to any of them would be wrong at some of
+          the buildings they are attached to.
         </p>
       ) : null}
       <p>

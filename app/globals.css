@@ -194,9 +194,15 @@ details.fullrecord[open] summary { margin-bottom: 10px; }
   .search-results a { gap: 6px 10px; padding: 8px 10px; }
   .tablewrap { -webkit-overflow-scrolling: touch; }
 
-  /* Four links on one line at 320px. The nav takes the full width of
-     its own row and spreads, rather than clustering left and wrapping
-     the last link onto a second line. */
+  /* The nav takes the full width of its own row and spreads, rather
+     than clustering left. This held four links on one line at 320px
+     when it was written. A fifth link arrived on 2026-08-26 and the
+     arithmetic changed: one line at 390px and above, two at 320px,
+     with no horizontal overflow at either. Forcing one line again
+     would mean shrinking text the same pass enlarged for tap targets,
+     so the wrap is accepted at the narrowest width. Measured, not
+     assumed; the count of links is deliberately not restated here,
+     because a number in a comment is a number that goes stale. */
   .site-header .container { gap: 10px; padding-top: 14px; padding-bottom: 8px; }
   .wordmark { font-size: 19px; }
   .site-nav { width: 100%; justify-content: space-between; gap: 8px; font-size: 12.5px; }
