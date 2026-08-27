@@ -33,8 +33,12 @@
 // query paths are reachable only by acting: the home search box is
 // typed into, the full record's <details> is opened, each record tab
 // with an _OTHER shard is clicked, and the owner search is typed into
-// and submitted with Enter. Every DuckDB query path the site has is
-// therefore fired at least once.
+// and submitted with Enter, twice: once with a fragment of a name, and
+// once with a person's name in FIRST LAST order against the LAST,
+// FIRST form CMS publishes, because the search promises word order
+// does not matter and that promise is a claim about a query nothing
+// else runs. Every DuckDB query path the site has is therefore fired
+// at least once.
 //
 // One interaction is driven for its mechanism rather than its query: a
 // CSV button on a state page, whose rows come from build-time JSON. The
@@ -318,6 +322,37 @@ if (owner) {
         `to break unnoticed`
     );
   }
+}
+
+// 3a2. The same search with the words reversed. CMS publishes people
+//      as LAST, FIRST and readers type FIRST LAST; the page promises
+//      word order does not matter, and that promise held nowhere until
+//      it was checked: the original substring match found reversed
+//      names on the home page and not here, two search boxes answering
+//      one query differently.
+if (owner && String(owner).includes(",")) {
+  const reversed = String(owner)
+    .split(",")
+    .map((s) => s.trim())
+    .reverse()
+    .join(" ");
+  await go("/owners/");
+  await page.fill("input[type=search]", reversed);
+  await page.press("input[type=search]", "Enter");
+  await page
+    .locator(".search-results .name", { hasText: String(owner) })
+    .first()
+    .waitFor({ timeout: 45_000 })
+    .catch(() => {});
+  const found = await page
+    .locator(".search-results .name", { hasText: String(owner) })
+    .count();
+  check(
+    found > 0,
+    `owner search for "${reversed}" found "${owner}" with the words reversed`,
+    `searching "${reversed}" did not return "${owner}": the search hint ` +
+      `promises word order does not matter, and it does`
+  );
 }
 
 // 3b. The owner detail view, reached by URL rather than by typing.

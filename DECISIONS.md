@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 39 entries. `scripts/check_project_doc.py` asserts that
+This log holds 40 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -1070,3 +1070,22 @@ one means updating the number; that is the point of it.
   batch pushes the compressed owner index materially past this figure,
   the decision is to be revisited with the then-current numbers rather
   than cited from this entry.
+- 2026-08-27: the two search boxes made to answer one query the same
+  way, and the Ownership page was the one that was wrong. The home
+  page's search matches when every word of the query appears somewhere
+  in the name, so JOHN MITCHELL finds MITCHELL, JOHN; the Ownership
+  page's SQL matched the query as one substring, so the same query
+  there returned nothing. CMS publishes people as LAST, FIRST and
+  readers type FIRST LAST, which is the entire reason token matching
+  exists on the home page, and a site whose credibility rests on
+  consistency cannot have its dedicated search page be the worse of
+  its two search boxes. The fix stays inside principle 2: the query is
+  AND of one substring test per word, tokens split the query and never
+  the published name, no fuzzy logic, no identity claim. The hint text
+  now states the rule so a reader can predict the results. Proven red
+  first at the semantic level, engine-independent: against the fixture
+  ownership file, the old SQL for the reversed query returns zero rows
+  and the new SQL returns the LAST, FIRST name. The origin gate now
+  drives a reversed-order query on every run, because the hint's
+  promise that word order does not matter is a claim about a query
+  nothing else runs, and principle 7 does not exempt search hints.
