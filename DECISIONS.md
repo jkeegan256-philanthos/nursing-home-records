@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 36 entries. `scripts/check_project_doc.py` asserts that
+This log holds 39 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -992,3 +992,81 @@ one means updating the number; that is the point of it.
   here drives. It is asserted on a state page, whose rows come from
   build-time JSON, so it tests the download mechanism and not the
   engine.
+- 2026-08-27: a cleanup pass before an outside review, five small
+  things in one change because each is an instance of a rule this
+  repository already holds, and one new rule written into the charter.
+  The rule: a comment describes intent or a constraint, never measured
+  state. Comments are the only text in the tree no gate scans, the
+  prose check scopes them out by design, and nothing can test an
+  English claim about code, so a measured value in a comment goes
+  stale with nothing to say so. Earned by the stylesheet comment that
+  said "four links on one line at 320px" until a fifth link falsified
+  it, found by going looking rather than by anything failing. Not
+  mechanizable, which is why it is a rule in the reviewing section
+  rather than a check.
+  Applied in the same change to the one other instance a full read of
+  the tree found: the owner explorer's row limit was annotated with
+  the largest footprint in a named month's batch, a figure about a
+  batch that is no longer the batch. The comment now states the
+  constraint and lets the rendered truncation notice carry the truth.
+  Also fixed, and the same class as README's touchpoint count: the
+  charter said "Two corollaries earned the same week" above a list
+  that had grown to four, about to be five. It now carries no count
+  and no timeframe. A count in a heading inside the document that
+  teaches this lesson is the strongest argument yet for the structural
+  fix over the vigilant one.
+  The footer stopped answering only the wrong question. It said when
+  this mirror last processed the batch, which advances on every code
+  merge whether or not CMS published anything, so sixteen rebuilds of
+  one unchanged file each moved a date that reads as freshness. It now
+  also shows CMS's own dates, as a range rather than the newest alone,
+  because the batch legitimately spans months: two of its datasets are
+  annual, so the current spread runs 2025-11-01 to 2026-08-01, and
+  naming only the newest would dress the whole batch in its freshest
+  file, the same misdirection with a different date. The fixture now
+  stamps one dataset with an older date so the range branch renders in
+  CI rather than for the first time in production, which is the
+  NH_METHODS_FACILITY_MIN lesson applied before it cost anything.
+  The Data page's ledger paragraph gained its temporal half: each
+  entry records what CMS was serving at the moment of that build's
+  fetch, so several entries with one checksum are one batch served
+  many times, and an entry's date is when this site last asked, not
+  when CMS last changed. That sentence is the lesson of 2026-08-26,
+  when the ledger's sixteen sightings of one file were misread as
+  evidence CMS had not rotated, an hour after CMS rotated.
+  And one spelling: the Methods page said "organisation", the only
+  British spelling in any reader-facing prose, on a US site about US
+  federal data. Swept the whole tree for the class; the one other hit
+  is in a code comment, left alone by the same scope rule that keeps
+  the em dash check out of comments.
+- 2026-08-27: CSV formula escaping declined, on evidence, as a
+  per-batch condition rather than a permanent verdict. The finding:
+  toCsv() quotes only commas, quotes and newlines, so a published
+  value beginning with the equals sign, plus, minus, or at sign would
+  open as a live formula in spreadsheet software. Measured against the
+  current batch: zero of the 62,262 published owner names begin with
+  any of those characters, so the condition does not exist in the data
+  being served. The two standing reasons not to escape hold either
+  way: prefixing or quoting such a value would modify a published
+  value on a site whose footer promises figures are shown exactly as
+  published, and the untouched CMS originals are republished one page
+  away, so a reader opening those carries identical exposure and this
+  site would be mangling data to guard a door standing open beside it.
+  The condition is measured per batch, not settled forever: if a
+  future batch ever publishes a name beginning with one of those
+  characters, this decision is to be revisited rather than inherited,
+  and this entry is the place a future reviewer finds that condition
+  stated.
+- 2026-08-27: search index weight recorded as a measured non-issue,
+  with the figures and a tripwire. The home page fetches two indexes
+  lazily, the facility index on load and the owner index only after a
+  search reaches three characters. Measured from outside on this date:
+  owners-slim.json is 2.36 MB raw and 447 KB on the wire, because
+  GitHub Pages compresses it, and the facility index is 326 KB, so a
+  phone that searches pays roughly 770 KB once. That is an ordinary
+  page weight, not a problem worth engineering around, and the lazy
+  fetch already means readers who never search never pay it. Both
+  figures scale with the batch, which is the tripwire: if a future
+  batch pushes the compressed owner index materially past this figure,
+  the decision is to be revisited with the then-current numbers rather
+  than cited from this entry.

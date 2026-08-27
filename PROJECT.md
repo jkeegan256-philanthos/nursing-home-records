@@ -230,7 +230,7 @@ to interrupt. Someone who reads that message and bumps the number has
 made a decision rather than an oversight, and a decision is the thing
 this log can hold.
 
-Two corollaries earned the same week:
+Corollaries, each earned by an incident:
 
 - A safety property that holds because of something outside this
   repository is not a safety property this repository has. The deploy
@@ -262,6 +262,15 @@ Two corollaries earned the same week:
   script: a failure followed by a success that hides it. Sequencing is
   a claim that each step happened, and an unguarded `;` or newline
   makes that claim without checking it.
+- A comment describes intent or a constraint, never measured state.
+  Comments are the only text in the tree no gate scans: the prose
+  check scopes them out by design, and nothing can test an English
+  claim about code. A measured value written into one goes stale with
+  nothing to say so, which is how "four links on one line at 320px"
+  sat false in the stylesheet after a fifth link shipped. State the
+  reason a rule exists and let the code and the checks carry the
+  numbers; a figure that matters belongs in a dated log entry, where
+  staleness is the format.
 
 ### House style: no em dash in prose a stranger reads
 

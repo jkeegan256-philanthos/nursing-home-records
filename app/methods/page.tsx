@@ -129,7 +129,7 @@ export default function MethodsPage() {
             </table>
           </div>
           <p>
-            Whether they are one organisation is a question this file does
+            Whether they are one organization is a question this file does
             not answer. Adding their facility counts together assumes an
             answer. Reading each as filed does not.
           </p>

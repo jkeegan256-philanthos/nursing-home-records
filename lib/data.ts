@@ -59,6 +59,22 @@ export function ledger(): LedgerEntry[] {
   }
 }
 
+// The span of CMS's own modified dates across this batch's datasets,
+// for the footer. A range rather than a single date on purpose: some
+// datasets in the theme are annual, so one download routinely spans
+// many months, and naming only the newest date would dress the whole
+// batch in its freshest file, which is the processing-date problem
+// with a different date. Null when no table carries a date, and the
+// footer then says only when this site processed the batch.
+export function cmsVintage(): { min: string; max: string } | null {
+  const dates = Object.values(dataMap().tables)
+    .map((t) => t.modified_date)
+    .filter((d): d is string => !!d)
+    .sort();
+  if (dates.length === 0) return null;
+  return { min: dates[0], max: dates[dates.length - 1] };
+}
+
 export type OwnersTop = {
   total_owners: number;
   blank_owner_rows: number;
