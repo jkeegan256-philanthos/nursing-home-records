@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 34 entries. `scripts/check_project_doc.py` asserts that
+This log holds 35 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -833,3 +833,53 @@ one means updating the number; that is the point of it.
   session that had just written the rule against it, in the document
   arguing for the rule. A log that records only other people's errors
   is worth less than one that records its author's.
+- 2026-08-26: a Methods page added at /methods/, teaching how to read
+  the ownership disclosures. It exists because five reviewers, three of
+  them AI, independently made the same four errors reading this data,
+  so the traps it names are failure modes the record actually produces
+  rather than hypotheticals. It teaches; it does not advocate, rank, or
+  characterise anyone.
+  Every figure on it is derived at build time from the batch being
+  served. That was not a preference. The real data lives only in CI,
+  this session could not reach data.cms.gov, and a figure typed in from
+  a conversation is a figure nobody checked. Deriving it also makes the
+  page incapable of going stale, which the same day demonstrated the
+  need for: CMS rotated at 06:41 UTC, facilities moved by three, and
+  one firm's footprint moved by one, inside a day.
+  Two of the four traps needed no new derivation at all. owners-top.json
+  already carried name, type, facility count and state count for the top
+  150 footprints, so the accounting-firm and multiple-spelling examples
+  read from an artifact that already existed. Only the capacity figure
+  was new.
+  That figure needed a rule for which roles are ownership, and the rule
+  is the one place this page could have smuggled in an inference. CMS's
+  own vocabulary supplies a mechanical one: the four ownership roles all
+  contain the words "ownership interest", while MORTGAGE INTEREST,
+  SECURITY INTEREST and the partnership interests do not. So the page
+  says "no role whose published description contains the words ownership
+  interest" rather than "holds no ownership interest". The first is a
+  fact about the file; the second is a judgement about what the strings
+  mean, and it would have quietly decided the genuinely arguable case of
+  a partnership interest. Stating the rule on the page lets a reader
+  disagree with it, which a summary figure would not.
+  The page omits any figure it cannot stand behind. The capacity figure
+  renders only when at least one individual clears the threshold and at
+  least one holds an ownership role; on the synthetic fixture nobody
+  does, so the omission path is the one CI exercises on every run and
+  the populated path only appears on deploy. That asymmetry is worth
+  knowing rather than discovering.
+  One regression was introduced and measured rather than assumed. A
+  fifth navigation link took the header from one line to three at 320px,
+  undoing part of the phone pass. Shortening the label to Methods
+  restored one line at 390px and above; at 320px it is two lines, with
+  no horizontal overflow. Forcing one line would have meant shrinking
+  text that the same pass enlarged for tap targets, so the property that
+  pass stated is relaxed deliberately at the narrowest width rather than
+  silently.
+  The origin gate behaved as designed: it derives page-type coverage
+  from the export, noticed a page type it had never opened, and failed
+  until the new page joined its visit list. Eight page types now, and
+  KNOWN_QUERY_CALLERS stays at 7 because the page reads build-time JSON
+  and runs no query.
+  Final wording is the founder's, as About's was. This is a draft in his
+  voice's direction, not in his voice.

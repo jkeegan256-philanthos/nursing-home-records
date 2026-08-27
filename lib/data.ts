@@ -77,6 +77,45 @@ export function ownersTop(): OwnersTop | null {
   }
 }
 
+// Figures the Methods page teaches from, derived at build time from the
+// batch being served. Null when the ownership file lacked a column the
+// figure needs; zeroed when no name clears the threshold, which is the
+// normal case on the synthetic fixture. Callers must treat both as
+// "omit the figure" rather than as a number worth printing.
+export type MethodsFigures = {
+  capacity: {
+    threshold: number;
+    people: number;
+    none_owning: number;
+    some_owning: number;
+    mixed: number;
+    role_column: string;
+    owner_type_column: string;
+    ownership_marker: string;
+  } | null;
+  source_file: string | null;
+  modified_date?: string | null;
+};
+
+let _methods: MethodsFigures | null = null;
+
+export function methodsFigures(): MethodsFigures | null {
+  try {
+    return (_methods ??= readJson("build", "methods.json"));
+  } catch {
+    return null;
+  }
+}
+
+// One place decides whether the capacity figure is publishable, so the
+// page cannot accidentally print "0 individuals" as though it taught
+// something. A figure that describes nobody teaches nothing.
+export function capacityFigure() {
+  const c = methodsFigures()?.capacity;
+  if (!c || c.people < 1 || c.some_owning < 1) return null;
+  return c;
+}
+
 // Pre-rendered owner pages. Row shape mirrors export_owner_pages():
 // [ccn, facility, city, state, role, pct, since, type]
 export type OwnerPage = {

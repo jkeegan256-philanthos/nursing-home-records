@@ -50,6 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <nav className="site-nav" aria-label="Site">
               <a href={`${BP}/`}>Facilities</a>
               <a href={`${BP}/owners/`}>Ownership</a>
+              <a href={`${BP}/methods/`}>Methods</a>
               <a href={`${BP}/data/`}>Data &amp; downloads</a>
               <a href={`${BP}/about/`}>About</a>
             </nav>
