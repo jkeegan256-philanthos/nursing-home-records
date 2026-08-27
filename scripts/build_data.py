@@ -87,6 +87,27 @@ SLIM_COLUMNS = [
 
 CCN_CANDIDATES = ["CMS Certification Number (CCN)", "Federal Provider Number", "CCN"]
 STATE_CANDIDATES = ["State", "Provider State"]
+ROLE_CANDIDATES = ["Role played by Owner or Manager in Facility", "Role"]
+OWNER_TYPE_CANDIDATES = ["Owner Type"]
+
+# The Methods page teaches that a role is not an ownership stake. That
+# claim needs a figure, and a figure needs a rule for which published
+# roles are ownership. CMS's own vocabulary supplies one: the four
+# ownership roles all contain the words "ownership interest", while
+# MORTGAGE INTEREST, SECURITY INTEREST and the partnership interests
+# do not. Matching that substring is mechanical and quotable, so the
+# page can state the rule instead of asking a reader to trust a
+# judgement about what the strings mean. Anything looser would be
+# this project inferring ownership, which principle 2 forbids.
+OWNERSHIP_ROLE_MARKER = "OWNERSHIP INTEREST"
+# A name has to appear at this many facilities before its capacity mix
+# is interesting. Uniform threshold, applied to every name alike.
+# Override with NH_METHODS_FACILITY_MIN, exactly as NH_PARTITION_MIN_BYTES
+# is overridden: the fixture sets it low so CI renders the populated
+# branch of the Methods page. Without that, the only execution of the
+# populated path would be in production, which is the situation the
+# origin check and the render check were both built to eliminate.
+METHODS_FACILITY_THRESHOLD = int(os.environ.get("NH_METHODS_FACILITY_MIN", 50))
 
 warnings: list[str] = []
 
@@ -299,6 +320,100 @@ def convert_table(
 
 
 
+def export_methods_figures(
+    con: duckdb.DuckDBPyConnection,
+    named: str,
+    own_meta: dict,
+    build_dir: Path,
+) -> None:
+    """Derive the figures the Methods page teaches from, at build time.
+
+    Every number on that page is a fact about the batch being served, so
+    none of them can be transcribed from a previous batch or from a
+    conversation. CMS rotates the file monthly and the figures move with
+    it: on 2026-08-26 a rotation moved facilities by three and one firm's
+    footprint by one, within a day. A hardcoded figure is a claim about a
+    batch that is no longer the one on the page.
+
+    Two figures, both counts and groupings over published fields, which
+    is what principle 1 permits. Nothing here scores, ranks, or infers.
+    """
+    ccn_col = own_meta.get("ccn_column")
+    role_col = pick(own_meta["columns"], ROLE_CANDIDATES, contains="role")
+    type_col = pick(own_meta["columns"], OWNER_TYPE_CANDIDATES, contains="owner type")
+    out = build_dir / "methods.json"
+
+    if not (ccn_col and role_col and type_col):
+        # The page renders its prose and omits the figure rather than
+        # guessing. Absence is a shape: say which column was missing.
+        missing = [
+            n
+            for n, v in (("CCN", ccn_col), ("role", role_col), ("owner type", type_col))
+            if not v
+        ]
+        warn(
+            f"methods figures: ownership file has no {', '.join(missing)} column; "
+            f"the Methods page will omit the capacity figure"
+        )
+        out.write_text(
+            json.dumps({"capacity": None, "source_file": own_meta.get("source_file")}),
+            encoding="utf-8",
+        )
+        return
+
+    ccn = qident(ccn_col)
+    role = qident(role_col)
+    otype = qident(type_col)
+    marker = qlit(f"%{OWNERSHIP_ROLE_MARKER}%")
+    n = int(METHODS_FACILITY_THRESHOLD)
+
+    # One pass: per individual, how many facilities, and at how many of
+    # them does any role carry the ownership marker.
+    row = con.execute(
+        f"""
+        WITH per_name AS (
+          SELECT "Owner Name" AS name,
+                 count(DISTINCT {ccn}) AS facilities,
+                 count(DISTINCT CASE WHEN upper({role}) LIKE {marker}
+                                     THEN {ccn} END) AS owning_facilities
+          FROM ({named})
+          WHERE upper(trim(coalesce({otype}, ''))) = 'INDIVIDUAL'
+          GROUP BY 1
+        ), wide AS (
+          SELECT * FROM per_name WHERE facilities >= {n}
+        )
+        SELECT
+          (SELECT count(*) FROM wide),
+          (SELECT count(*) FROM wide WHERE owning_facilities = 0),
+          (SELECT count(*) FROM wide WHERE owning_facilities > 0),
+          (SELECT count(*) FROM wide
+             WHERE owning_facilities > 0 AND owning_facilities < facilities)
+        """
+    ).fetchone()
+
+    people, none_owning, some_owning, mixed = (int(x) for x in row)
+    payload = {
+        "capacity": {
+            "threshold": n,
+            "people": people,
+            "none_owning": none_owning,
+            "some_owning": some_owning,
+            "mixed": mixed,
+            "role_column": role_col,
+            "owner_type_column": type_col,
+            "ownership_marker": OWNERSHIP_ROLE_MARKER,
+        },
+        "source_file": own_meta.get("source_file"),
+        "modified_date": own_meta.get("modified_date"),
+    }
+    out.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    print(
+        f"  methods: {people:,} individuals at {n}+ facilities; "
+        f"{none_owning:,} with no {OWNERSHIP_ROLE_MARKER.lower()} role, "
+        f"{mixed:,} of {some_owning:,} holding one at only some"
+    )
+
+
 def export_owners(
     con: duckdb.DuckDBPyConnection,
     csv_path: Path,
@@ -383,6 +498,8 @@ def export_owners(
         ),
         encoding="utf-8",
     )
+
+    export_methods_figures(con, named, own_meta, build_dir)
 
     export_owner_pages(con, named, own_meta, build_dir, parquet_root.parent)
 

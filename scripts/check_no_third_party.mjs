@@ -298,6 +298,7 @@ for (const p of [
   "/data/",
   "/about/",
   "/glossary/",
+  "/methods/",
   anyState && `/state/${anyState}/`,
   anyOwner && `/owner/${anyOwner}/`,
   "/404/",
