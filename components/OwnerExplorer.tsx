@@ -200,10 +200,21 @@ export default function OwnerExplorer() {
     try {
       const url = new URL(`${BP}/${info.path}`, window.location.origin).toString();
       const ccn = sqlIdent(info.ccn_column ?? "CMS Certification Number (CCN)");
+      // Every word of the query must appear somewhere in the name, so
+      // JOHN MITCHELL finds MITCHELL, JOHN. CMS publishes people as
+      // LAST, FIRST and readers type FIRST LAST; the home page search
+      // already matches this way, and two search boxes on one site must
+      // not answer the same query differently. Exact strings still:
+      // tokens split the query, never the published name.
+      const match = needle
+        .split(/\s+/)
+        .filter(Boolean)
+        .map((t) => `contains(upper("Owner Name"), upper(${sqlLit(t)}))`)
+        .join(" AND ");
       const res = await querySQL(
         `SELECT "Owner Name", string_agg(DISTINCT coalesce("Owner Type", '')), ` +
           `count(DISTINCT ${ccn}) FROM read_parquet(${sqlLit(url)}) ` +
-          `WHERE ${NAMED} AND contains(upper("Owner Name"), upper(${sqlLit(needle)})) ` +
+          `WHERE ${NAMED} AND ${match} ` +
           `GROUP BY 1 ORDER BY 3 DESC, 1 LIMIT 60`
       );
       setHits(
@@ -247,8 +258,9 @@ export default function OwnerExplorer() {
           aria-label="Search owner names"
         />
         <p className="search-hint">
-          Type at least three characters, then press Enter. Names match exactly
-          as CMS publishes them, usually LAST, FIRST for people.
+          Type at least three characters, then press Enter. Every word you
+          type must appear in the name; word order does not matter. Names are
+          shown exactly as CMS publishes them, usually LAST, FIRST for people.
         </p>
       </div>
 
