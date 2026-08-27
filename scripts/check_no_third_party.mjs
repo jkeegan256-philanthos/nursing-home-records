@@ -14,15 +14,35 @@
 // of check that could have caught it, and it catches the next one too,
 // whatever the hostname turns out to be.
 //
+// It also carries the site's published Content-Security-Policy, in two
+// halves: that every exported page holds exactly the policy in
+// scripts/csp.mjs, and that a browser running under it reports no
+// violation while being driven through everything below. The policy
+// governs the document only. The DuckDB engine runs in a worker, which
+// takes its policy from its own response headers rather than from the
+// page, and GitHub Pages sends none, so the engine is outside it. That
+// is why this file is not made redundant by the policy: the off-origin
+// fetch it exists to catch happens where the browser is not enforcing
+// anything.
+//
 // What a green result covers, written down because the strength of this
 // check is exactly its sample and nothing beyond it. Pages visited: the
 // home page, one facility page, the owners page, an owner detail page,
-// and the Data, About and glossary pages. Interactions driven, which
-// matters as much as the pages because three query paths are reachable
-// only by acting: the home search box is typed into, the full record's
-// <details> is opened, each record tab with an _OTHER shard is clicked,
-// and the owner search is typed into and submitted with Enter. Every
-// DuckDB query path the site has is therefore fired at least once.
+// a state page, and the Data, About, methods and glossary pages.
+// Interactions driven, which matters as much as the pages because three
+// query paths are reachable only by acting: the home search box is
+// typed into, the full record's <details> is opened, each record tab
+// with an _OTHER shard is clicked, and the owner search is typed into
+// and submitted with Enter. Every DuckDB query path the site has is
+// therefore fired at least once.
+//
+// One interaction is driven for its mechanism rather than its query: a
+// CSV button on a state page, whose rows come from build-time JSON. The
+// export path builds a blob: URL and clicks a synthetic <a download>,
+// which no other assertion here touches and which nothing else would
+// notice breaking. Scoped to the state page deliberately, so the
+// assertion is about the download mechanism and does not go red for an
+// engine that could not read Parquet.
 //
 // What it does not cover: any page type not in that list, and any
 // future interaction added without being added here. A green result is
@@ -33,6 +53,7 @@
 import { createReadStream, existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { createServer } from "node:http";
 import { extname, join, normalize } from "node:path";
+import { CSP, CSP_META } from "./csp.mjs";
 
 const args = process.argv.slice(2);
 const argOf = (flag, fallback) => {
@@ -144,8 +165,32 @@ const browser = await chromium.launch(
     ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH }
     : {}
 );
-const context = await browser.newContext();
+const context = await browser.newContext({ acceptDownloads: true });
 const page = await context.newPage();
+
+// Every violation the policy raises, per document. Registered before any
+// page script runs, so a violation during the initial parse is caught
+// rather than missed by a listener that arrives too late.
+const cspViolations = [];
+await page.addInitScript(() => {
+  window.__cspViolations = [];
+  document.addEventListener("securitypolicyviolation", (e) => {
+    window.__cspViolations.push(
+      `${e.effectiveDirective} blocked ${e.blockedURI || "(inline)"}`
+    );
+  });
+});
+let currentPage = "(before the first page)";
+const drainViolations = async () => {
+  const found = await page
+    .evaluate(() => {
+      const out = window.__cspViolations || [];
+      window.__cspViolations = [];
+      return out;
+    })
+    .catch(() => []);
+  for (const v of found) cspViolations.push(`${currentPage}: ${v}`);
+};
 
 const offOrigin = new Set();
 // Same-origin paths are recorded too, so the run can prove it actually
@@ -177,7 +222,13 @@ const check = (ok, label, detail) => {
   if (!ok) problems.push(detail ?? label);
 };
 
-const go = (p) => page.goto(ORIGIN + p, { waitUntil: "networkidle" });
+// Violations are drained before leaving a document, because navigating
+// away destroys the record along with the page that made it.
+const go = async (p) => {
+  await drainViolations();
+  currentPage = p;
+  return page.goto(ORIGIN + p, { waitUntil: "networkidle" });
+};
 
 console.log(`Serving ${DIR}/ at ${ORIGIN}\n`);
 
@@ -299,7 +350,6 @@ for (const p of [
   "/about/",
   "/glossary/",
   "/methods/",
-  anyState && `/state/${anyState}/`,
   anyOwner && `/owner/${anyOwner}/`,
   "/404/",
 ]) {
@@ -307,6 +357,32 @@ for (const p of [
 }
 console.log("  --    static pages loaded");
 
+// 5. The CSV export, on the one page whose rows do not come from a
+//    query. Nothing else here touches the blob: URL and the synthetic
+//    <a download> that lib/csv.ts builds, and a policy that broke them
+//    would break them silently.
+if (anyState) {
+  await go(`/state/${anyState}/`);
+  const button = page.locator(".count-line.has-button .csv-button");
+  let downloaded = null;
+  if (await button.count()) {
+    downloaded = await Promise.all([
+      page.waitForEvent("download", { timeout: 20_000 }),
+      button.first().click(),
+    ])
+      .then(([d]) => d.suggestedFilename())
+      .catch((e) => `no download: ${e.message.split("\n")[0]}`);
+  }
+  check(
+    downloaded !== null && !String(downloaded).startsWith("no download"),
+    `state ${anyState}: the CSV button produced a download (${downloaded})`,
+    downloaded === null
+      ? `no CSV button on /state/${anyState}/, so the export path went undriven`
+      : `clicking the CSV button on /state/${anyState}/ started no download: ${downloaded}`
+  );
+}
+
+await drainViolations();
 await browser.close();
 await new Promise((r) => server.close(r));
 
@@ -387,6 +463,53 @@ check(
   `the browser issued ${parquetReads.length} Parquet read(s), so a query really ran`,
   "no .parquet was requested: the pages above never ran a query, so this " +
     "run proves nothing about what the engine fetches"
+);
+
+// The policy, in two halves. Every page must carry it, which the
+// browser above cannot tell us because it only opens a sample; and no
+// page the browser did open may have raised a violation, which the
+// files cannot tell us because a policy is only real when something
+// runs under it.
+const htmlFiles = (dir) => {
+  const out = [];
+  for (const e of readdirSync(dir, { withFileTypes: true })) {
+    const full = join(dir, e.name);
+    if (e.isDirectory()) out.push(...htmlFiles(full));
+    else if (e.name.endsWith(".html")) out.push(full);
+  }
+  return out;
+};
+const pages = htmlFiles(DIR);
+const unprotected = [];
+for (const f of pages) {
+  const html = readFileSync(f, "utf8");
+  // Immediately after <head>, not merely somewhere in the document: a
+  // meta policy governs only what the parser meets after it, and Next
+  // hoists its stylesheet and entry scripts to the top of the head.
+  if (!html.includes(`<head>${CSP_META}`)) {
+    unprotected.push(
+      /Content-Security-Policy/i.test(html)
+        ? `${f} carries a policy that is not the one in scripts/csp.mjs, or not as the first child of <head>`
+        : `${f} carries no Content-Security-Policy`
+    );
+  }
+}
+check(
+  unprotected.length === 0,
+  `all ${pages.length} exported page(s) carry the policy as the first child of <head>`,
+  `${unprotected.length} page(s) are not covered by the policy:\n      ` +
+    unprotected.slice(0, 10).join("\n      ") +
+    (unprotected.length > 10 ? `\n      ... and ${unprotected.length - 10} more` : "") +
+    `\n      The policy is written by scripts/apply_csp.mjs, run as npm's postbuild hook.`
+);
+
+check(
+  cspViolations.length === 0,
+  `no Content-Security-Policy violation across every page and interaction above`,
+  `the policy blocked ${cspViolations.length} thing(s) the site needs:\n      ` +
+    [...new Set(cspViolations)].join("\n      ") +
+    `\n      Either the page is doing something the policy should allow, or the ` +
+    `policy in scripts/csp.mjs is now wrong. Current policy: ${CSP}`
 );
 
 check(

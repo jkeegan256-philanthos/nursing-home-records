@@ -106,6 +106,14 @@ page with checksums and downloads. Deployed to GitHub Pages. About
 545 MB and 14,751 pages per batch. No servers, no database, no
 secrets.
 
+Every page carries a Content-Security-Policy meta tag confining the
+document to this origin. It covers the document only. A worker takes
+its policy from its own response headers, and GitHub Pages sends none
+we control, so the DuckDB engine is outside it and the browser enforces
+nothing about what the engine fetches. That is why the origin gate in
+`scripts/check_no_third_party.mjs` is load-bearing rather than a second
+belt, and why it is not to be relaxed on the strength of the policy.
+
 ## Operating it
 
 Monthly refresh is one tap: Actions, Build and deploy, Run workflow.
