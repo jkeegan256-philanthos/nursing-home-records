@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 35 entries. `scripts/check_project_doc.py` asserts that
+This log holds 36 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -906,3 +906,79 @@ one means updating the number; that is the point of it.
   and runs no query.
   Final wording is the founder's, as About's was. This is a draft in his
   voice's direction, not in his voice.
+- 2026-08-27: a Content-Security-Policy shipped as a meta tag on every
+  page, and the reason it is worth less than it looks worth recorded
+  beside it. The site's claim is that it makes no third-party requests.
+  Until now that was verified only at build time, by a browser gate
+  covering a sample of pages and a declared list of interactions. The
+  policy asks every reader's own browser to enforce the same-origin
+  rule on every page, including the ones the gate never opens.
+  What it does not cover is the engine, and that inverts most of the
+  value. A dedicated worker takes its policy from the response headers
+  of its own script rather than from the document that created it;
+  inheritance happens only for blob: and data: workers. GitHub Pages
+  sends no headers this project controls, so the DuckDB worker cannot
+  be given a policy at all, and every read_parquet and extension load
+  is issued from inside it. The one incident this project has actually
+  had, the Parquet extension fetching from extensions.duckdb.org in
+  every reader's browser for three weeks, would not have been stopped
+  by this policy. scripts/check_no_third_party.mjs therefore remains
+  the only thing standing between a reader and an off-origin engine
+  fetch. It is not a belt beside a brace and must not be treated as
+  one.
+  That was measured rather than cited, on two local origins: a page
+  carrying connect-src 'self' had its own cross-origin fetch blocked,
+  with the violation event to prove the policy was live, while a
+  same-origin worker created by that same page fetched the second
+  origin and got HTTP 200 with a body.
+  'wasm-unsafe-eval' was tested and left out. Against duckdb-wasm
+  1.32.0, engine v1.4.3, the main-thread bundle contains only
+  WebAssembly.validate, four calls, the platform probes; every Module,
+  instantiate and instantiateStreaming lives in the worker bundle,
+  which the finding above puts outside the policy. Probed directly:
+  under script-src 'self' 'unsafe-inline', validate returns true with
+  no violation while new WebAssembly.Module and WebAssembly.instantiate
+  both throw CompileError and raise script-src / wasm-eval. The gate is
+  real and the document never reaches it. Recorded so nobody re-adds
+  the directive defensively; if a future duckdb-wasm compiles on the
+  main thread, the origin gate goes red and this entry says why.
+  'unsafe-inline' on script-src is required, because a Next.js static
+  export puts the RSC payload in inline scripts on every page. It
+  permits inline code and never another host, so the origin property is
+  unaffected, but it means this is an origin policy and not an XSS
+  defence, and it is described that way in scripts/csp.mjs rather than
+  allowed to imply more. The site has no injection surface to defend:
+  no dangerouslySetInnerHTML anywhere, no eval, no cookies, no server,
+  no user input reaching markup. Per-page script hashes were considered
+  and declined on that basis.
+  The tag is injected after the build rather than rendered by the root
+  layout, and the ordering is the whole reason. Next hoists its own
+  stylesheet link and entry script tags above anything a layout renders,
+  and a meta policy governs only what the parser meets after it, so a
+  rendered tag would have arrived after those fetches: a policy reading
+  as though it covered the page while not covering the first several
+  requests on it. That is the dead position: sticky wearing a security
+  label. scripts/apply_csp.mjs writes it as the first child of <head>,
+  wired as npm's postbuild hook so it runs wherever the build runs.
+  frame-ancestors, report-uri and sandbox are absent on purpose: a
+  browser ignores them in a meta tag, and a directive that cannot fire
+  reads to the next person as protection that exists. Report-only mode
+  was declined for the same shape of reason, since with no server and
+  no third-party collector this site would accept, there is nowhere for
+  a report to go. object-src and form-action stay although the export
+  has neither element, because those constrain what may be added later,
+  which is a different thing from a directive the parser discards.
+  Three assertions in the origin gate earn the claim, each broken on
+  purpose before being trusted. Every exported page must carry exactly
+  the policy in scripts/csp.mjs as the first child of <head>, proven by
+  stripping the tag from one page and altering the policy on another.
+  No page the browser drives may raise a violation, proven by removing
+  'unsafe-inline' from style-src and watching 22 violations appear,
+  including style-src-attr on facility pages, which incidentally shows
+  that allowance is load-bearing rather than decorative. And the CSV
+  export must still start a download, which is a coverage gap that
+  existed before this policy and would have outlived it: lib/csv.ts
+  builds a blob: URL and clicks a synthetic anchor, a path nothing else
+  here drives. It is asserted on a state page, whose rows come from
+  build-time JSON, so it tests the download mechanism and not the
+  engine.
