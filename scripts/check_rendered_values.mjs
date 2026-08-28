@@ -457,6 +457,91 @@ check(
   );
 }
 
+// The sitemap must date a page by what the page's content is, not by
+// when this pipeline last ran: stamping fourteen thousand URLs with
+// the processing date told crawlers the whole site changed monthly
+// while the data sat still, the footer lesson unapplied. Expected
+// dates are recomputed here from the deployed data map, so the output
+// is checked against the data rather than the code against itself.
+{
+  const map = JSON.parse(readFileSync(join(DIR, "data/data-map.json"), "utf8"));
+  const generated = (map.generated_at ?? "").slice(0, 10);
+  const d = (name) => map.tables[name]?.modified_date ?? null;
+  const maxDate = (...xs) => {
+    const real = xs.filter(Boolean);
+    return real.length ? real.sort().at(-1) : generated;
+  };
+  const expected = {
+    "/facility/": maxDate(d("providers")),
+    "/state/": maxDate(d("providers"), d("state_us_averages")),
+    "/owner/": maxDate(d("ownership_all") ?? d("ownership")),
+  };
+  const entries = existsSync(sitemapFile)
+    ? [...readFileSync(sitemapFile, "utf8").matchAll(
+        /<url>\s*<loc>([^<]+)<\/loc>\s*(?:<lastmod>([^<]+)<\/lastmod>)?/g
+      )].map((m) => ({ loc: m[1], lastmod: (m[2] ?? "").slice(0, 10) }))
+    : [];
+  const mapProblems = [];
+  const seen = new Set();
+  let datedChecked = 0;
+  let differsFromGenerated = 0;
+  for (const e of entries) {
+    if (seen.has(e.loc)) mapProblems.push(`${e.loc} appears more than once`);
+    seen.add(e.loc);
+    if (!e.loc.endsWith("/")) mapProblems.push(`${e.loc} lacks the trailing slash`);
+    const kind = Object.keys(expected).find((k) => e.loc.includes(k));
+    if (!kind) continue;
+    if (e.lastmod !== expected[kind]) {
+      mapProblems.push(
+        `${e.loc}: lastmod ${e.lastmod || "(none)"} but the batch's ` +
+          `${kind} content is dated ${expected[kind]}`
+      );
+    }
+    if (e.lastmod && e.lastmod !== generated) differsFromGenerated++;
+    datedChecked++;
+  }
+  check(
+    entries.length > 0 && datedChecked > 0 && mapProblems.length === 0,
+    `sitemap dates ${datedChecked} record page(s) by their content's own date`,
+    mapProblems.length
+      ? `the sitemap misdates pages:\n      ` + mapProblems.slice(0, 8).join("\n      ")
+      : "no sitemap entries were checked, so this run proves nothing"
+  );
+  // Vacuity guard: when the batch carries a vintage that differs from
+  // the processing date, some entry must show it, or the fix has
+  // silently regressed to stamping everything with build time.
+  const anyDiffers = Object.values(expected).some((v) => v && v !== generated);
+  if (anyDiffers) {
+    check(
+      differsFromGenerated > 0,
+      "at least one sitemap date is the data's, not the build's",
+      "the data map carries a vintage differing from the processing date, yet every sitemap entry is stamped with the processing date"
+    );
+  }
+}
+
+// The largest-footprints table must link the permanent record where
+// one exists: a query-string address is not separately indexable and
+// dies with the explorer, while /owner/ pages are the pre-rendered
+// citations. Fallback to the query string is correct only for names
+// below the page threshold or in a degraded batch.
+if (existsSync(OWNER_PAGES_PATH)) {
+  const ownersIndex = join(DIR, "owners", "index.html");
+  const hasOwners = JSON.parse(readFileSync(OWNER_PAGES_PATH, "utf8")).owners.length > 0;
+  if (hasOwners && existsSync(ownersIndex)) {
+    const html = stripComments(readFileSync(ownersIndex, "utf8"));
+    const ownerLinks = [...html.matchAll(/href="[^"]*\/owner\/([^/"]+)\//g)].map((m) => m[1]);
+    const broken = ownerLinks.filter((slug) => !existsSync(join(DIR, "owner", slug)));
+    check(
+      ownerLinks.length > 0 && broken.length === 0,
+      `owners index links ${ownerLinks.length} pre-rendered owner page(s), all resolving`,
+      broken.length
+        ? `owner links point at pages that do not exist: ${broken.slice(0, 5).join(", ")}`
+        : "owner pages exist for this batch and the largest-footprints table links none of them"
+    );
+  }
+}
+
 // The 404 page: Next's built-in emitted a second <title> after the
 // site's own, and the first one wins, so error pages announced
 // themselves with the homepage's identity. One title, and no canonical,

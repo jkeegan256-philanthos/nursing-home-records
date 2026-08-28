@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { BP, CMS_DATASET_URL } from "@/lib/config";
-import { ownersTop } from "@/lib/data";
+import { ownerSlugFor, ownersTop } from "@/lib/data";
 import { pageMetadata } from "@/lib/seo";
 import OwnerExplorer from "@/components/OwnerExplorer";
 
@@ -63,11 +63,23 @@ export default function OwnersPage() {
                 </tr>
               </thead>
               <tbody>
-                {/* build_data.py exports 150 on purpose; 100 is the page's choice */}
-                {owners.top.slice(0, 100).map((o) => (
+                {/* build_data.py exports 150 on purpose; 100 is the page's choice.
+                    A name links its pre-rendered page when one exists: the
+                    permanent, indexable address. The query-string link is the
+                    fallback for a name below the page threshold or a batch
+                    whose ownership artifacts degraded. */}
+                {owners.top.slice(0, 100).map((o) => {
+                  const slug = ownerSlugFor(o.name);
+                  return (
                   <tr key={o.name}>
                     <td>
-                      <a href={`${BP}/owners/?name=${encodeURIComponent(o.name)}`}>
+                      <a
+                        href={
+                          slug
+                            ? `${BP}/owner/${slug}/`
+                            : `${BP}/owners/?name=${encodeURIComponent(o.name)}`
+                        }
+                      >
                         {o.name}
                       </a>
                     </td>
@@ -75,7 +87,8 @@ export default function OwnersPage() {
                     <td className="num">{o.facilities.toLocaleString()}</td>
                     <td className="num">{o.states.toLocaleString()}</td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
