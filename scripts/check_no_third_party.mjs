@@ -458,7 +458,9 @@ check(
 const KNOWN_QUERY_CALLERS = {
   "components/FullRecord.tsx": 1,
   "components/FacilityRecords.tsx": 2,
-  "components/OwnerExplorer.tsx": 4,
+  // The fifth call is the per-state facility counts on the owner
+  // detail view, driven by the same owner-detail navigation below.
+  "components/OwnerExplorer.tsx": 5,
 };
 const QUERY_CALL = /\b(querySQL|queryParquet|queryParquetAll)\(/g;
 const actualCallers = {};

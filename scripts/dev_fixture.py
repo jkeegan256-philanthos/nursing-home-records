@@ -170,9 +170,14 @@ def main() -> None:
              for f in facilities[:4]],
         ),
         "NH_StateUSAverages_Jun2026.csv": csv_bytes(
-            ["State or Nation", "Cycle 1 Total Number of Health Deficiencies"],
-            [{"State or Nation": s, "Cycle 1 Total Number of Health Deficiencies": "7.1"}
-             for s in STATES + ["NATION"]],
+            ["State or Nation", "Overall Rating", "Health Inspection Rating",
+             "QM Rating", "Staffing Rating",
+             "Cycle 1 Total Number of Health Deficiencies"],
+            [{"State or Nation": s, "Overall Rating": f"2.{i}",
+              "Health Inspection Rating": f"2.{(i + 1) % 10}",
+              "QM Rating": f"3.{i}", "Staffing Rating": f"2.{(i + 2) % 10}",
+              "Cycle 1 Total Number of Health Deficiencies": f"7.{i}"}
+             for i, s in enumerate(STATES + ["NATION"])],
         ),
         "NH_CitationDescriptions_Jun2026.csv": csv_bytes(
             ["Deficiency Prefix", "Deficiency Tag Number", "Deficiency Description"],

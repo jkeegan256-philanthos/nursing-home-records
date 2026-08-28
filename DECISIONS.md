@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 42 entries. `scripts/check_project_doc.py` asserts that
+This log holds 43 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -1137,3 +1137,76 @@ one means updating the number; that is the point of it.
   distinguish no-result-yet from no-answer-available, or its silence
   is indistinguishable from progress. The authenticated lens answered
   in one call what the watcher had failed to see for fifteen minutes.
+- 2026-08-28: a persona review conducted and acted on, five changes
+  shipped from it, one decision recorded, one proposal owed, and the
+  review itself deliberately kept off the public record. The review
+  walked five imagined readers through the site: an ombudsman, a
+  reporter, a lawyer, a family member, and a reader without
+  JavaScript. Its frame: readers do not differ in what they look at,
+  only in what they do next, and the site's job is to carry each to
+  the exact edge of the public record and stop.
+  The largest finding was an omission hiding in plain sight. CMS's
+  state and national averages file ships in every batch, 54 rows and
+  51 columns in the current one, carrying the same four ratings this
+  site renders per facility, and no page had ever displayed a word of
+  it. Each state page now shows a compact block, the state beside the
+  nation, for a curated slice, with the state's whole published row
+  one click below in the same details shape the facility page uses,
+  so the curation is a convenience rather than a filter. The
+  distinction that makes this charter-clean is recorded here rather
+  than assumed: these are values CMS computed and published, so
+  showing them is display, and an average beside a facility list is a
+  context affordance answering "is that a lot?", not the side-by-side
+  comparison of facilities this charter assigns to Care Compare.
+  check_rendered_values.mjs now asserts the block appears and matches
+  the build artifact, proven red first against an export that lacked
+  the block.
+  The Methods page gained the snapshot trap, and the finding that
+  produced it carried an error worth recording at full length. The
+  review first asserted that CMS archives nothing and a past filing
+  is unretrievable. The founder corrected it: CMS maintains a monthly
+  archive of month-end snapshots at
+  data.cms.gov/provider-data/archived-data/nursing-homes, going back
+  years. The page URL is founder-verified in a browser; per-zip
+  download URLs are behind a JavaScript-rendered index and are not
+  linked. So the trap teaches the narrower true thing: this site is
+  the current batch, CMS's archive holds the monthly history, and a
+  month-end snapshot is not the state on a particular day. The traps
+  heading lost its count in the same change, "Four ways" becoming
+  "Ways", because this log had already concluded twice that deleting
+  a count beats maintaining one. A consequence noted for whenever
+  retention next comes up: the phase 3 fence rested partly on the
+  burden of storing past batches, and CMS stores them, so a
+  then-versus-now feature would fetch rather than hoard. Still
+  fenced; the grounds are weaker.
+  Three smaller changes from the same review. Owner surfaces show
+  facilities-by-state counts, so a footprint spanning twenty-six
+  states has a shape before it has a scroll; the boundary is written
+  here because the feature is one step from a fence: these are counts
+  of rows grouped by a published field, and no rating or quality
+  measure will ever join the grouping, because a per-state quality
+  figure for one owner is the portfolio scoring this charter defers
+  to CMS's own chain dataset. Owner surfaces also gained one sentence
+  pointing at About's research-boundary explanation, because the
+  guidance existed but lived two clicks from the moment the pivot
+  impulse strikes, and an internal pointer adds no external link and
+  no new claim. And the live explorer now links the permanent
+  /owner/ page where one exists, which buys a canonical, indexable
+  address for citation; it is not a no-JavaScript fix, since the
+  explorer itself requires the engine.
+  Decided and kept: the navigation label stays "Methods" although the
+  page's own title, "How to read these records", is the phrase its
+  neediest readers would recognize, because nav labels must stay
+  short and the title does the work on arrival. Owed, not built: a
+  static disclosed-parties list on facility pages, the change that
+  would give the site's core answer a floor without the engine, which
+  goes unbuilt until a sized proposal is read, since it puts roughly
+  247 thousand rows across fourteen thousand pages.
+  The review document itself stays a working note by explicit
+  decision. Its value was extracted into the items above, and
+  publishing a model of this site's audience, written by an AI that
+  has never been a reader, would be the overreach About already
+  declines: asserting who the readers are instead of describing what
+  the site does. When outreach happens it carries the founder's own
+  note and the Methods page, and asks what a real reader wanted that
+  this site did not answer.

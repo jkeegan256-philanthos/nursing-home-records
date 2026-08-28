@@ -26,9 +26,11 @@ number exists anywhere to drift.
    pick its own spine file and its own anchors.
 
 3. Display columns. `OPTIONAL_PROVIDER_COLUMNS` in `lib/data.ts`, plus
-   `KEY_FACTS` and `RATINGS` in `app/facility/[ccn]/page.tsx`: the
-   curated fields, the five-star rendering, and the Abuse Icon and
-   Special Focus chips are this dataset's vocabulary.
+   `KEY_FACTS` and `RATINGS` in `app/facility/[ccn]/page.tsx`, and
+   `AVERAGE_FACTS` in `app/state/[state]/page.tsx` for the state and
+   national averages block: the curated fields, the five-star
+   rendering, and the Abuse Icon and Special Focus chips are this
+   dataset's vocabulary.
 
 4. Join key. `CCN_CANDIDATES` assumes records join on a CCN. Most CMS
    provider themes share this; supplier and clinician data joins on
