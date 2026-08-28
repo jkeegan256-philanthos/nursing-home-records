@@ -29,7 +29,8 @@ own, and publishes somebody else's name as its author.
     scripts/dev_fixture.py                   tiny synthetic batch for testing
     app/, components/, lib/                  Next.js site (static export)
     state/                                   carried state: ledger, slug reservations
-    .github/workflows/build-deploy.yml       CI: transform, build, deploy
+    .github/workflows/build-deploy.yml       deploys: transform, build, gates, publish
+    .github/workflows/ci.yml                 PR gate: the fixture batch through every check
 
 On every push, monthly schedule, or manual run, the Action fetches the
 current CMS theme zip (or uses one committed in `data/`), then runs the
@@ -49,8 +50,10 @@ transform and `next build`:
    output. Any mismatch fails the build.
 4. The untouched zip, the CMS data dictionary PDF, and the manifest are
    republished under `/data/downloads/`.
-5. Next.js pre-renders the home page, one page per state, and one page
-   per facility from `NH_ProviderInfo`. Per-facility detail tables
+5. Next.js pre-renders every page: the home page, one page per state,
+   one page per facility from `NH_ProviderInfo`, one page per
+   disclosed owner name at five or more facilities, and the About,
+   Data, Methods, and glossary pages. Per-facility detail tables
    (citations, penalties, ownership, and so on) are queried in the
    browser with DuckDB-WASM against the Parquet files.
 6. The Ownership page regroups the ownership file by owner name. The
@@ -76,7 +79,8 @@ Fidelity rules the pipeline enforces:
 ## Monthly update (the whole job)
 
 Open the repo's Actions tab, choose "Build and deploy", and tap
-"Run workflow". Roughly 10 minutes later the new batch is live. A
+"Run workflow". About six minutes later the new batch is live
+(measured below). A
 scheduled run also fires on the 5th of each month at 09:47 UTC;
 measured behavior is that delivery can run hours late and can skip a
 slot entirely, so if the 5th passes with no run wearing the Scheduled
@@ -110,7 +114,7 @@ of fetching; see `data/README.md`.
 2. In the repo: Settings, then Pages, then set Source to
    "GitHub Actions".
 3. Point `NH_STATE_URL` and `lib/config.ts` at your own deployment
-   (see above). For the very first run only, whose URL does not serve
+   (the touchpoints in `ADAPTATION.md`). For the very first run only, whose URL does not serve
    anything yet, add `NH_STATE_BOOTSTRAP=1` to the workflow's
    environment; remove it afterwards.
 4. Wait for the first workflow run to finish, then open the URL shown
@@ -156,35 +160,49 @@ never writes to `state/`, and `npm run fixture` carries no state at all.
 `public/duckdb/extensions/` (gitignored), and reuses it after that, so
 the first build on a fresh clone needs network.
 
-## The June 2026 batch, measured
+## The August 2026 batch, measured
 
-- Input: 613 MB of CSV across 18 datasets, 2,293,572 rows,
-  14,695 facilities.
-- Output: 25 MB of Parquet. The 184 MB quality reporting file compresses
-  to 3.0 MB; health citations go from 165 MB to 3.8 MB.
-- Transform: about 2.5 minutes. Full static build: about 4 minutes,
-  14,751 pages. Deployed site: about 545 MB.
+Figures read 2026-08-28 from deploy run 49's log and the batch
+ledger, not recalled.
+
+- Input: one 39.1 MB zip carrying 18 CMS datasets; 14,690 facilities
+  across 53 states and territories.
+- Published: 2,547,105 rows across 19 Parquet tables, the 18 datasets
+  plus the transform's whole-country ownership copy, every value as
+  text.
+- Pages: 20,377. One per facility, one per state, one per disclosed
+  owner name at five or more facilities (5,628 this batch), and six
+  static pages.
+- The compressed Pages artifact is 234 MB. The uncompressed CSV and
+  Parquet totals are printed in every transform log; they were last
+  read whole on the June batch (613 MB of CSV to 25 MB of Parquet)
+  and the next run's log is the current answer.
 
 ## Run time, measured
 
-A healthy end-to-end run is roughly 4 to 6 minutes, and the spread is
-mostly not ours. Measured 2026-08-22 on the real batch: transform 1m,
-`next build` 1m30s, Chromium install 22s, origin check 10s, Pages
-artifact upload 15s. The deploy job itself swung from 26s to 1m55s
-between two consecutive runs on a 130 MB artifact, which is GitHub's
-variance, not the pipeline's. Judge a slow run by the build job, not
-the run total; a build job much past 4 minutes is worth looking at,
-a slow deploy job usually is not.
+A healthy end-to-end run is roughly 5 to 6 minutes, and the spread is
+mostly not ours. Measured 2026-08-28 across four runs on the real
+batch, Next 16 on Node 24, runs 46 to 49: end to end 5m26s to 6m00s.
+Within run 49: transform 1m03s, `next build` 2m07s, Chromium install
+26s, origin check 17s, Pages artifact upload 29s, deploy job 27s.
+One figure kept for comparison across the framework major, build
+against build: `next build` measured about 1m30s under Next 15 on
+2026-08-22. Judge a slow run by the build job, not the run total; a
+build job much past 4 minutes is worth looking at, a slow deploy job
+usually is not.
 
 ## Hosting notes
 
-- GitHub Pages caps a published site at 1 GB. The current export is
-  around 545 MB, so there is headroom, but keep an eye on it if CMS
-  grows the datasets.
-- Cloudflare Pages caps deployments at 20,000 files. This export is
-  about 29,800 files (each pre-rendered page ships an HTML file plus a
-  small payload file), so it does not fit there without cutting the
-  per-facility pages.
+- GitHub Pages caps a published site at 1 GB. The export was last
+  measured whole on the June batch at 545 MB, before the owner pages
+  shipped; it has grown since (20,377 pages against June's 14,751),
+  and the compressed Pages artifact measured 234 MB on run 49. Worth
+  re-measuring the uncompressed size at the next refresh rather than
+  assuming the headroom.
+- Cloudflare Pages caps deployments at 20,000 files. The pre-rendered
+  pages alone are over 40,000 files (each page ships an HTML file
+  plus a small payload file), so this export does not fit there
+  without cutting the per-facility pages.
 - The Parquet layout uses exact file names, not globs, because DuckDB
   in the browser cannot list directories over HTTP.
 

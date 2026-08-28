@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 48 entries. `scripts/check_project_doc.py` asserts that
+This log holds 49 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -1396,3 +1396,42 @@ one means updating the number; that is the point of it.
   against a real before-and-after when the September reading lands.
   Bing remains open by importing the existing property, the
   founder's five minutes.
+- 2026-08-28: the README reviewed whole against the tree, the
+  workflows, and the ledger, at the founder's request. The verdict:
+  the structure and the process prose are current, and the drift is
+  concentrated where the README stores numbers. Both "measured"
+  sections described the June 2026 batch and a 2026-08-22 pipeline,
+  and later work quoted them as current, which is how the review's
+  sharpest finding happened: entry 48 says "14,750 of 14,751 pages",
+  a count inherited from the stale README rather than read from the
+  ledger, by a reviewer who had read the heading that dated it.
+  The correction, exact: 14,690 facilities plus 5,628 owner pages
+  plus 53 state pages is 20,371 record pages, plus six static pages
+  is 20,377, matching the deployed sitemap's URL count exactly. The
+  exact reconciliation also confirms the not-found page is excluded
+  from the sitemap, so the 404 is not advertised to crawlers. Entry
+  48's substance is unaffected: every page but Methods shared the
+  boilerplate description. The lesson joins the record: a measured
+  figure carries its date as part of its value, and quoting one
+  without its date turns a measurement back into a guess.
+  Both measured sections re-baselined from today's evidence rather
+  than deferred to September, because the four real-batch deploys
+  that shipped the SEO releases are exactly the post-major evidence
+  the deferral was waiting for: end to end 5m26s to 6m00s across
+  runs 46 to 49 under Next 16 on Node 24; within run 49, transform
+  1m03s and next build 2m07s. One figure is kept for comparison
+  across the framework major, labeled build against build: next
+  build was about 1m30s under Next 15 on 2026-08-22, so the major
+  and the export's growth together cost about 37 seconds of build.
+  The batch section now reads from run 49's log and the ledger:
+  20,377 pages, 2,547,105 rows across 19 tables, a 234 MB compressed
+  Pages artifact. Two figures could not be re-measured from this
+  session, the uncompressed CSV and export totals, and the README
+  now says when each was last read and where the current answer
+  prints instead of wearing June's numbers as today's; the hosting
+  note stops assuming the 1 GB headroom and asks for a re-measure at
+  the next refresh. Smaller fixes in the same pass: the pre-render
+  step now names the owner pages and static pages it has emitted
+  since July; ci.yml joins the workflow tree beside build-deploy;
+  the ten-minute estimate aligned to the measured six; a dangling
+  "see above" now points at ADAPTATION.md.
