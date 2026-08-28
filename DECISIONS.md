@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 44 entries. `scripts/check_project_doc.py` asserts that
+This log holds 45 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -1249,3 +1249,19 @@ one means updating the number; that is the point of it.
   resolves to the latest 20.x, which already satisfies the floor.
   DuckDB is unaffected by construction, because vendor-assets.mjs
   asks the engine its own version rather than trusting a written one.
+- 2026-08-28: the build moved off an end-of-life Node and the workflow
+  actions onto runtimes that exist. Every run had begun carrying three
+  warnings: the checkout, setup, artifact, and deploy actions declare
+  Node 20 as the runtime they execute on, and GitHub's runners now
+  force them onto Node 24, which works until the forcing period ends
+  and then does not. Each action moves to its current major, resolved
+  from the actions' own published tags rather than recalled from
+  memory, which is the flag rule applied to version pins. The build's
+  own Node moves too, from 20 to 24: Node 20's maintenance ended in
+  April 2026, so the site was being built on an end-of-life runtime,
+  and the engines floor of 20.9 stays as the minimum a fork needs
+  rather than what this deployment uses. One honest limit, watched
+  rather than assumed: pull request CI exercises only the CI
+  workflow's actions, so the deploy workflow's own bumps, the Pages
+  upload and deploy and the record-state artifact actions, are
+  validated for the first time by the deploy that ships them.
