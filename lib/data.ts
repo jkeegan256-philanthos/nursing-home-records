@@ -116,6 +116,34 @@ export function cmsVintage(): { min: string; max: string } | null {
   return { min: dates[0], max: dates[dates.length - 1] };
 }
 
+// Per-page-type content dates for the sitemap: CMS's own modified
+// dates, not the processing date, so a rebuild on unchanged data does
+// not tell crawlers fourteen thousand pages changed. Facility pages
+// date by the providers table alone: a crawler reads the static half,
+// which renders ProviderInfo, and dating the page by engine-loaded
+// tables it cannot see would claim a change nothing observable made.
+// The wider vintage is a reader's question, answered by the footer
+// range and the per-tab provenance strips. Falls back to the
+// processing date when a table carries no date.
+export function contentDates(): {
+  facility: string;
+  state: string;
+  owner: string;
+} {
+  const tables = dataMap().tables;
+  const fallback = dataMap().generated_at.slice(0, 10);
+  const d = (name: string) => tables[name]?.modified_date ?? null;
+  const max = (...xs: (string | null)[]) => {
+    const real = xs.filter((x): x is string => !!x);
+    return real.length ? real.sort()[real.length - 1] : fallback;
+  };
+  return {
+    facility: max(d("providers")),
+    state: max(d("providers"), d("state_us_averages")),
+    owner: max(d("ownership_all") ?? d("ownership")),
+  };
+}
+
 export type OwnersTop = {
   total_owners: number;
   blank_owner_rows: number;
@@ -199,6 +227,16 @@ export function ownerPages(): OwnerPages {
 export function getOwnerPage(slug: string): OwnerPage | null {
   _ownerBySlug ??= new Map(ownerPages().owners.map((o) => [o.slug, o]));
   return _ownerBySlug.get(slug) ?? null;
+}
+
+// Name to slug, for surfaces that hold a published name and want the
+// pre-rendered page behind it. Null when the name has no page (below
+// the threshold, or a degraded batch), and the caller keeps its
+// fallback link.
+let _slugByName: Map<string, string> | null = null;
+export function ownerSlugFor(name: string): string | null {
+  _slugByName ??= new Map(ownerPages().owners.map((o) => [o.name, o.slug]));
+  return _slugByName.get(name) ?? null;
 }
 
 // Join-critical lookups (CCN, State, and the six columns build_data.py
