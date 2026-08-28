@@ -380,6 +380,10 @@ const anyState = existsSync(join(DIR, "state"))
 const anyOwner = existsSync(join(DIR, "owner"))
   ? readdirSync(join(DIR, "owner"))[0]
   : null;
+// Next 16's static export emits /_not-found/ as its own page directory
+// beside 404.html; earlier majors did not. Existence-guarded so this
+// list is correct on either side of that boundary.
+const notFoundPage = existsSync(join(DIR, "_not-found")) ? "/_not-found/" : null;
 for (const p of [
   "/data/",
   "/about/",
@@ -387,6 +391,7 @@ for (const p of [
   "/methods/",
   anyOwner && `/owner/${anyOwner}/`,
   "/404/",
+  notFoundPage,
 ]) {
   if (p) await go(p);
 }

@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 43 entries. `scripts/check_project_doc.py` asserts that
+This log holds 44 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -1210,3 +1210,42 @@ one means updating the number; that is the point of it.
   the site does. When outreach happens it carries the founder's own
   note and the Methods page, and asks what a real reader wanted that
   this site did not answer.
+- 2026-08-28: Next.js taken from 15 to 16 with postcss, via the
+  dependency bot's security pull request, and the assessment that
+  makes it maintenance rather than emergency recorded with it. The
+  advisories behind the bump are critical but server-side: remote
+  code execution on Windows-hosted servers, and in the image
+  optimization API via crafted AVIF files. This site is a static
+  export with no server in production, image optimization disabled,
+  and zero images served, so the vulnerable surface is next dev and
+  the CI build, never a reader. Taken promptly anyway, because a
+  major version left sitting compounds monthly.
+  The pull request arrived with red CI, and the red was the
+  derived-coverage design firing for the second time on a page type
+  nobody declared, this time from the framework rather than from this
+  repository: Next 16's export emits /_not-found/ as its own page
+  directory, the origin gate derived it from the export, found that
+  nothing visited it, and failed naming it. No static rule would have
+  seen this. The gate's visit list now opens the page,
+  existence-guarded so the same list is correct on either side of the
+  major. Looked at rather than assumed: a reader landing on
+  /_not-found/ sees this site's own layout, wordmark and footer
+  included, around the framework's "404: This page could not be
+  found", with the Content-Security-Policy first in its head like
+  every other page. Next 16 also adds three RSC payload text files at
+  the export root; they are files rather than directories, so the
+  coverage derivation is unaffected, and they are served same-origin
+  like every other asset.
+  Everything else held under the new major, verified locally and in
+  CI rather than assumed: the transform, the rendered-values checks
+  including the averages block, the CSP injector covering all
+  fixture pages, zero policy violations, zero off-origin requests,
+  and the navigation measurements unchanged at every width. The Node
+  floor moves with the framework: package.json engines is now 20.9,
+  which is Next 16's requirement, so a fork on early Node 20 fails at
+  install with a clear message instead of mid-build. The version
+  sweep found no other place a Node version is written: README and
+  ADAPTATION.md name none, and the workflows' node-version 20
+  resolves to the latest 20.x, which already satisfies the floor.
+  DuckDB is unaffected by construction, because vendor-assets.mjs
+  asks the engine its own version rather than trusting a written one.
