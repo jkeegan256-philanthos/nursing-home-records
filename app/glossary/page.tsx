@@ -6,8 +6,15 @@ import {
   ROLE_VALUES,
   termAnchor,
 } from "@/lib/glossary";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Role definitions" };
+export const metadata: Metadata = pageMetadata({
+  title: "Role definitions",
+  description:
+    "The CMS data dictionary's definitions for the ownership file, " +
+    "verbatim: every column and every disclosed role value, as published.",
+  path: "/glossary/",
+});
 
 export default function GlossaryPage() {
   return (

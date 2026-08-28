@@ -1,15 +1,16 @@
 import type { MetadataRoute } from "next";
-import { BP, SITE_URL } from "@/lib/config";
 import { allCCNs, dataMap, listStates, ownerPages } from "@/lib/data";
+import { pageUrl } from "@/lib/seo";
 
 export const dynamic = "force-static";
 
 // Every page the batch generates, stamped with the batch date. Counts
-// stay well under the 50,000-URL sitemap limit.
+// stay well under the 50,000-URL sitemap limit. URLs go through the
+// same pageUrl() the canonicals use, so the sitemap and a page's own
+// stated address are the same string by construction.
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = `${SITE_URL}${BP}`;
   const lastModified = new Date(dataMap().generated_at);
-  const page = (path: string) => ({ url: `${base}${path}`, lastModified });
+  const page = (path: string) => ({ url: pageUrl(path), lastModified });
   return [
     page("/"),
     page("/owners/"),

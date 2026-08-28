@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { CMS_DATASET_URL } from "@/lib/config";
 import { averagesFor, dataMap, facilitiesFor, listStates } from "@/lib/data";
+import { pageMetadata, stateDescription } from "@/lib/seo";
+import { stateName } from "@/lib/states";
 import Provenance from "@/components/Provenance";
 import StateTable from "@/components/StateTable";
 
@@ -10,13 +12,21 @@ export function generateStaticParams() {
   return listStates().map(({ state }) => ({ state }));
 }
 
+// Titles and the description use the full state name, which is what
+// searchers type; the page body and every data value keep CMS's
+// published two-letter code.
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ state: string }>;
 }): Promise<Metadata> {
   const { state } = await params;
-  return { title: `${state} nursing homes` };
+  const count = listStates().find((s) => s.state === state)?.count ?? 0;
+  return pageMetadata({
+    title: `${stateName(state)} nursing homes`,
+    description: stateDescription(stateName(state), state, count),
+    path: `/state/${state}/`,
+  });
 }
 
 // The slice shown in the compact block. A curated subset of the file's

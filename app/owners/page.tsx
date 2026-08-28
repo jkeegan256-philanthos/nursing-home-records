@@ -1,9 +1,17 @@
 import type { Metadata } from "next";
 import { BP, CMS_DATASET_URL } from "@/lib/config";
 import { ownersTop } from "@/lib/data";
+import { pageMetadata } from "@/lib/seo";
 import OwnerExplorer from "@/components/OwnerExplorer";
 
-export const metadata: Metadata = { title: "Ownership" };
+export const metadata: Metadata = pageMetadata({
+  title: "Ownership",
+  description:
+    "Search the CMS nursing home ownership disclosures by name: owners, " +
+    "officers, directors, managing employees, and other disclosed " +
+    "parties, with facilities, roles, and dates as filed.",
+  path: "/owners/",
+});
 
 export default function OwnersPage() {
   const owners = ownersTop();

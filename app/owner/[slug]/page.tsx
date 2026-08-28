@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { BP, CMS_DATASET_URL } from "@/lib/config";
 import { dataMap, getOwnerPage, ownerPages } from "@/lib/data";
 import { termAnchor } from "@/lib/glossary";
+import { ownerDescription, pageMetadata } from "@/lib/seo";
 import CopyName from "@/components/CopyName";
 
 export const dynamicParams = false;
@@ -17,7 +18,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const o = getOwnerPage(slug);
-  return { title: o ? `${o.name} · ownership record` : "Owner" };
+  if (!o) return { title: "Owner" };
+  return pageMetadata({
+    title: `${o.name} · ownership record`,
+    description: ownerDescription(o.name, o.facilities, o.states),
+    path: `/owner/${slug}/`,
+  });
 }
 
 export default async function OwnerPage({
