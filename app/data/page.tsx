@@ -127,12 +127,18 @@ export default function DataPage() {
           </div>
           <p className="prov">
             This ledger records what this site served and when. It proves the
-            mirror&apos;s history, not CMS&apos;s; CMS does not publish stable
-            archives of past batches to compare against. Each entry records
-            what CMS was serving at the moment of that build&apos;s fetch, so
-            several entries carrying one checksum are one batch served across
-            many builds, and an entry&apos;s date is when this site last
-            asked, not when CMS last changed. The chain is kept in
+            mirror&apos;s history, not CMS&apos;s; CMS&apos;s own history
+            lives in its monthly archive of month-end snapshots. Each entry
+            records what CMS was serving at the moment of that build&apos;s
+            fetch, so several entries carrying one checksum are one batch
+            served across many builds, and an entry&apos;s date is when this
+            site last asked, not when CMS last changed. The zip&apos;s
+            checksum identifies the archive, not the data: CMS can
+            regenerate the container around byte-identical files, so a
+            changed zip checksum can mean a repackage rather than new data.
+            Each file&apos;s own checksum identifies its data, and the
+            per-dataset modified dates are the vintage to read. The chain is
+            kept in
             two places, here and in the repository, and a build that can read
             neither stops rather than start a new chain over the old one.
             Each entry also records the counts this site derives from that

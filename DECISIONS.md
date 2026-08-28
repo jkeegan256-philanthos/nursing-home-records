@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 45 entries. `scripts/check_project_doc.py` asserts that
+This log holds 47 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -1265,3 +1265,83 @@ one means updating the number; that is the point of it.
   workflow's actions, so the deploy workflow's own bumps, the Pages
   upload and deploy and the record-state artifact actions, are
   validated for the first time by the deploy that ships them.
+- 2026-08-28: the source zip's checksum reclassified: it identifies
+  the archive, not the data. The founder measured it from outside: two
+  zips whose sha256 differed, fetched 2026-08-26 and 2026-08-27, are
+  the same 39,127,248 bytes except for exactly four, all inside the
+  local-header timestamp of manifest.json's entry. All twenty files
+  byte-identical. CMS regenerated the container and published nothing,
+  and this project's working documents had repeatedly read the zip
+  hash as identifying the batch. The epistemics, written down so the
+  next reader inherits them: an identical zip hash proves the data is
+  identical, which is the sound direction and the one the 08-26
+  do-not-dispatch decision correctly used; a changed zip hash proves
+  nothing, which is the direction every narrative reached for. The
+  committed ledger's per-file hashes classify every transition it
+  holds: 2026-08-07 changed three of twenty files with names stable, a
+  partial revision; 2026-08-26 rotated fourteen filenames from Jul to
+  Aug, a turnover; 2026-08-27 changed nothing, the repackage. The
+  count-drift check was immune throughout because it keys on per-file
+  hashes, a design choice made for an unrelated reason and recorded
+  here as understood rather than lucky.
+  The modes are defined over dataset files, and there is a fourth:
+  a metadata revision, where only manifest.json moves. It was found
+  by classification before it was observed, and it located a hole in
+  the planned fix: the repackage condition is "zip changed, every
+  file identical", which a manifest-only change fails, so it would
+  have been silently classed as data. And the manifest is not a mere
+  envelope: it carries each dataset's modified date, the pipeline
+  reads those into data-map.json, and the site displays them on the
+  Data page and in the footer's vintage range, so a metadata revision
+  is reader-visible: the displayed vintage can shift while every
+  dataset file stays byte-identical, which is precisely the confusion
+  this entry exists to prevent. record_history() now names both
+  modes in the processing-notes channel, warnings rather than
+  failures, each proven by a test that reproduced the shape first and
+  failed: one rezips identical files with different entry timestamps,
+  one revises the manifest alone. The Data page's ledger paragraph
+  carries the distinction for readers: the zip's checksum identifies
+  the archive, each file's checksum identifies its data, and the
+  per-dataset modified dates are the vintage to read. The same
+  paragraph was still asserting that CMS publishes no stable archives
+  of past batches, a claim the founder corrected during the persona
+  review and whose sweep missed this instance; it now points at
+  CMS's monthly archive, the third place this correction has had to
+  be applied, which is why sweeps are ordered instead of spot fixes.
+- 2026-08-28: the CMS metastore evaluated and kept out of the build.
+  The catalog endpoint at data.cms.gov/provider-data/api/1/metastore/
+  schemas/dataset/items indexes the whole Provider Data Catalog; the
+  founder measured it against the batch manifest and the eighteen
+  dataset ids match in both directions with zero drift, an independent
+  verification of the table map that is cheap and repeatable. It also
+  carries three date fields the manifest does not: released and the
+  granular %modified, which date the August turnover to a nineteen
+  second window on 2026-08-26 and independently prove the 08-27 zip
+  change carried no release, and nextUpdateDate, CMS's own stated
+  expectation for its next update. Four judgments, recorded so the
+  declined options read later as decisions with revisit conditions.
+  First, the metastore does not join the build: the build's input is
+  the zip alone, self-contained and checksummed, and a build-time API
+  call would be either fail-closed, which the metastore does not
+  merit, or fail-open, the absence-wearing-presence shape this
+  project keeps retiring. The conservative form of the detector is
+  the manual probe, documented in README's operating section with
+  the endpoint and all four date fields. Second, if September proves
+  the manual probe insufficient, the shape a wired detector should
+  take is the provenance variant: record the metastore response in
+  the ledger as provenance, asserting nothing, which is neither
+  fail-open nor fail-closed because no check rides on it, and makes
+  the archive-versus-data distinction self-documenting. Third, no
+  reader-facing note when a dataset passes its nextUpdateDate: one
+  snapshot cannot establish that CMS honors its own dates, and the
+  reason generalizes, because publishing a note about another agency
+  missing its own schedule is commentary on that agency, a different
+  act than displaying its data. It stays operator intelligence in
+  the README paragraph. Fourth, the cron stays on the 5th, with the
+  handoff's arithmetic corrected in both directions it was wrong: a
+  2026-09-30 release is fetched by the October 5 run, five days
+  later, so the 5th trails a month-end publisher by at most five
+  days, which is nearly optimal, and re-choosing the day from one
+  observed release would be curve-fitting. September's release,
+  whenever it lands, is the revisit evidence for the probe and the
+  cron alike.
