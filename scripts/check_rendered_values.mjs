@@ -206,6 +206,141 @@ if (!existsSync(AVG_PATH)) {
   );
 }
 
+// The head must identify each page. Search engines and citation tools
+// read the head and nothing else, so a head that says less than the
+// page, or says the same thing on fourteen thousand pages, is the
+// star-glyph problem in another organ: the page depicts an identity
+// its machine-readable text does not carry. Canonicals are checked
+// against the sitemap so the two ways the site states a page's address
+// are provably the same string.
+const stripComments = (s) => s.replace(/<!--[\s\S]*?-->/g, "");
+const headOf = (file) =>
+  /<head>[\s\S]*?<\/head>/.exec(stripComments(readFileSync(file, "utf8")))?.[0] ?? "";
+const canonicalsOf = (head) =>
+  [...head.matchAll(/<link[^>]*rel="canonical"[^>]*>/g)].map(
+    (m) => /href="([^"]*)"/.exec(m[0])?.[1] ?? ""
+  );
+const descriptionOf = (head) =>
+  /<meta[^>]*name="description"[^>]*content="([^"]*)"/.exec(head)?.[1] ??
+  /<meta[^>]*content="([^"]*)"[^>]*name="description"/.exec(head)?.[1] ??
+  "";
+const titleOf = (head) => /<title>([\s\S]*?)<\/title>/.exec(head)?.[1] ?? "";
+const esc = (s) =>
+  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+const sitemapFile = join(DIR, "sitemap.xml");
+const sitemapUrls = new Set(
+  existsSync(sitemapFile)
+    ? [...readFileSync(sitemapFile, "utf8").matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1])
+    : []
+);
+
+const cityAt = col("City/Town");
+const headProblems = [];
+let headsChecked = 0;
+
+const checkHead = (file, path, expect = {}) => {
+  if (!existsSync(file)) return;
+  const head = headOf(file);
+  const canon = canonicalsOf(head);
+  if (canon.length !== 1) {
+    headProblems.push(`${path}: ${canon.length} canonical link(s), want exactly 1`);
+  } else {
+    if (!canon[0].endsWith(path)) {
+      headProblems.push(`${path}: canonical ${canon[0]} does not end with the page's own path`);
+    }
+    if (sitemapUrls.size && !sitemapUrls.has(canon[0])) {
+      headProblems.push(`${path}: canonical ${canon[0]} is not the sitemap's URL for this page`);
+    }
+  }
+  const desc = descriptionOf(head);
+  if (!desc) headProblems.push(`${path}: no meta description`);
+  for (const want of expect.desc ?? []) {
+    if (desc && !desc.includes(esc(want))) {
+      headProblems.push(`${path}: description omits ${JSON.stringify(want)}`);
+    }
+  }
+  for (const want of expect.title ?? []) {
+    if (!titleOf(head).includes(esc(want))) {
+      headProblems.push(`${path}: title omits ${JSON.stringify(want)}`);
+    }
+  }
+  headsChecked++;
+};
+
+for (const p of ["/", "/owners/", "/data/", "/about/", "/glossary/", "/methods/"]) {
+  checkHead(join(DIR, p === "/" ? "index.html" : p.slice(1, -1), p === "/" ? "" : "index.html"), p);
+}
+
+const slimRows = new Map(slim.rows.map((r) => [r[ccnAt], r]));
+for (const c of facilities) {
+  const ccn = decodeURIComponent(c);
+  const row = slimRows.get(ccn);
+  if (!row) continue;
+  const city = ((row[cityAt] ?? "") + "").trim();
+  const state = ((row[col("State")] ?? "") + "").trim();
+  checkHead(join(facDir, c, "index.html"), `/facility/${encodeURIComponent(ccn)}/`, {
+    desc: [ccn, city],
+    title: city && state ? [`${city}, ${state}`] : [],
+  });
+}
+
+for (const st of states) {
+  const count = slim.rows.filter((r) => ((r[col("State")] ?? "") + "").trim() === st).length;
+  checkHead(join(stateDir, st, "index.html"), `/state/${st}/`, {
+    desc: count ? [count.toLocaleString("en-US")] : [],
+  });
+}
+
+const OWNER_PAGES_PATH = "build/owner-pages.json";
+if (existsSync(OWNER_PAGES_PATH)) {
+  const bySlug = new Map(
+    JSON.parse(readFileSync(OWNER_PAGES_PATH, "utf8")).owners.map((o) => [o.slug, o])
+  );
+  const ownerDir = join(DIR, "owner");
+  const ownerDirs = existsSync(ownerDir) ? readdirSync(ownerDir).slice(0, 50) : [];
+  for (const slug of ownerDirs) {
+    const o = bySlug.get(slug);
+    if (!o) continue;
+    checkHead(join(ownerDir, slug, "index.html"), `/owner/${slug}/`, {
+      desc: [
+        `${o.facilities.toLocaleString("en-US")} ${o.facilities === 1 ? "facility" : "facilities"}`,
+        `${o.states} ${o.states === 1 ? "state" : "states"}`,
+      ],
+    });
+  }
+}
+
+check(
+  headsChecked > 0 && headProblems.length === 0,
+  `head identity (canonical, description, title) on ${headsChecked} page(s)`,
+  headProblems.length
+    ? `heads disagree with the pages they describe:\n      ` +
+      headProblems.slice(0, 10).join("\n      ") +
+      (headProblems.length > 10 ? `\n      …and ${headProblems.length - 10} more` : "")
+    : "no page heads were checked, so this run proves nothing"
+);
+
+// The 404 page: Next's built-in emitted a second <title> after the
+// site's own, and the first one wins, so error pages announced
+// themselves with the homepage's identity. One title, and no canonical,
+// because an error page is not an address worth indexing.
+const notFound = join(DIR, "404.html");
+if (existsSync(notFound)) {
+  const html = stripComments(readFileSync(notFound, "utf8"));
+  const titles = [...html.matchAll(/<title>/g)].length;
+  check(
+    titles === 1,
+    "the 404 page carries exactly one title",
+    `404.html has ${titles} <title> element(s); the first wins, so a reader's tab and a crawler both see the wrong identity`
+  );
+  check(
+    canonicalsOf(html).length === 0,
+    "the 404 page claims no canonical address",
+    "404.html carries a canonical link, presenting an error page as an indexable address"
+  );
+}
+
 if (problems.length) {
   console.error(`\nFAIL  ${problems.length} problem(s):\n`);
   for (const p of problems) console.error(`  - ${p}`);

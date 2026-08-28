@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { BP } from "@/lib/config";
 import { allCCNs, dataMap, getFacility } from "@/lib/data";
 import { CMS_DATASET_URL } from "@/lib/config";
+import { facilityDescription, pageMetadata } from "@/lib/seo";
 import FacilityRecords from "@/components/FacilityRecords";
 import FullRecord from "@/components/FullRecord";
 import Stars from "@/components/Stars";
@@ -12,14 +13,28 @@ export function generateStaticParams() {
   return allCCNs().map((ccn) => ({ ccn }));
 }
 
+// The title carries the published city and state beside the name:
+// searchers type places, and franchise names repeat across states, so
+// the qualifier is what makes fourteen thousand titles distinct. The
+// h1 stays the provider name alone; the address line under it already
+// shows the reader the same values.
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ ccn: string }>;
 }): Promise<Metadata> {
-  const { ccn } = await params;
-  const f = getFacility(decodeURIComponent(ccn));
-  return { title: f ? f.get("Provider Name") : "Facility" };
+  const { ccn: raw } = await params;
+  const ccn = decodeURIComponent(raw);
+  const f = getFacility(ccn);
+  if (!f) return { title: "Facility" };
+  const name = f.get("Provider Name").trim();
+  const city = f.get("City/Town").trim();
+  const state = f.get("State").trim();
+  return pageMetadata({
+    title: `${name} · ${city}, ${state}`,
+    description: facilityDescription(name, city, state, ccn),
+    path: `/facility/${encodeURIComponent(ccn)}/`,
+  });
 }
 
 const KEY_FACTS: [string, string][] = [

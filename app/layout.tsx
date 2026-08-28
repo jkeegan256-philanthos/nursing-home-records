@@ -1,10 +1,21 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { BP, REPO_LABEL, REPO_URL, SITE_NAME, SITE_TAGLINE } from "@/lib/config";
+import {
+  BP,
+  REPO_LABEL,
+  REPO_URL,
+  SITE_NAME,
+  SITE_TAGLINE,
+  SITE_URL,
+} from "@/lib/config";
 import { cmsVintage, dataMap } from "@/lib/data";
 import CitePage from "@/components/CitePage";
 
+// The tagline description is the fallback only: every page routes its
+// own head through lib/seo.ts, and the rendered-values gate asserts
+// each sampled page's description says what that page holds.
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: { default: SITE_NAME, template: `%s · ${SITE_NAME}` },
   description: SITE_TAGLINE,
 };

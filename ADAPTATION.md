@@ -67,7 +67,8 @@ number exists anywhere to drift.
    here and wrong everywhere else, and quiet either way.
 
 10. Absolute site identity. `SITE_URL` in `lib/config.ts` is the
-    origin stamped into `sitemap.xml` and `robots.txt`; `REPO_URL`
+    origin stamped into `sitemap.xml`, `robots.txt`, and the
+    canonical URL in every page's head; `REPO_URL`
     is where About, the Data page, and the sitewide footer send
     readers for the source and the decision log;
     `CORRECTIONS_EMAIL` is where error reports land; `SITE_AUTHOR`
@@ -75,6 +76,13 @@ number exists anywhere to drift.
     A fork that renames `SITE_NAME` and stops there ships a site
     telling search engines it lives at nursinghomerecords.org and
     telling readers to write here about its data.
+
+    The canonical is the sharpest consequence of a missed
+    `SITE_URL`: a fork that keeps the default publishes every one of
+    its pages with a head declaring the page a duplicate of this
+    site's copy, and search engines believe it, so the fork
+    deindexes itself in favor of the site it forked from. Stronger
+    than the name inheritance above, and just as quiet.
 
     `SITE_AUTHOR` is the sharpest of them, because it names a
     person rather than a place. It ships empty and the byline

@@ -52,7 +52,7 @@ DOCS = ["PROJECT.md", "README.md", "ADAPTATION.md"]
 # carve-out is now a whole file rather than a section of one, which is
 # simpler to state and impossible to get subtly wrong.
 EXEMPT = ["DECISIONS.md"]
-CODE_DIRS = ["app", "components"]
+CODE_DIRS = ["app", "components", "lib"]
 CODE_SUFFIXES = {".tsx", ".ts"}
 
 

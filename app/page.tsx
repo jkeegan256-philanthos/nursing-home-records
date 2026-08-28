@@ -1,5 +1,22 @@
-import { BP, SITE_TAGLINE } from "@/lib/config";
+import type { Metadata } from "next";
+import { BP, SITE_NAME, SITE_TAGLINE } from "@/lib/config";
 import { dataMap, listStates, ownershipRollup, providersTable } from "@/lib/data";
+import { pageMetadata } from "@/lib/seo";
+
+// The home page keeps the bare site name as its title (absolute, so
+// the template does not double it) and gets a count-free description:
+// counts cached in a search result go stale between batches.
+export const metadata: Metadata = {
+  ...pageMetadata({
+    title: SITE_NAME,
+    description:
+      "Every Medicare and Medicaid certified nursing home in the United " +
+      "States: CMS ratings, inspections, penalties, and ownership " +
+      "disclosures, searchable and shown exactly as published.",
+    path: "/",
+  }),
+  title: { absolute: SITE_NAME },
+};
 import FacilitySearch from "@/components/FacilitySearch";
 import Provenance from "@/components/Provenance";
 

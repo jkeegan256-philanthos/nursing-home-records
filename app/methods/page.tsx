@@ -1,13 +1,18 @@
 import type { Metadata } from "next";
 import { BP, CMS_ARCHIVE_URL } from "@/lib/config";
 import { capacityFigure, dataMap, ownersTop } from "@/lib/data";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "How to read these records",
+  // De-counted like the heading it describes: the page teaches "ways
+  // these records are misread", and a count here went stale the day a
+  // fifth trap was added.
   description:
-    "How the CMS ownership disclosures are structured, the four ways readers " +
+    "How the CMS ownership disclosures are structured, the ways readers " +
     "most often misread them, and what the file does not say.",
-};
+  path: "/methods/",
+});
 
 // Figures come from the batch this build serves, never from a previous
 // one and never from prose. CMS rotates the file monthly and the numbers

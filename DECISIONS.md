@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 47 entries. `scripts/check_project_doc.py` asserts that
+This log holds 48 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -1345,3 +1345,54 @@ one means updating the number; that is the point of it.
   observed release would be curve-fitting. September's release,
   whenever it lands, is the revisit evidence for the probe and the
   cron alike.
+- 2026-08-28: the pages made legible to search engines as what they
+  already are, and the promotion the site will not do written down
+  beside it. The founder asked about impressions; the inventory found
+  that roughly 14,750 of 14,751 pages shared one identical meta
+  description, no page carried a canonical URL or share tags, and the
+  404 page emitted two title elements with the homepage's first, so
+  every missing address announced itself as the site. This first pass
+  is the head brought up to what the pages already say. One module,
+  lib/seo.ts, owns every head identity claim, and the sitemap builds
+  its URLs through the same function, so a page's canonical and the
+  sitemap's entry are the same string by construction. Descriptions
+  are factual statements of what each page holds, with published
+  values verbatim and no truncation of a published name to fit a
+  display length, because shortening a published value is closer to
+  editing it than an overlength description is. Three founder rulings
+  shape the words: facility titles carry the published city and state
+  beside the name, because searchers type places and franchise names
+  repeat across states; state titles use the full state name from the
+  USPS code map, standard reference vocabulary with the same standing
+  as the glossary, while the page bodies and every data value keep
+  CMS's two-letter code; share cards are text-only, no image, and
+  adding one later is a two-line change. The Methods description's
+  "four ways" became "the ways", the same de-counting its own heading
+  got when the fifth trap made the count a lie. A custom not-found
+  page collapses the double title. The prose gate now scans lib/,
+  since meta descriptions are reader-facing prose in a directory it
+  never covered; the expansion found the existing files clean, which
+  is recorded as measured rather than assumed. ADAPTATION's identity
+  touchpoint gains the canonical hazard: a fork that misses SITE_URL
+  now declares its every page a duplicate of this site's and
+  deindexes itself, quietly. The rendered-values gate asserts the new
+  claims, red-first as always: one canonical per page matching the
+  sitemap's URL, descriptions matching the published city, state,
+  count, and footprint they name, the facility title carrying its
+  place, and exactly one title on the 404 page.
+  Declined, so the boundary reads as a decision: no aggregateRating
+  or Review markup from CMS star ratings, ever, because a regulator's
+  rating expressed as review vocabulary misstates provenance and
+  violates the search engines' own review guidelines, and the gate
+  will enforce the absence once structured data ships; no blog or
+  content-marketing layer, because an editorial voice is the thing
+  this site is structurally without; no keyword optimization beyond
+  factual descriptions and no link building; per-city pages stay a
+  sized candidate rather than a refusal, since grouping by a
+  published field is within the charter. Off-site, the largest lever
+  turned out to be already pulled: Search Console has been verified
+  by DNS record and collecting impressions since early August, which
+  makes this the first change in the project's history measurable
+  against a real before-and-after when the September reading lands.
+  Bing remains open by importing the existing property, the
+  founder's five minutes.

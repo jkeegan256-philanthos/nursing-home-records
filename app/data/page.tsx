@@ -7,8 +7,16 @@ import {
   REPO_URL,
 } from "@/lib/config";
 import { ledger, missingProviderColumns, siteMeta } from "@/lib/data";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Data & downloads" };
+export const metadata: Metadata = pageMetadata({
+  title: "Data & downloads",
+  description:
+    "The original CMS source files, per-dataset checksums and modified " +
+    "dates, Parquet downloads, and the append-only ledger of every batch " +
+    "this site has served.",
+  path: "/data/",
+});
 
 export default function DataPage() {
   const meta = siteMeta();

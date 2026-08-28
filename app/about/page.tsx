@@ -6,8 +6,16 @@ import {
   REPO_URL,
   SITE_AUTHOR,
 } from "@/lib/config";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "About" };
+export const metadata: Metadata = pageMetadata({
+  title: "About",
+  description:
+    "What this site is: a static mirror of the CMS Provider Data Catalog " +
+    "nursing homes theme, who built it, the rules it follows, and where " +
+    "its records stop.",
+  path: "/about/",
+});
 
 export default function AboutPage() {
   return (
