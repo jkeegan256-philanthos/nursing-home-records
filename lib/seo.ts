@@ -69,6 +69,93 @@ export function stateDescription(
   );
 }
 
+// Structured-data builders. Values verbatim from the published row;
+// empty fields are omitted rather than serialized as empty claims.
+// No rating ever appears here: a regulator's rating expressed as
+// review vocabulary (aggregateRating, Review) misstates provenance,
+// and the rendered-values gate enforces the absence.
+const CMS_ORG = {
+  "@type": "GovernmentOrganization",
+  name: "Centers for Medicare & Medicaid Services",
+};
+
+export function facilityJsonLd(f: {
+  name: string;
+  street: string;
+  city: string;
+  state: string;
+  zip: string;
+  phone: string;
+  ccn: string;
+  path: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "MedicalOrganization",
+    name: f.name,
+    ...(f.phone ? { telephone: f.phone } : {}),
+    address: {
+      "@type": "PostalAddress",
+      ...(f.street ? { streetAddress: f.street } : {}),
+      ...(f.city ? { addressLocality: f.city } : {}),
+      ...(f.state ? { addressRegion: f.state } : {}),
+      ...(f.zip ? { postalCode: f.zip } : {}),
+      addressCountry: "US",
+    },
+    identifier: { "@type": "PropertyValue", name: "CCN", value: f.ccn },
+    url: pageUrl(f.path),
+  };
+}
+
+export function breadcrumbJsonLd(items: { name: string; path: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((it, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: it.name,
+      item: pageUrl(it.path),
+    })),
+  };
+}
+
+export function dataCatalogJsonLd(
+  tables: {
+    label: string;
+    dataset_id: string | null;
+    modified_date: string | null;
+    source_file: string;
+  }[],
+  downloadable: Set<string>,
+  cmsDatasetUrl: (id: string) => string
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "DataCatalog",
+    name: `${SITE_NAME} source data`,
+    url: pageUrl("/data/"),
+    dataset: tables.map((t) => ({
+      "@type": "Dataset",
+      name: t.label,
+      creator: CMS_ORG,
+      ...(t.dataset_id
+        ? { identifier: t.dataset_id, sameAs: cmsDatasetUrl(t.dataset_id) }
+        : {}),
+      ...(t.modified_date ? { dateModified: t.modified_date } : {}),
+      ...(downloadable.has(t.source_file)
+        ? {
+            distribution: {
+              "@type": "DataDownload",
+              encodingFormat: "text/csv",
+              contentUrl: `${pageUrl("/data/")}downloads/${encodeURIComponent(t.source_file)}`,
+            },
+          }
+        : {}),
+    })),
+  };
+}
+
 export function ownerDescription(
   name: string,
   facilities: number,

@@ -7,7 +7,8 @@ import {
   REPO_URL,
 } from "@/lib/config";
 import { ledger, missingProviderColumns, siteMeta } from "@/lib/data";
-import { pageMetadata } from "@/lib/seo";
+import { dataCatalogJsonLd, pageMetadata } from "@/lib/seo";
+import JsonLd from "@/components/JsonLd";
 
 export const metadata: Metadata = pageMetadata({
   title: "Data & downloads",
@@ -31,6 +32,15 @@ export default function DataPage() {
 
   return (
     <>
+      {/* One Dataset per table, identified by CMS's own dataset id, so
+          catalog crawlers see what the tables below already say. */}
+      <JsonLd
+        data={dataCatalogJsonLd(
+          meta.tables,
+          new Set(meta.downloads ?? []),
+          CMS_DATASET_URL
+        )}
+      />
       <h1>Data &amp; downloads</h1>
       <p className="lede">
         Everything on this site comes from one monthly download of the CMS

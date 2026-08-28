@@ -102,6 +102,15 @@ def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     facilities = [facility(i, STATES[i % len(STATES)]) for i in range(1, 13)]
 
+    # One name carries a literal closing script tag, because published
+    # values now enter the JSON-LD script blocks and nobody has audited
+    # 62,000 real names for this shape. The rendered-values gate
+    # asserts this name survives serialization without ending the
+    # block early; without a fixture row to exercise it, that
+    # assertion would be silent where it claims to speak.
+    facilities[-1]["Provider Name"] = "CARE </script> CENTER 12"
+    facilities[-1]["Legal Business Name"] = "CARE </script> CENTER 12, LLC"
+
     citations = []
     for f in facilities:
         for c in range(random.randint(2, 5)):
