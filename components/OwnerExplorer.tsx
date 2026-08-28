@@ -43,6 +43,12 @@ type Detail = {
   roles: string[];
   facilities: number;
   states: number;
+  // Distinct facilities per state, from SQL over all rows so it stays
+  // right past any display cap. Counts only, ever: no rating or
+  // quality measure joins this grouping, because a per-state quality
+  // figure for one owner is portfolio scoring, which this site does
+  // not do.
+  byState: { st: string; n: number }[];
   totalRows: number;
   fallback: QueryResult | null;
 };
@@ -62,6 +68,10 @@ export default function OwnerExplorer() {
   const [detail, setDetail] = useState<Detail | null>(null);
   const [detailState, setDetailState] = useState<"idle" | "loading" | "error">("idle");
   const [ratings, setRatings] = useState<Map<string, string> | null>(null);
+  // Owner-name to slug map for the pre-rendered pages, fetched once and
+  // only after a name is selected. A missing map just means no
+  // permanent-page link is offered; the explorer stays whole.
+  const [slugs, setSlugs] = useState<Record<string, string> | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -117,7 +127,7 @@ export default function OwnerExplorer() {
         const idx = need.map((c) => res.cols.indexOf(c));
         if (idx.slice(0, 5).some((i) => i < 0)) {
           setDetail({
-            name: selected, rows: [], types: [], roles: [],
+            name: selected, rows: [], types: [], roles: [], byState: [],
             facilities: 0, states: 0, totalRows: res.rows.length, fallback: res,
           });
           setDetailState("idle");
@@ -134,6 +144,17 @@ export default function OwnerExplorer() {
         const [totalRows, facilities, states] = (counts.rows[0] ?? []).map((v) =>
           Number(v ?? 0)
         );
+        const perState = await querySQL(
+          `SELECT trim("State"), count(DISTINCT ${sqlIdent(need[0])}) ` +
+            `FROM read_parquet(${sqlLit(url)}) WHERE "Owner Name" = ${sqlLit(selected)} ` +
+            `AND "State" IS NOT NULL AND trim("State") <> '' ` +
+            `GROUP BY 1 ORDER BY 2 DESC, 1`
+        );
+        if (!alive) return;
+        const byState = perState.rows.map((r) => ({
+          st: r[0] ?? "",
+          n: Number(r[1] ?? 0),
+        }));
         const rows: DetailRow[] = res.rows.map((r) => ({
           ccn: r[idx[0]] ?? "",
           facility: r[idx[1]] ?? "",
@@ -159,6 +180,7 @@ export default function OwnerExplorer() {
           roles,
           facilities,
           states,
+          byState,
           totalRows,
           fallback: null,
         });
@@ -172,6 +194,23 @@ export default function OwnerExplorer() {
       alive = false;
     };
   }, [info, selected]);
+
+  useEffect(() => {
+    if (!selected || slugs) return;
+    let alive = true;
+    fetch(`${BP}/data/owner-slugs.json`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((j: { slugs?: Record<string, string> }) => {
+        if (alive) setSlugs(j.slugs ?? {});
+      })
+      .catch((err) => {
+        console.error("owner slug map failed to load", err);
+        if (alive) setSlugs({});
+      });
+    return () => {
+      alive = false;
+    };
+  }, [selected, slugs]);
 
   useEffect(() => {
     if (!selected || ratings) return;
@@ -392,7 +431,34 @@ export default function OwnerExplorer() {
                   />
                 ) : null}
               </p>
+              {detail.byState.length > 1 ? (
+                <p className="count-line">
+                  Facilities by state:{" "}
+                  {detail.byState.map((s, i) => (
+                    <span key={s.st}>
+                      {i > 0 ? " · " : ""}
+                      <span className="mono">
+                        {s.st} {s.n.toLocaleString()}
+                      </span>
+                    </span>
+                  ))}
+                </p>
+              ) : null}
               <CopyName name={detail.name} />
+              <p className="search-hint">
+                {slugs?.[detail.name] ? (
+                  <>
+                    <a href={`${BP}/owner/${slugs[detail.name]}/`}>
+                      Permanent page for this name
+                    </a>
+                    , for citation and sharing.{" "}
+                  </>
+                ) : null}
+                Researching this name further?{" "}
+                <a href={`${BP}/about/`}>About</a> explains where public
+                records continue, and why this site links to none of them
+                by name.
+              </p>
               <div className="tablewrap">
                 <table>
                   <thead>
