@@ -1040,6 +1040,43 @@ def record_history(
                     "filename did not"
                 )
 
+        # The zip's sha256 identifies the archive; the per-file hashes
+        # identify the data. When the first moves and the second does
+        # not, the build has to say which of the two happened, because
+        # a ledger reader who takes the zip hash as the data's identity
+        # will call it a rotation. CMS did exactly this on 2026-08-27:
+        # regenerated the container, published nothing. And manifest.json
+        # is not a mere envelope -- its per-dataset modified dates are
+        # what the site displays -- so a manifest-only change is
+        # reader-visible and gets named as its own mode.
+        prev_zip = (entries[-1].get("source_zip") or {}).get("sha256")
+        if prev_zip and prev_zip != source_zip["sha256"]:
+            prev_names = set(prev_files)
+            cur_names = set(file_hashes)
+            identical = {
+                f
+                for f in cur_names & prev_names
+                if (prev_files[f] or {}).get("sha256") == file_hashes[f]
+            }
+            if prev_names == cur_names and identical == cur_names:
+                warn(
+                    "the source zip was repackaged: its checksum changed "
+                    f"while all {len(cur_names)} files inside are "
+                    "byte-identical to the previous build. The archive is "
+                    "new; the data is not."
+                )
+            elif (
+                prev_names - {"manifest.json"} == cur_names - {"manifest.json"}
+                and cur_names - {"manifest.json"} <= identical
+            ):
+                warn(
+                    "catalog metadata revised: manifest.json changed while "
+                    "every dataset file is byte-identical to the previous "
+                    "build. The manifest carries the per-dataset modified "
+                    "dates this site displays, so the displayed vintage "
+                    "may have shifted while the data did not."
+                )
+
     overrides = check_count_drift(entries, file_hashes)
 
     by_file = {t["source_file"]: t for t in tables}

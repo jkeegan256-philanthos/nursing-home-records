@@ -82,6 +82,23 @@ measured behavior is that delivery can run hours late and can skip a
 slot entirely, so if the 5th passes with no run wearing the Scheduled
 label, the tap is the dependable ritual. Works from a phone.
 
+"Has CMS published anything new?" has a cheaper answer than the 39 MB
+zip. CMS's catalog at
+`https://data.cms.gov/provider-data/api/1/metastore/schemas/dataset/items`
+returns every Provider Data Catalog dataset; the entries whose theme
+is "Nursing homes including rehab services" are this site's eighteen.
+Each carries four dates: `modified` (the data's vintage, the field
+this site displays), `released` (when CMS published it), `%modified`
+(the publish timestamp, to the second), and `nextUpdateDate` (CMS's
+own stated expectation for the next release, operator intelligence
+rather than a promise). The probe answers in both directions the
+question the zip's checksum answers in one: an unchanged checksum
+proves the data is unchanged, but a changed checksum can be a
+repackaged container around byte-identical files, which the build
+names in its processing notes when it happens. This is a manual
+check, deliberately not wired into the build, whose input stays the
+zip alone.
+
 Committing a zip to `data/` pins the build to that exact batch instead
 of fetching; see `data/README.md`.
 

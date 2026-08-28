@@ -55,13 +55,20 @@ def run_transform(
     root: Path,
     state_url: str = "",
     allow_drift: bool = False,
+    zip_stamp: tuple = (2026, 8, 26, 2, 11, 4),
+    manifest: bytes = b"[]",
 ) -> subprocess.CompletedProcess:
+    # zip_stamp is the entry timestamp written into every zip entry. Two
+    # calls differing only in it produce archives whose contents are
+    # byte-identical but whose sha256 differs -- the exact shape CMS
+    # produced on 2026-08-27, when the zips differed in four bytes, all
+    # in manifest.json's local-header timestamp.
     (root / "data").mkdir(parents=True, exist_ok=True)
     zip_path = root / "batch.zip"
     with zipfile.ZipFile(zip_path, "w") as zf:
         for name, blob in files.items():
-            zf.writestr(name, blob)
-        zf.writestr("manifest.json", b"[]")
+            zf.writestr(zipfile.ZipInfo(name, date_time=zip_stamp), blob)
+        zf.writestr(zipfile.ZipInfo("manifest.json", date_time=zip_stamp), manifest)
     env = {
         **os.environ,
         "NH_PARTITION_MIN_BYTES": "100",   # force partitioning on tiny inputs
@@ -250,11 +257,94 @@ def test_count_drift_discriminates_cms_from_us() -> None:
         )
 
 
+# ---------------------------------------------------------------- modes
+
+def test_repackaged_zip_is_named_not_mistaken_for_data() -> None:
+    """On 2026-08-27 CMS regenerated the zip container around
+    byte-identical files. The zip's sha256 identifies the archive; the
+    per-file hashes identify the data; a build that sees the first move
+    without the second has to say so, or the next reader of the ledger
+    repeats the misreading this test exists to retire."""
+    print("\nM1  a new archive carrying no new data")
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        files = {
+            "NH_ProviderInfo_Jun2026.csv": csv_bytes(
+                PROVIDER_COLS, [provider("000001", "UT")]
+            ),
+        }
+        state = root / "state"
+        empty = root / "empty"
+        empty.mkdir(parents=True, exist_ok=True)
+
+        first = run_transform(files, root, state_url=str(empty))
+        check(first.returncode == 0, "a first build records the batch", first.stdout[-300:])
+
+        # Identical content, later entry timestamps: a different archive.
+        again = run_transform(
+            files, root, state_url=str(state), zip_stamp=(2026, 8, 27, 21, 54, 0)
+        )
+        check(again.returncode == 0, "a repackage is a warning, not a failure", again.stdout[-300:])
+        check(
+            "repackaged" in again.stdout,
+            "and the build names the mode",
+            again.stdout[-400:],
+        )
+
+        # Control: the same archive again is silence, not a repackage.
+        same = run_transform(
+            files, root, state_url=str(state), zip_stamp=(2026, 8, 27, 21, 54, 0)
+        )
+        check(
+            same.returncode == 0 and "repackaged" not in same.stdout,
+            "an unchanged archive raises no repackage warning",
+            same.stdout[-300:],
+        )
+
+
+def test_manifest_only_change_is_named_metadata_not_data() -> None:
+    """The fourth mode: only manifest.json moves. It fails the
+    all-files-identical test, so without its own branch it would be
+    silently classified as new data. And the manifest is not a mere
+    envelope: it carries the per-dataset modified dates the site
+    displays, so this mode is reader-visible."""
+    print("\nM2  a manifest-only change")
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        files = {
+            "NH_ProviderInfo_Jun2026.csv": csv_bytes(
+                PROVIDER_COLS, [provider("000001", "UT")]
+            ),
+        }
+        state = root / "state"
+        empty = root / "empty"
+        empty.mkdir(parents=True, exist_ok=True)
+
+        first = run_transform(files, root, state_url=str(empty))
+        check(first.returncode == 0, "a first build records the batch", first.stdout[-300:])
+
+        # Same dataset bytes, same timestamps, revised manifest.
+        revised = run_transform(files, root, state_url=str(state), manifest=b"[ ]")
+        check(revised.returncode == 0, "a metadata revision is a warning, not a failure", revised.stdout[-300:])
+        check(
+            "catalog metadata revised" in revised.stdout,
+            "and the build names the mode",
+            revised.stdout[-400:],
+        )
+        check(
+            "repackaged" not in revised.stdout,
+            "and does not call it a repackage",
+            revised.stdout[-300:],
+        )
+
+
 for t in (
     test_whitespace_state_does_not_split_a_state,
     test_two_files_one_table_name_is_fatal,
     test_other_shard_holds_the_rows_and_unions_cleanly,
     test_count_drift_discriminates_cms_from_us,
+    test_repackaged_zip_is_named_not_mistaken_for_data,
+    test_manifest_only_change_is_named_metadata_not_data,
 ):
     t()
 
