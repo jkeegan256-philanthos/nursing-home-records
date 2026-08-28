@@ -1,7 +1,9 @@
 # Nursing Home Records
 
 A static site that republishes the CMS Provider Data Catalog nursing
-homes theme exactly as CMS ships it. No calculations, no filtering, no
+homes theme exactly as CMS ships it, live at
+[nursinghomerecords.org](https://nursinghomerecords.org) and rebuilt
+monthly from the CMS source zip. No calculations, no filtering, no
 editorial layer. One zip goes in each month; a browsable site comes out.
 
 Reviewing or changing this? `PROJECT.md` has a short "Reviewing this
