@@ -321,6 +321,142 @@ check(
     : "no page heads were checked, so this run proves nothing"
 );
 
+// Structured data must repeat the page, exactly. The JSON-LD blocks
+// are the machine-readable copy of what the page already renders, so
+// every value is checked against the published row, and the two
+// charter fences are enforced as absences: no rating ever appears as
+// review vocabulary, and a published name containing a closing script
+// tag must survive serialization without ending the block early. The
+// fixture plants exactly that name, so this run proves the escape
+// rather than assuming it.
+const ldBlocksOf = (html) =>
+  [...stripComments(html).matchAll(
+    /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g
+  )].map((m) => m[1]);
+
+const ldProblems = [];
+let ldChecked = 0;
+let hostileSeen = false;
+
+for (const c of facilities) {
+  const file = join(facDir, c, "index.html");
+  if (!existsSync(file)) continue;
+  const ccn = decodeURIComponent(c);
+  const row = slimRows.get(ccn);
+  if (!row) continue;
+  const html = readFileSync(file, "utf8");
+  const blocks = ldBlocksOf(html);
+  if (blocks.length < 2) {
+    ldProblems.push(`${ccn}: ${blocks.length} JSON-LD block(s), want the entity and the breadcrumb`);
+    continue;
+  }
+  let entity = null;
+  let crumbs = null;
+  for (const b of blocks) {
+    let parsed;
+    try {
+      parsed = JSON.parse(b);
+    } catch {
+      ldProblems.push(`${ccn}: a JSON-LD block does not parse; a value likely broke out of the script element`);
+      continue;
+    }
+    if (parsed["@type"] === "MedicalOrganization") entity = parsed;
+    if (parsed["@type"] === "BreadcrumbList") crumbs = parsed;
+  }
+  const name = ((row[col("Provider Name")] ?? "") + "").trim();
+  const city = ((row[cityAt] ?? "") + "").trim();
+  const state = ((row[col("State")] ?? "") + "").trim();
+  if (!entity) {
+    ldProblems.push(`${ccn}: no MedicalOrganization entity`);
+  } else {
+    if (entity.name !== name)
+      ldProblems.push(`${ccn}: entity name ${JSON.stringify(entity.name)} is not the published ${JSON.stringify(name)}`);
+    if ((entity.address?.addressLocality ?? "").trim() !== city)
+      ldProblems.push(`${ccn}: entity locality disagrees with the published city`);
+    if ((entity.address?.addressRegion ?? "").trim() !== state)
+      ldProblems.push(`${ccn}: entity region disagrees with the published state`);
+    if (entity.identifier?.value !== ccn)
+      ldProblems.push(`${ccn}: entity identifier is not the CCN`);
+    if (name.includes("</script>")) hostileSeen = true;
+  }
+  if (!crumbs || (crumbs.itemListElement ?? []).length < 3) {
+    ldProblems.push(`${ccn}: breadcrumb list missing or short`);
+  }
+  ldChecked++;
+}
+
+check(
+  ldChecked > 0 && ldProblems.length === 0,
+  `structured data repeats the published record on ${ldChecked} facility page(s)`,
+  ldProblems.length
+    ? `JSON-LD disagrees with the pages:\n      ` +
+      ldProblems.slice(0, 8).join("\n      ")
+    : "no facility JSON-LD was checked, so this run proves nothing"
+);
+
+// The escape proof needs its hostile input to exist: if no sampled
+// name carries a closing script tag, the round trip was not exercised
+// and this run is silent where it claims to speak.
+if (facilities.length > 0 && facilities.length <= 200) {
+  check(
+    hostileSeen || facilities.length >= 200,
+    "a name containing a closing script tag survived serialization intact",
+    "no sampled facility name contains </script>, so the escape was never exercised; the fixture is supposed to plant one"
+  );
+}
+
+// The charter fence, as an absence the gate owns: a regulator's rating
+// must never wear review vocabulary.
+const reviewVocab = [];
+for (const c of facilities) {
+  const f = join(facDir, c, "index.html");
+  if (!existsSync(f)) continue;
+  const html = readFileSync(f, "utf8");
+  if (html.includes("aggregateRating") || html.includes('"@type":"Review"')) {
+    reviewVocab.push(c);
+  }
+}
+check(
+  reviewVocab.length === 0,
+  "no page presents a CMS rating as review vocabulary",
+  `aggregateRating or Review markup found on ${reviewVocab.length} page(s), e.g. ${reviewVocab[0]}`
+);
+
+// The Data page's catalog: one Dataset per table, identified by CMS's
+// own dataset id, matching the data map.
+{
+  const dataPage = join(DIR, "data", "index.html");
+  const map = JSON.parse(readFileSync(join(DIR, "data/data-map.json"), "utf8"));
+  const wantIds = new Set(
+    Object.values(map.tables)
+      .map((t) => t.dataset_id)
+      .filter(Boolean)
+  );
+  const blocks = existsSync(dataPage) ? ldBlocksOf(readFileSync(dataPage, "utf8")) : [];
+  let catalog = null;
+  for (const b of blocks) {
+    try {
+      const parsed = JSON.parse(b);
+      if (parsed["@type"] === "DataCatalog") catalog = parsed;
+    } catch {
+      /* unparseable blocks are caught by the assertion below */
+    }
+  }
+  const haveIds = new Set(
+    (catalog?.dataset ?? []).map((d) => d.identifier).filter(Boolean)
+  );
+  const missing = [...wantIds].filter((id) => !haveIds.has(id));
+  check(
+    wantIds.size > 0 && catalog !== null && missing.length === 0,
+    `the Data page's catalog names all ${wantIds.size} CMS dataset id(s)`,
+    catalog === null
+      ? "the Data page carries no DataCatalog JSON-LD"
+      : missing.length
+        ? `dataset id(s) in the data map but not the catalog: ${missing.slice(0, 5).join(", ")}`
+        : "the data map carries no dataset ids, so this run proves nothing"
+  );
+}
+
 // The 404 page: Next's built-in emitted a second <title> after the
 // site's own, and the first one wins, so error pages announced
 // themselves with the homepage's identity. One title, and no canonical,

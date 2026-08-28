@@ -2,9 +2,16 @@ import type { Metadata } from "next";
 import { BP } from "@/lib/config";
 import { allCCNs, dataMap, getFacility } from "@/lib/data";
 import { CMS_DATASET_URL } from "@/lib/config";
-import { facilityDescription, pageMetadata } from "@/lib/seo";
+import {
+  breadcrumbJsonLd,
+  facilityDescription,
+  facilityJsonLd,
+  pageMetadata,
+} from "@/lib/seo";
+import { stateName } from "@/lib/states";
 import FacilityRecords from "@/components/FacilityRecords";
 import FullRecord from "@/components/FullRecord";
+import JsonLd from "@/components/JsonLd";
 import Stars from "@/components/Stars";
 
 export const dynamicParams = false;
@@ -81,6 +88,31 @@ export default async function FacilityPage({
 
   return (
     <>
+      {/* The machine-readable copy of the header above it: same field
+          reads, so the markup cannot disagree with the page. The gate
+          checks both against the published row. */}
+      <JsonLd
+        data={facilityJsonLd({
+          name: f.get("Provider Name").trim(),
+          street: f.get("Provider Address").trim(),
+          city: f.get("City/Town").trim(),
+          state,
+          zip: f.get("ZIP Code").trim(),
+          phone: f.get("Telephone Number").trim(),
+          ccn,
+          path: `/facility/${encodeURIComponent(ccn)}/`,
+        })}
+      />
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Nursing Home Records", path: "/" },
+          { name: `${stateName(state)} nursing homes`, path: `/state/${state}/` },
+          {
+            name: f.get("Provider Name").trim(),
+            path: `/facility/${encodeURIComponent(ccn)}/`,
+          },
+        ])}
+      />
       <div className="record-head">
         <p className="muted mono" style={{ margin: 0 }}>
           CCN {ccn}
