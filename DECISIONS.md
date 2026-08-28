@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 36 entries. `scripts/check_project_doc.py` asserts that
+This log holds 43 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -992,3 +992,221 @@ one means updating the number; that is the point of it.
   here drives. It is asserted on a state page, whose rows come from
   build-time JSON, so it tests the download mechanism and not the
   engine.
+- 2026-08-27: a cleanup pass before an outside review, five small
+  things in one change because each is an instance of a rule this
+  repository already holds, and one new rule written into the charter.
+  The rule: a comment describes intent or a constraint, never measured
+  state. Comments are the only text in the tree no gate scans, the
+  prose check scopes them out by design, and nothing can test an
+  English claim about code, so a measured value in a comment goes
+  stale with nothing to say so. Earned by the stylesheet comment that
+  said "four links on one line at 320px" until a fifth link falsified
+  it, found by going looking rather than by anything failing. Not
+  mechanizable, which is why it is a rule in the reviewing section
+  rather than a check.
+  Applied in the same change to the one other instance a full read of
+  the tree found: the owner explorer's row limit was annotated with
+  the largest footprint in a named month's batch, a figure about a
+  batch that is no longer the batch. The comment now states the
+  constraint and lets the rendered truncation notice carry the truth.
+  Also fixed, and the same class as README's touchpoint count: the
+  charter said "Two corollaries earned the same week" above a list
+  that had grown to four, about to be five. It now carries no count
+  and no timeframe. A count in a heading inside the document that
+  teaches this lesson is the strongest argument yet for the structural
+  fix over the vigilant one.
+  The footer stopped answering only the wrong question. It said when
+  this mirror last processed the batch, which advances on every code
+  merge whether or not CMS published anything, so sixteen rebuilds of
+  one unchanged file each moved a date that reads as freshness. It now
+  also shows CMS's own dates, as a range rather than the newest alone,
+  because the batch legitimately spans months: two of its datasets are
+  annual, so the current spread runs 2025-11-01 to 2026-08-01, and
+  naming only the newest would dress the whole batch in its freshest
+  file, the same misdirection with a different date. The fixture now
+  stamps one dataset with an older date so the range branch renders in
+  CI rather than for the first time in production, which is the
+  NH_METHODS_FACILITY_MIN lesson applied before it cost anything.
+  The Data page's ledger paragraph gained its temporal half: each
+  entry records what CMS was serving at the moment of that build's
+  fetch, so several entries with one checksum are one batch served
+  many times, and an entry's date is when this site last asked, not
+  when CMS last changed. That sentence is the lesson of 2026-08-26,
+  when the ledger's sixteen sightings of one file were misread as
+  evidence CMS had not rotated, an hour after CMS rotated.
+  And one spelling: the Methods page said "organisation", the only
+  British spelling in any reader-facing prose, on a US site about US
+  federal data. Swept the whole tree for the class; the one other hit
+  is in a code comment, left alone by the same scope rule that keeps
+  the em dash check out of comments.
+- 2026-08-27: CSV formula escaping declined, on evidence, as a
+  per-batch condition rather than a permanent verdict. The finding:
+  toCsv() quotes only commas, quotes and newlines, so a published
+  value beginning with the equals sign, plus, minus, or at sign would
+  open as a live formula in spreadsheet software. Measured against the
+  current batch: zero of the 62,262 published owner names begin with
+  any of those characters, so the condition does not exist in the data
+  being served. The two standing reasons not to escape hold either
+  way: prefixing or quoting such a value would modify a published
+  value on a site whose footer promises figures are shown exactly as
+  published, and the untouched CMS originals are republished one page
+  away, so a reader opening those carries identical exposure and this
+  site would be mangling data to guard a door standing open beside it.
+  The condition is measured per batch, not settled forever: if a
+  future batch ever publishes a name beginning with one of those
+  characters, this decision is to be revisited rather than inherited,
+  and this entry is the place a future reviewer finds that condition
+  stated.
+- 2026-08-27: search index weight recorded as a measured non-issue,
+  with the figures and a tripwire. The home page fetches two indexes
+  lazily, the facility index on load and the owner index only after a
+  search reaches three characters. Measured from outside on this date:
+  owners-slim.json is 2.36 MB raw and 447 KB on the wire, because
+  GitHub Pages compresses it, and the facility index is 326 KB, so a
+  phone that searches pays roughly 770 KB once. That is an ordinary
+  page weight, not a problem worth engineering around, and the lazy
+  fetch already means readers who never search never pay it. Both
+  figures scale with the batch, which is the tripwire: if a future
+  batch pushes the compressed owner index materially past this figure,
+  the decision is to be revisited with the then-current numbers rather
+  than cited from this entry.
+- 2026-08-27: the two search boxes made to answer one query the same
+  way, and the Ownership page was the one that was wrong. The home
+  page's search matches when every word of the query appears somewhere
+  in the name, so JOHN MITCHELL finds MITCHELL, JOHN; the Ownership
+  page's SQL matched the query as one substring, so the same query
+  there returned nothing. CMS publishes people as LAST, FIRST and
+  readers type FIRST LAST, which is the entire reason token matching
+  exists on the home page, and a site whose credibility rests on
+  consistency cannot have its dedicated search page be the worse of
+  its two search boxes. The fix stays inside principle 2: the query is
+  AND of one substring test per word, tokens split the query and never
+  the published name, no fuzzy logic, no identity claim. The hint text
+  now states the rule so a reader can predict the results. Proven red
+  first at the semantic level, engine-independent: against the fixture
+  ownership file, the old SQL for the reversed query returns zero rows
+  and the new SQL returns the LAST, FIRST name. The origin gate now
+  drives a reversed-order query on every run, because the hint's
+  promise that word order does not matter is a claim about a query
+  nothing else runs, and principle 7 does not exempt search hints.
+- 2026-08-27: the footer's vintage line reordered after outside
+  verification of the first deploy carrying it, because both first
+  sight reactions agreed. The line led with the oldest date, "dated
+  2025-11-01 to 2026-08-01", and on a facility page the reader's
+  actual question is whether the numbers in front of them are the old
+  part. They are not: the hub dataset carries the newest date, and the
+  old end of the range belongs to annual files. A sentence led by its
+  oldest date reads as though the whole batch is that old, which is
+  the freshness misdirection this line was added to end, pointed the
+  other way. It now leads with the newest date, discloses the old end,
+  and points at the Data page, where every dataset's own date already
+  lives: "dated through 2026-08-01, with older files back to
+  2025-11-01; each dataset's own date is on the Data page." One
+  deliberate deviation from the wording as proposed: "two annual
+  datasets" named a count and a cadence, and neither is computable
+  from the data map, which carries dates and not why they differ. A
+  typed count in sitewide copy is the touchpoint-count defect with a
+  monthly chance to go stale, so the sentence says "older files" and
+  lets the Data page say which. Both ends of the range and the newest
+  date remain computed from the batch, never typed.
+- 2026-08-27: two process rules sharpened by a failure that got past
+  the existing one, recorded because the failure was the author's, in
+  the session running the review. While restacking a branch, a
+  `git cherry-pick <sha> -q` failed with a usage error, because
+  cherry-pick takes no `-q`, and the force-push two lines later ran
+  anyway and briefly overwrote the remote branch with a copy of main.
+  `set -e` was set at the top of that script and did not stop the
+  sequence in this harness's shell. Recovered from the reflog, and the
+  recovered branch verified by diff and by every check before being
+  pushed again. The charter's rule had offered chaining with `&&` or
+  `set -e` as equivalents; the evidence says they are not equivalent
+  everywhere, so the rule now names `&&` as the half that holds and
+  `set -e` as a supplement. And this is the second time a `-q` from
+  memory was passed to a git subcommand that does not take it, the
+  first being the 2026-08-24 revert, so the flag half is now its own
+  rule: a flag recalled from memory is a guess wearing certainty, and
+  the pair of a wrong flag and an unguarded sequence is what turns a
+  typo into a wrong push.
+  The same session produced the same shape in a watcher. A monitor
+  polled an unauthenticated API through a proxy, the responses started
+  coming back empty, and the loop read empty as not-finished-yet, so
+  it waited forever on a question nobody was answering while the thing
+  it watched completed. Absence wearing the shape of a presence, in
+  the instrument rather than the site. The general form, which joins
+  the measurement-harness lessons already in this log: a monitor must
+  distinguish no-result-yet from no-answer-available, or its silence
+  is indistinguishable from progress. The authenticated lens answered
+  in one call what the watcher had failed to see for fifteen minutes.
+- 2026-08-28: a persona review conducted and acted on, five changes
+  shipped from it, one decision recorded, one proposal owed, and the
+  review itself deliberately kept off the public record. The review
+  walked five imagined readers through the site: an ombudsman, a
+  reporter, a lawyer, a family member, and a reader without
+  JavaScript. Its frame: readers do not differ in what they look at,
+  only in what they do next, and the site's job is to carry each to
+  the exact edge of the public record and stop.
+  The largest finding was an omission hiding in plain sight. CMS's
+  state and national averages file ships in every batch, 54 rows and
+  51 columns in the current one, carrying the same four ratings this
+  site renders per facility, and no page had ever displayed a word of
+  it. Each state page now shows a compact block, the state beside the
+  nation, for a curated slice, with the state's whole published row
+  one click below in the same details shape the facility page uses,
+  so the curation is a convenience rather than a filter. The
+  distinction that makes this charter-clean is recorded here rather
+  than assumed: these are values CMS computed and published, so
+  showing them is display, and an average beside a facility list is a
+  context affordance answering "is that a lot?", not the side-by-side
+  comparison of facilities this charter assigns to Care Compare.
+  check_rendered_values.mjs now asserts the block appears and matches
+  the build artifact, proven red first against an export that lacked
+  the block.
+  The Methods page gained the snapshot trap, and the finding that
+  produced it carried an error worth recording at full length. The
+  review first asserted that CMS archives nothing and a past filing
+  is unretrievable. The founder corrected it: CMS maintains a monthly
+  archive of month-end snapshots at
+  data.cms.gov/provider-data/archived-data/nursing-homes, going back
+  years. The page URL is founder-verified in a browser; per-zip
+  download URLs are behind a JavaScript-rendered index and are not
+  linked. So the trap teaches the narrower true thing: this site is
+  the current batch, CMS's archive holds the monthly history, and a
+  month-end snapshot is not the state on a particular day. The traps
+  heading lost its count in the same change, "Four ways" becoming
+  "Ways", because this log had already concluded twice that deleting
+  a count beats maintaining one. A consequence noted for whenever
+  retention next comes up: the phase 3 fence rested partly on the
+  burden of storing past batches, and CMS stores them, so a
+  then-versus-now feature would fetch rather than hoard. Still
+  fenced; the grounds are weaker.
+  Three smaller changes from the same review. Owner surfaces show
+  facilities-by-state counts, so a footprint spanning twenty-six
+  states has a shape before it has a scroll; the boundary is written
+  here because the feature is one step from a fence: these are counts
+  of rows grouped by a published field, and no rating or quality
+  measure will ever join the grouping, because a per-state quality
+  figure for one owner is the portfolio scoring this charter defers
+  to CMS's own chain dataset. Owner surfaces also gained one sentence
+  pointing at About's research-boundary explanation, because the
+  guidance existed but lived two clicks from the moment the pivot
+  impulse strikes, and an internal pointer adds no external link and
+  no new claim. And the live explorer now links the permanent
+  /owner/ page where one exists, which buys a canonical, indexable
+  address for citation; it is not a no-JavaScript fix, since the
+  explorer itself requires the engine.
+  Decided and kept: the navigation label stays "Methods" although the
+  page's own title, "How to read these records", is the phrase its
+  neediest readers would recognize, because nav labels must stay
+  short and the title does the work on arrival. Owed, not built: a
+  static disclosed-parties list on facility pages, the change that
+  would give the site's core answer a floor without the engine, which
+  goes unbuilt until a sized proposal is read, since it puts roughly
+  247 thousand rows across fourteen thousand pages.
+  The review document itself stays a working note by explicit
+  decision. Its value was extracted into the items above, and
+  publishing a model of this site's audience, written by an AI that
+  has never been a reader, would be the overreach About already
+  declines: asserting who the readers are instead of describing what
+  the site does. When outreach happens it carries the founder's own
+  note and the Methods page, and asks what a real reader wanted that
+  this site did not answer.

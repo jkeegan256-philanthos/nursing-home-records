@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { BP } from "@/lib/config";
+import { BP, CMS_ARCHIVE_URL } from "@/lib/config";
 import { capacityFigure, dataMap, ownersTop } from "@/lib/data";
 
 export const metadata: Metadata = {
@@ -50,7 +50,7 @@ export default function MethodsPage() {
       <h1>How to read these records</h1>
       <p className="lede">
         The ownership file is a disclosure form, not a summary of who owns
-        what. Reading it correctly takes a few minutes and avoids four
+        what. Reading it correctly takes a few minutes and avoids the
         mistakes that experienced readers make regularly.
       </p>
       <p className="prov">
@@ -60,7 +60,7 @@ export default function MethodsPage() {
         new one.
       </p>
 
-      <h2>Four ways these records are misread</h2>
+      <h2>Ways these records are misread</h2>
 
       <h3>1. A role is not an ownership stake</h3>
       <p>
@@ -129,7 +129,7 @@ export default function MethodsPage() {
             </table>
           </div>
           <p>
-            Whether they are one organisation is a question this file does
+            Whether they are one organization is a question this file does
             not answer. Adding their facility counts together assumes an
             answer. Reading each as filed does not.
           </p>
@@ -179,6 +179,23 @@ export default function MethodsPage() {
         <a href={`${BP}/data/`}>Data page</a> prove this site matches what
         CMS published. They say nothing about whether a filing matches
         the world.
+      </p>
+
+      <h3>5. The record is a snapshot, not a history</h3>
+      <p>
+        This site serves the current batch and nothing older. CMS
+        overwrites the published file each month, so the record you read
+        today is the record as filed now, not as it stood on the date an
+        event happened. The monthly history exists, kept by CMS itself:
+        an archive of month-end snapshots, one download per month, at{" "}
+        <a href={CMS_ARCHIVE_URL} rel="noopener noreferrer">
+          data.cms.gov/provider-data/archived-data/nursing-homes
+        </a>
+        . A month-end snapshot is the file as it stood when the month
+        closed, which is not the same as its state on a particular day.
+        The batch history on the <a href={`${BP}/data/`}>Data page</a>{" "}
+        answers a different question: it proves what this site served and
+        when, not what CMS published.
       </p>
 
       <h2>Five questions, and where each is answered</h2>

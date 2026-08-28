@@ -22,3 +22,9 @@ export const CORRECTIONS_URL = `${REPO_URL}/issues`;
 export const CORRECTIONS_EMAIL = "NursingHomeRecords.org@gmail.com";
 export const CMS_DATASET_URL = (id: string) =>
   `https://data.cms.gov/provider-data/dataset/${id}`;
+// CMS's own archive of month-end snapshots, linked from the Methods
+// page. The page URL, never a guessed per-zip pattern: the zips behind
+// it are served through a JavaScript-rendered index whose download
+// URLs are not stable enough to hardcode.
+export const CMS_ARCHIVE_URL =
+  "https://data.cms.gov/provider-data/archived-data/nursing-homes";

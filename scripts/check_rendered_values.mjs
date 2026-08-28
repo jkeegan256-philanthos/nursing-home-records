@@ -153,6 +153,59 @@ check(
       `to stand for every other value: ${missingLabel.slice(0, 5).join(", ")}`
 );
 
+// CMS's own state and national averages shipped in every batch and
+// rendered nowhere for the site's first month; a persona review found
+// the gap. This asserts each state page shows the block and that its
+// numbers match the build artifact, which matches the published file,
+// so the block can neither quietly vanish nor drift from CMS's values.
+const AVG_PATH = "build/state-averages.json";
+if (!existsSync(AVG_PATH)) {
+  console.log("  --    no state-averages artifact in this batch; nothing to check");
+} else {
+  const avg = JSON.parse(readFileSync(AVG_PATH, "utf8"));
+  const keyAt = avg.columns.indexOf("State or Nation");
+  const CURATED = [
+    "Overall Rating",
+    "Health Inspection Rating",
+    "QM Rating",
+    "Staffing Rating",
+    "Cycle 1 Total Number of Health Deficiencies",
+  ];
+  const curatedAt = CURATED.map((c) => avg.columns.indexOf(c)).filter((i) => i >= 0);
+  const rowFor = (want) =>
+    avg.rows.find((r) => ((r[keyAt] ?? "") + "").trim().toUpperCase() === want) ?? null;
+  let statesChecked = 0;
+  const avgProblems = [];
+  for (const st of states) {
+    const row = keyAt < 0 ? null : rowFor(st.toUpperCase());
+    if (!row) continue;
+    const file = join(stateDir, st, "index.html");
+    if (!existsSync(file)) continue;
+    const html = readFileSync(file, "utf8");
+    const block = /<section class="averages"[\s\S]*?<\/section>/.exec(html);
+    if (!block) {
+      avgProblems.push(`${st}: CMS published averages for this state and the page shows no averages block`);
+      continue;
+    }
+    const text = block[0].replace(/<[^>]*>/g, " ");
+    for (const i of curatedAt) {
+      const v = ((row[i] ?? "") + "").trim();
+      if (v && !text.includes(v)) {
+        avgProblems.push(`${st}: published ${avg.columns[i]} is ${JSON.stringify(v)} and the block does not show it`);
+      }
+    }
+    statesChecked++;
+  }
+  check(
+    statesChecked > 0 && avgProblems.length === 0,
+    `state and national averages shown and matching on ${statesChecked} state page(s)`,
+    avgProblems.length
+      ? `state pages disagree with CMS's published averages:\n      ` +
+        avgProblems.slice(0, 8).join("\n      ")
+      : "the averages artifact exists but no sampled state page could be checked against it"
+  );
+}
+
 if (problems.length) {
   console.error(`\nFAIL  ${problems.length} problem(s):\n`);
   for (const p of problems) console.error(`  - ${p}`);

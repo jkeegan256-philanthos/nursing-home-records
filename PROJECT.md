@@ -230,7 +230,7 @@ to interrupt. Someone who reads that message and bumps the number has
 made a decision rather than an oversight, and a decision is the thing
 this log can hold.
 
-Two corollaries earned the same week:
+Corollaries, each earned by an incident:
 
 - A safety property that holds because of something outside this
   repository is not a safety property this repository has. The deploy
@@ -250,18 +250,39 @@ Two corollaries earned the same week:
   differ; either alone leaves a hole. The 2026-08-22 entry records
   what it cost, including the two edits documenting the rule that
   would themselves have vanished silently.
-- Chain shell steps with `&&`, or `set -e`. A failed command followed
-  by an unconditional one produces a success that papers over it, and
+- Chain shell steps with `&&`. `set -e` is a supplement, not a
+  substitute: on 2026-08-27 a working harness ran a failed
+  `git cherry-pick` straight into a force-push with `set -e` set at
+  the top of the script, so the only guard that holds everywhere is
+  the one written into the line itself. A failed command followed by
+  an unconditional one produces a success that papers over it, and
   the papering is invisible in the transcript because only the last
   status survives. On 2026-08-24 a `git revert` rejected a bad flag
   and did nothing, and the `git commit --amend` on the next line ran
   anyway, producing a commit whose message announced a revert its tree
   did not contain. Only the push rejection stopped it reaching a
-  branch. This is the same shape as the two rules above and as a
+  branch. This is the same shape as the rules above and as a
   pipeline whose exit status comes from `head` rather than from the
   script: a failure followed by a success that hides it. Sequencing is
   a claim that each step happened, and an unguarded `;` or newline
   makes that claim without checking it.
+- A flag recalled from memory is a guess wearing certainty. Twice, on
+  2026-08-24 and 2026-08-27, a `-q` passed to a git subcommand that
+  does not take it turned the command into a usage error that the next
+  line papered over. The failure needs both halves: the wrong flag
+  makes the command fail, and the unguarded sequence hides that it
+  did, so this rule and the one above retire the pair together. Before
+  passing a flag to a subcommand you have not used it with, check the
+  help text or omit it; every git porcelain command runs fine verbose.
+- A comment describes intent or a constraint, never measured state.
+  Comments are the only text in the tree no gate scans: the prose
+  check scopes them out by design, and nothing can test an English
+  claim about code. A measured value written into one goes stale with
+  nothing to say so, which is how "four links on one line at 320px"
+  sat false in the stylesheet after a fifth link shipped. State the
+  reason a rule exists and let the code and the checks carry the
+  numbers; a figure that matters belongs in a dated log entry, where
+  staleness is the format.
 
 ### House style: no em dash in prose a stranger reads
 

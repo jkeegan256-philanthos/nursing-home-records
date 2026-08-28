@@ -170,9 +170,14 @@ def main() -> None:
              for f in facilities[:4]],
         ),
         "NH_StateUSAverages_Jun2026.csv": csv_bytes(
-            ["State or Nation", "Cycle 1 Total Number of Health Deficiencies"],
-            [{"State or Nation": s, "Cycle 1 Total Number of Health Deficiencies": "7.1"}
-             for s in STATES + ["NATION"]],
+            ["State or Nation", "Overall Rating", "Health Inspection Rating",
+             "QM Rating", "Staffing Rating",
+             "Cycle 1 Total Number of Health Deficiencies"],
+            [{"State or Nation": s, "Overall Rating": f"2.{i}",
+              "Health Inspection Rating": f"2.{(i + 1) % 10}",
+              "QM Rating": f"3.{i}", "Staffing Rating": f"2.{(i + 2) % 10}",
+              "Cycle 1 Total Number of Health Deficiencies": f"7.{i}"}
+             for i, s in enumerate(STATES + ["NATION"])],
         ),
         "NH_CitationDescriptions_Jun2026.csv": csv_bytes(
             ["Deficiency Prefix", "Deficiency Tag Number", "Deficiency Description"],
@@ -198,11 +203,16 @@ def main() -> None:
     manifest = []
     for name, blob in files.items():
         if name.endswith(".csv") and "Mystery" not in name:
+            # One dataset carries an older date on purpose. Real theme
+            # downloads mix vintages, because some datasets are annual,
+            # and the footer renders CMS's dates as a range when they
+            # differ. A fixture where every date is equal would leave
+            # that branch executing for the first time in production.
             manifest.append({
                 "name": name.split("_Jun2026")[0].replace("NH_", "").replace("_", " "),
                 "dataset_id": f"fx{abs(hash(name)) % 9999:04d}",
                 "type": "current",
-                "modified_date": "2026-06-01",
+                "modified_date": "2025-12-01" if name.startswith("Skilled_") else "2026-06-01",
                 "access_level": "public",
                 "private": False,
                 "resources": [{"filename": name, "filesize": len(blob), "mime_type": "text/csv"}],

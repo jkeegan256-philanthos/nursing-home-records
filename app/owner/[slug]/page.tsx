@@ -31,6 +31,21 @@ export default async function OwnerPage({
   const info = dataMap().tables["ownership_all"];
   const threshold = ownerPages().threshold;
 
+  // Distinct facilities per state, so a large footprint has a shape
+  // before it has a scroll. Counts only, ever: no rating or quality
+  // measure joins this grouping, because a per-state quality figure
+  // for one owner is portfolio scoring, which this site does not do.
+  const byState = new Map<string, Set<string>>();
+  for (const r of o.rows) {
+    const st = ((r[3] ?? "") + "").trim();
+    if (!st) continue;
+    if (!byState.has(st)) byState.set(st, new Set());
+    byState.get(st)!.add((r[0] ?? "") + "");
+  }
+  const stateCounts = [...byState.entries()]
+    .map(([st, ccns]) => ({ st, n: ccns.size }))
+    .sort((a, b) => b.n - a.n || a.st.localeCompare(b.st));
+
   return (
     <div className="record-head">
       <p className="muted mono" style={{ margin: 0 }}>
@@ -55,7 +70,25 @@ export default async function OwnerPage({
         </a>{" "}
         for ratings and CSV download.
       </p>
+      {stateCounts.length > 1 ? (
+        <p className="count-line">
+          Facilities by state:{" "}
+          {stateCounts.map((s, i) => (
+            <span key={s.st}>
+              {i > 0 ? " · " : ""}
+              <span className="mono">
+                {s.st} {s.n.toLocaleString()}
+              </span>
+            </span>
+          ))}
+        </p>
+      ) : null}
       <CopyName name={o.name} />
+      <p className="search-hint">
+        Researching this name further? <a href={`${BP}/about/`}>About</a>{" "}
+        explains where public records continue, and why this site links
+        to none of them by name.
+      </p>
       <div className="tablewrap">
         <table>
           <thead>

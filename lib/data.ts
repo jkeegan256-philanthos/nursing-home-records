@@ -59,6 +59,63 @@ export function ledger(): LedgerEntry[] {
   }
 }
 
+// CMS's own state and national averages, passed through whole by the
+// transform. Null when the batch carries no averages file, and the
+// state pages simply omit the block.
+export type StateAverages = {
+  columns: string[];
+  rows: (string | null)[][];
+  dataset_name: string | null;
+  dataset_id: string | null;
+  modified_date: string | null;
+  source_file: string | null;
+};
+let _averages: StateAverages | null = null;
+export function stateAverages(): StateAverages | null {
+  try {
+    return (_averages ??= readJson("build", "state-averages.json"));
+  } catch {
+    return null;
+  }
+}
+
+// The state's row and the national row, matched on the published
+// "State or Nation" column. Either can be absent in a given batch;
+// callers render what exists and omit what does not.
+export function averagesFor(state: string): {
+  columns: string[];
+  stateRow: (string | null)[] | null;
+  nationRow: (string | null)[] | null;
+  meta: StateAverages;
+} | null {
+  const a = stateAverages();
+  if (!a) return null;
+  const key = a.columns.indexOf("State or Nation");
+  if (key < 0) return null;
+  const find = (want: string) =>
+    a.rows.find((r) => (r[key] ?? "").trim().toUpperCase() === want) ?? null;
+  const stateRow = find(state.trim().toUpperCase());
+  const nationRow = find("NATION");
+  if (!stateRow && !nationRow) return null;
+  return { columns: a.columns, stateRow, nationRow, meta: a };
+}
+
+// The span of CMS's own modified dates across this batch's datasets,
+// for the footer. A range rather than a single date on purpose: some
+// datasets in the theme are annual, so one download routinely spans
+// many months, and naming only the newest date would dress the whole
+// batch in its freshest file, which is the processing-date problem
+// with a different date. Null when no table carries a date, and the
+// footer then says only when this site processed the batch.
+export function cmsVintage(): { min: string; max: string } | null {
+  const dates = Object.values(dataMap().tables)
+    .map((t) => t.modified_date)
+    .filter((d): d is string => !!d)
+    .sort();
+  if (dates.length === 0) return null;
+  return { min: dates[0], max: dates[dates.length - 1] };
+}
+
 export type OwnersTop = {
   total_owners: number;
   blank_owner_rows: number;

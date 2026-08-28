@@ -827,6 +827,36 @@ def export_owner_pages(
     )
 
 
+def export_state_averages(
+    con: duckdb.DuckDBPyConnection, csv_path: Path, meta: dict, build_dir: Path
+) -> None:
+    """Pass CMS's state and national averages through to the site build.
+
+    The whole file, every row and column as text, because the state page
+    shows a curated slice with the full published row one click below,
+    and the curation is the page's choice, not the transform's. CMS
+    computed these numbers, so displaying them is principle 1's
+    "CMS's own, shown as published", never arithmetic of ours."""
+    rel = f"read_csv({qlit(str(csv_path))}, header=true, all_varchar=true)"
+    rows = con.execute(f"SELECT * FROM {rel}").fetchall()
+    (build_dir / "state-averages.json").write_text(
+        json.dumps(
+            {
+                "columns": meta["columns"],
+                "rows": rows,
+                "dataset_name": meta.get("dataset_name"),
+                "dataset_id": meta.get("dataset_id"),
+                "modified_date": meta.get("modified_date"),
+                "source_file": meta.get("source_file"),
+            },
+            ensure_ascii=False,
+            separators=(",", ":"),
+        ),
+        encoding="utf-8",
+    )
+    print(f"  state averages: {len(rows)} row(s) passed through for the state pages")
+
+
 def export_providers(con: duckdb.DuckDBPyConnection, csv_path: Path, build_dir: Path, public_data: Path) -> None:
     rel = f"read_csv({qlit(str(csv_path))}, header=true, all_varchar=true)"
     columns = [r[0] for r in con.execute(f"DESCRIBE SELECT * FROM {rel}").fetchall()]
@@ -1140,6 +1170,8 @@ def main() -> None:
             providers_csv = csv_path
         if table == "ownership":
             ownership_meta = meta
+        if table == "state_us_averages":
+            export_state_averages(con, csv_path, meta, build_dir)
 
     if providers_csv is None:
         die("no NH_ProviderInfo file found; the site cannot build without it")
