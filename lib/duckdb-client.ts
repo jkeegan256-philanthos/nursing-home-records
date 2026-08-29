@@ -130,23 +130,38 @@ function parquetSource(url: string | string[]): string {
   return `read_parquet([${urls.map(sqlLit).join(", ")}])`;
 }
 
+/* A caller that sorts must sort here, in the query, never after the
+ * fetch: post-fetch sorting orders only the rows that survived LIMIT,
+ * which would present an arbitrary scan slice as "newest first" and
+ * put a disclosure clause on a false claim. NULLS LAST is stated
+ * rather than inherited, so rows without a value in the sort column
+ * land at the end wherever the engine's default might put them. */
+export type OrderBy = { column: string; direction: "ASC" | "DESC" };
+
+function orderClause(orderBy?: OrderBy): string {
+  if (!orderBy) return "";
+  return ` ORDER BY ${sqlIdent(orderBy.column)} ${orderBy.direction} NULLS LAST`;
+}
+
 /** Run one SELECT against Parquet over HTTP, filtered by equality. */
 export async function queryParquet(
   url: string | string[],
   where: { column: string; equals: string },
-  limit = ROW_LIMIT
+  limit = ROW_LIMIT,
+  orderBy?: OrderBy
 ): Promise<QueryResult> {
   return querySQL(
-    `SELECT * FROM ${parquetSource(url)} WHERE ${sqlIdent(where.column)} = ${sqlLit(where.equals)} LIMIT ${Math.max(0, Math.floor(limit))}`
+    `SELECT * FROM ${parquetSource(url)} WHERE ${sqlIdent(where.column)} = ${sqlLit(where.equals)}${orderClause(orderBy)} LIMIT ${Math.max(0, Math.floor(limit))}`
   );
 }
 
 /** Same filter, no cap: CSV exports must contain every row, not the screen. */
 export async function queryParquetAll(
   url: string | string[],
-  where: { column: string; equals: string }
+  where: { column: string; equals: string },
+  orderBy?: OrderBy
 ): Promise<QueryResult> {
   return querySQL(
-    `SELECT * FROM ${parquetSource(url)} WHERE ${sqlIdent(where.column)} = ${sqlLit(where.equals)}`
+    `SELECT * FROM ${parquetSource(url)} WHERE ${sqlIdent(where.column)} = ${sqlLit(where.equals)}${orderClause(orderBy)}`
   );
 }

@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 52 entries. `scripts/check_project_doc.py` asserts that
+This log holds 53 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -1589,3 +1589,51 @@ one means updating the number; that is the point of it.
   line present above the loaded table carrying the name and CCN
   once, and each identity column gone from the header, keyed on the
   fixture facility whose identity is constant by construction.
+- 2026-08-29: the loaded tables sorted, the sort disclosed, and what
+  was replaced recorded for what it was: never a fact about the file.
+  The founder's production measurement of the collapsed penalties
+  table found its rows out of date order, the largest fine on the
+  record sitting second from the bottom of what read as a
+  reverse-chronological list until it did not. The order on screen
+  was not file order being faithfully preserved: the query carried no
+  ORDER BY, so it was whatever the engine's scan emitted, unpromised,
+  and for sharded tables the concatenation of shards. An
+  implementation accident wearing fidelity's clothes, invisible until
+  the identity collapse made the date column visible.
+  The ruling: order is not a value. The footer promises values as
+  published and says nothing about sequence, and the site already
+  sorts everywhere else it shows rows, by published fields on state
+  pages and by count on the owners table. The loaded tables now sort
+  newest first by one published date column per dataset, held in the
+  display vocabulary: Penalty Date for penalties, Survey Date for the
+  two citation tables and the survey dates table. A dataset with no
+  single governing date column, the survey summary with its two
+  survey dates, the ownership file whose association dates are prose
+  strings that do not sort, makes no claim and keeps engine order.
+  Where a sort applies the count-line names it in the state-page
+  idiom, column and direction both, because the citation tables
+  carry more than one date and a reader should know which governs.
+  Two corrections from the founder shaped the build. The sort lives
+  in the query, before the cap, never after the fetch: post-fetch
+  sorting orders only the rows that survived the limit, which would
+  present an arbitrary scan slice as newest-first and put the
+  disclosure clause on a false claim, and the largest fine is
+  exactly the row a cap could drop. And the CSV export runs its own
+  uncapped query with the same order, derived from its own query
+  and never from what the screen holds. Rows without a value in the
+  sort column land last, stated as NULLS LAST in the query rather
+  than inherited from an engine default, and asserted: the fixture
+  writes its penalty rows out of date order with one dateless
+  payment-denial row, and the gate proves the claim red-first, the
+  disclosure present and the dates descending with the dateless row
+  at the end.
+  The boundary, verbatim so this entry cannot be cited for more
+  than it decided: this is a default presentation order by one
+  published column, disclosed, not reader-controlled sorting and
+  not a judgment about which rows matter. Ranking rows by severity
+  would be a different decision, and this entry is not its
+  precedent. One observation noted for the record: with dates
+  leading, patterns in the penalties become legible for the first
+  time, runs of identical fine amounts among them, and whether the
+  Methods page should teach what a repeated identical fine amount
+  means is a question waiting on someone actually asking it.
