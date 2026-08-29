@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 51 entries. `scripts/check_project_doc.py` asserts that
+This log holds 52 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -1530,3 +1530,62 @@ one means updating the number; that is the point of it.
   evidence, not a re-run of this one, and any combination of
   remedies is examined as its own screenshot rather than assumed to
   be the sum of approved parts.
+- 2026-08-29: the engine-loaded tables reviewed at last, and the
+  finding was bigger than anything in the static pass. The founder
+  ran the second visual pass against production, the pass entry 50
+  planned, and measured what this session could not see: the loaded
+  tables spent roughly 45 percent of their width restating the
+  facility the reader was already on, identity columns identical in
+  every row and already printed in the header record above, so that
+  on a phone the Penalties tab showed thousands of pixels of the
+  facility's own name and not one penalty without a horizontal
+  scroll. The fix, ruled and shipped: a column collapses when it is
+  in the identity set (the table's own CCN column, provider name,
+  address, city, state, ZIP, Location) and every fetched row agrees
+  on its value; the values render once in a line above the table,
+  worded "identical in every row shown" because the check runs on
+  fetched rows and a capped tab must not make claims about rows the
+  reader cannot see; a row that disagrees keeps its column, because
+  a mismatch is information; and the CSV keeps every column, which
+  is the sentence that answers where a column went. Location is
+  collapsed but also left off the line when it merely concatenates
+  the address fields the line already carries, making it the one
+  column a reader sees only in the download. Measured through the
+  real batch's own files, handed over by the founder: penalties fell
+  from 14 columns to 7 and now fits a desktop with no horizontal
+  scroll at all; at phone width the first visible band is penalty
+  dates and amounts instead of the facility's name repeated 22
+  times, and the 22 rows cost about 1,150 pixels against the 2,655
+  the founder measured before.
+  Ruled alongside: fine amounts stay exactly as filed, bare digits
+  and all, because reformatting a published value is the edit the
+  footer promises never happens, the same reasoning that declined
+  CSV escaping; the provenance strip instead carries one clause,
+  "fine amounts are dollars, as filed". And a cap on that strip,
+  earned by the ledger paragraph's slow swelling: the strip carries
+  the source, the machine-readable link, and at most one unit gloss,
+  and anything beyond that becomes prose under a heading. The twelve
+  tab pills become one scrolling row on phones, with the selected
+  pill scrolled into view, arrow keys still working, and an edge
+  fade that is a state rather than a style, painted only while
+  pills actually sit beyond the fold.
+  Verified rather than assumed, in both directions: the founder's
+  pass confirmed no overflow escapes the document and the header row
+  sticks on loaded tables. The first-column stickiness question is
+  settled per table, not globally: moot for penalties after the
+  collapse, and remeasured for health citations, where 16 columns
+  remain about 1,450 pixels wide at phone width with the survey date
+  as the leading column, so a sticky first column stays a live
+  candidate there, recorded with its measurement rather than built
+  on momentum. The vendor script's extension reuse was checked for
+  staleness and is safe by construction: the path embeds the version
+  the installed engine reports at run time, so a bumped engine can
+  never reuse an old copy.
+  And the dependency this entry retires: the founder's handoff of
+  the deployed extension and three real tables means the loaded
+  surfaces now render in this session's own loop, and the full
+  origin gate, engine queries included, ran green locally for the
+  first time. The gate gained its assertions red-first: an identity
+  line present above the loaded table carrying the name and CCN
+  once, and each identity column gone from the header, keyed on the
+  fixture facility whose identity is constant by construction.

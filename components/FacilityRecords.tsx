@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BP, CMS_DATASET_URL } from "@/lib/config";
 import type { DataMap, TableInfo } from "@/lib/data";
 import {
@@ -22,6 +22,67 @@ const GLOSSARY_COLUMNS = new Set([
   "Role played by Owner or Manager in Facility",
   "Owner Type",
 ]);
+
+// Columns that restate the facility's own identity, which the header
+// record above the tabs already shows. A column collapses only when it
+// is in this set AND every fetched row agrees on its value: the values
+// render once in the identity line above the table, and a row that
+// disagrees keeps its column, because a mismatch is information. The
+// CSV download keeps every column either way; the provenance strip's
+// sentence about full columns is what answers "where did a column go".
+// Location is collapsed like the rest but also left off the identity
+// line when it merely concatenates the address fields the line already
+// carries, so it is the one column a reader sees only in the CSV.
+const IDENTITY_COLUMNS = [
+  "Provider Name",
+  "Provider Address",
+  "City/Town",
+  "State",
+  "ZIP Code",
+  "Location",
+];
+
+const alnum = (s: string) => s.replace(/[^a-z0-9]/gi, "").toUpperCase();
+
+function partitionIdentity(
+  cols: string[],
+  rows: (string | null)[][],
+  ccnColumn: string
+) {
+  const identity = new Set([...IDENTITY_COLUMNS, ccnColumn]);
+  const collapsed = new Map<string, string>();
+  const keep: number[] = [];
+  cols.forEach((c, i) => {
+    if (!identity.has(c) || rows.length === 0) {
+      keep.push(i);
+      return;
+    }
+    const first = rows[0][i];
+    if (rows.every((r) => r[i] === first)) {
+      collapsed.set(c, first == null ? "" : String(first));
+    } else {
+      keep.push(i);
+    }
+  });
+  const val = (c: string) => collapsed.get(c);
+  const addr = [val("Provider Address"), val("City/Town"), val("State"), val("ZIP Code")]
+    .filter(Boolean)
+    .join(", ");
+  const loc = val("Location");
+  const locIsRestatement =
+    !!loc &&
+    !!val("Provider Address") &&
+    !!val("City/Town") &&
+    alnum(loc).includes(alnum(val("Provider Address")!)) &&
+    alnum(loc).includes(alnum(val("City/Town")!));
+  const pieces = [
+    val("Provider Name"),
+    addr || undefined,
+    loc && !locIsRestatement ? loc : undefined,
+    collapsed.has(ccnColumn) ? `CCN ${collapsed.get(ccnColumn)}` : undefined,
+  ].filter((p): p is string => !!p);
+  return { keep, collapsedCount: collapsed.size, line: pieces.join(" · ") };
+}
 
 const PREFERRED_ORDER = [
   "health_citations",
@@ -56,6 +117,27 @@ export default function FacilityRecords({
   const [mapFailed, setMapFailed] = useState(false);
   const [active, setActive] = useState<string | null>(null);
   const [tabs, setTabs] = useState<Record<string, TabState>>({});
+  // The fade at the tab strip's edges is a state, not a style: painted
+  // only while pills actually sit beyond that edge, because a fade over
+  // a fully visible strip signals content that is not there.
+  const tablistRef = useRef<HTMLDivElement | null>(null);
+  const [fade, setFade] = useState({ left: false, right: false });
+
+  function recalcFade() {
+    const el = tablistRef.current;
+    if (!el) return;
+    setFade({
+      left: el.scrollLeft > 2,
+      right: el.scrollLeft + el.clientWidth < el.scrollWidth - 2,
+    });
+  }
+
+  useEffect(() => {
+    recalcFade();
+    window.addEventListener("resize", recalcFade);
+    return () => window.removeEventListener("resize", recalcFade);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map]);
 
   useEffect(() => {
     let alive = true;
@@ -177,6 +259,10 @@ export default function FacilityRecords({
   function selectTab(k: string) {
     setActive(k);
     window.history.replaceState(null, "", `#${encodeURIComponent(k)}`);
+    document
+      .getElementById(`tab-${k}`)
+      ?.scrollIntoView({ block: "nearest", inline: "nearest" });
+    recalcFade();
   }
 
   function onTabKeyDown(e: React.KeyboardEvent, k: string) {
@@ -196,7 +282,18 @@ export default function FacilityRecords({
   return (
     <section>
       <h2>Records for this facility</h2>
-      <div className="tabs" role="tablist" aria-label="Record datasets">
+      <div
+        className="tabs-shell"
+        data-fade-left={fade.left || undefined}
+        data-fade-right={fade.right || undefined}
+      >
+      <div
+        className="tabs"
+        role="tablist"
+        aria-label="Record datasets"
+        ref={tablistRef}
+        onScroll={recalcFade}
+      >
         {keys.map((k) => (
           <button
             key={k}
@@ -211,6 +308,7 @@ export default function FacilityRecords({
             {map.tables[k].label}
           </button>
         ))}
+      </div>
       </div>
 
       {info && (
@@ -230,6 +328,14 @@ export default function FacilityRecords({
           ) : tab.status === "error" ? (
             <p className="tab-status">{tab.message}</p>
           ) : (
+            (() => {
+              const part = partitionIdentity(
+                tab.result.cols,
+                tab.result.rows,
+                info.ccn_column ?? ""
+              );
+              const shownCols = part.keep.map((i) => tab.result.cols[i]);
+              return (
             <>
               <p className="count-line has-button">
                 <span>
@@ -256,11 +362,16 @@ export default function FacilityRecords({
                   />
                 ) : null}
               </p>
+              {part.line ? (
+                <p className="identity-line muted">
+                  Identical in every row shown: {part.line}.
+                </p>
+              ) : null}
               <div className="tablewrap">
                 <table>
                   <thead>
                     <tr>
-                      {tab.result.cols.map((c) => (
+                      {shownCols.map((c) => (
                         <th key={c}>{c}</th>
                       ))}
                     </tr>
@@ -268,13 +379,16 @@ export default function FacilityRecords({
                   <tbody>
                     {tab.result.rows.map((r, i) => (
                       <tr key={i}>
-                        {r.map((v, j) => (
+                        {part.keep.map((idx, j) => {
+                          const v = r[idx];
+                          const col = shownCols[j];
+                          return (
                           <td key={j}>
                             {v == null || v === "" ? (
                               <span className="muted">&ndash;</span>
-                            ) : tab.result.cols[j] === "Owner Name" ? (
+                            ) : col === "Owner Name" ? (
                               <a href={`${BP}/owners/?name=${encodeURIComponent(v)}`}>{v}</a>
-                            ) : GLOSSARY_COLUMNS.has(tab.result.cols[j]) ? (
+                            ) : GLOSSARY_COLUMNS.has(col) ? (
                               <a
                                 className="quiet-link"
                                 href={`${BP}/glossary/#${termAnchor(v)}`}
@@ -285,13 +399,16 @@ export default function FacilityRecords({
                               v
                             )}
                           </td>
-                        ))}
+                          );
+                        })}
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             </>
+              );
+            })()
           )}
           <p className="prov">
             Source: {info.dataset_name ?? info.label} · file{" "}
@@ -310,6 +427,10 @@ export default function FacilityRecords({
             ) : null}
             {info.modified_date ? <> · last modified {info.modified_date}</> : null}
             {" "}· shown unmodified
+            {tab?.status === "done" &&
+            tab.result.cols.some((c) => c.includes("Fine Amount"))
+              ? " · fine amounts are dollars, as filed"
+              : ""}
             {hasOtherShard(info)
               ? ", including rows CMS published without a usable state code"
               : ""}

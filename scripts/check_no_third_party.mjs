@@ -298,6 +298,40 @@ if (sharded.length === 0) {
   }
 }
 
+// The loaded tables must not restate the facility the reader is
+// already on: identity columns that are constant across the fetched
+// rows collapse to one line above the table, and those columns leave
+// the header. Keyed on this fixture facility, whose identity columns
+// are constant by construction; a batch where a row disagreed would
+// legitimately keep the column, which is why the assertion names the
+// facility it drives rather than inferring the rule from the line's
+// presence.
+{
+  await page.locator("#records-panel .tablewrap table").first().waitFor({ timeout: 45_000 }).catch(() => {});
+  const idLine = page.locator("#records-panel .identity-line");
+  const lineText = (await idLine.count()) ? await idLine.first().innerText() : "";
+  const h1 = (await page.locator("h1").first().innerText()).trim();
+  check(
+    lineText.includes(h1) && lineText.includes(ccn),
+    `facility ${ccn}: identity line carries the name and CCN once above the loaded table`,
+    `no identity line above the loaded table (got ${JSON.stringify(lineText.slice(0, 80))})`
+  );
+  const ths = await page.locator("#records-panel table thead th").allTextContents();
+  const leaked = [
+    "CMS Certification Number (CCN)",
+    "Provider Name",
+    "Provider Address",
+    "City/Town",
+    "State",
+    "ZIP Code",
+  ].filter((c) => ths.includes(c));
+  check(
+    leaked.length === 0,
+    "collapsed identity columns are out of the loaded table's header",
+    `identity column(s) still in the loaded table's header: ${leaked.join(", ")}`
+  );
+}
+
 // 3a. Owner search: type and press Enter. A distinct query from the
 //     ones above -- an aggregate over the whole ownership file rather
 //     than a filtered read -- and the only one reached solely through
