@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 54 entries. `scripts/check_project_doc.py` asserts that
+This log holds 55 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -1677,3 +1677,53 @@ one means updating the number; that is the point of it.
   revisit cannot skip it: automated contrast assertions across
   surfaces exist and are green before the second palette exists,
   never the reverse.
+- 2026-08-29: the sticky first column ships on desktop and tablet,
+  and the phone told us no with numbers. The founder's production
+  pass confirmed the density work's measurements exactly and ruled
+  the anchor forward: at 390 the compressed citations table's first
+  column is 67 pixels of a 360 pixel band, 19 percent, well inside
+  the one-third threshold, and the only thing that would keep a
+  reader oriented while crossing 1,682 pixels of scroll. Two
+  conditions attached and both ship: the pinned column carries a
+  visible right edge so it reads as an anchor rather than as text
+  overlapping the scroll, and print gets none of it, because paper
+  has no scrollport and a stuck cell would paint over the page.
+  The anchor is a state, not a style, the fade ruling applied where
+  it belongs: every rule keys on a data attribute set from measured
+  overflow, so a table that fits gets no anchor and no edge. The
+  corner is handled as a stacking ladder, recorded because a tie
+  would smear: plain cells, then body anchor cells, then the header
+  row raised above them, then the corner above both, so vertical
+  scroll passes anchors under the header and horizontal scroll
+  passes plain header cells under the corner. Edges and the anchor's
+  row hairlines are shadows, not borders, extending the documented
+  reason the stuck header's rule already is one: collapsed borders
+  stop painting on stuck cells.
+  The phone exclusion is the founder's pre-authorized honest answer,
+  taken because the measurement said to: at 390 the description
+  column is 344 pixels and fits the band whole without the anchor,
+  but never fits the 293 pixels that remain beside a pinned first
+  column, which occludes part of every line of the row's main
+  content at any scroll position. An anchor that costs the content
+  it exists to serve does not ship there. The boundary is the sticky
+  header's own 641 pixel breakpoint, so one line in the stylesheet
+  marks where scroll affordances change character. Alongside, a
+  measured fix the anchor work surfaced: a tap at phone width left a
+  row's hover paint stuck indefinitely, so every row hover now
+  exists only where hover does, behind a hover media query.
+  Scope is the loaded facility tables alone. The owner surfaces
+  have their own geometry and would need their own measurement.
+  One instrument correction, recorded because two proofs leaned on
+  it: the print-proof script that emulated print media for its
+  assertions and then reset emulation to screen was generating its
+  PDFs under screen media, which Playwright honors for PDF when set,
+  with backgrounds stripped by the PDF default, so the pages read
+  plausibly as print. The computed-style print assertions were
+  always genuine, and the corrected instrument's true print render
+  proved every print claim again from scratch: headers repeating
+  across seven pages, no split rows, legible darkened hairlines, no
+  stripe, no anchor, and the self-authentication line on the last
+  sheet. The gate also gained the anchor assertions red-first,
+  parity above all: the pinned cell must compute the same paint as
+  the row it sits in, striped and unstriped, because that is the
+  regression a screenshot review would miss.

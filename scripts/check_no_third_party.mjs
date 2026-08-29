@@ -424,6 +424,96 @@ async function assertSortedTab(tabKey, dateColumn, requireRows) {
 await assertSortedTab("health_citations", "Survey Date", false);
 await assertSortedTab("penalties", "Penalty Date", false);
 
+// The anchor column holds the reader's place while a wide table
+// scrolls sideways. The treatment is a state, not a style: it exists
+// only where the wrapper measurably overflows, so these assertions
+// key on the fixture citations tab, which overflows this viewport by
+// construction. Parity is the assertion that matters most: an opaque
+// sticky cell whose paint disagrees with its own row is the
+// regression a screenshot review would miss -- checked on a striped
+// row against the row's own background and on an unstriped row
+// against the wrapper's, since an unstriped row paints nothing
+// itself. Print gets its own check because a sticky cell on paper
+// paints over the page.
+{
+  const tabBtn = page.locator('[id="tab-health_citations"]');
+  if (await tabBtn.count()) {
+    await tabBtn.click();
+    await page
+      .locator("#records-panel .tablewrap table")
+      .first()
+      .waitFor({ timeout: 45_000 })
+      .catch(() => {});
+    await page.waitForTimeout(500);
+    const anchor = await page.evaluate(() => {
+      const wrap = document.querySelector("#records-panel .tablewrap");
+      const th = wrap?.querySelector("thead th.anchor");
+      const rows = wrap ? [...wrap.querySelectorAll("tbody tr")] : [];
+      const tds = rows.map((r) => r.querySelector("td.anchor"));
+      if (!wrap || !th || tds.length < 2 || tds.some((t) => !t)) return null;
+      const bg = (el) => getComputedStyle(el).backgroundColor;
+      return {
+        scrollable: wrap.getAttribute("data-scrollable"),
+        overflows: wrap.scrollWidth > wrap.clientWidth,
+        tdPos: getComputedStyle(tds[0]).position,
+        tdBg: bg(tds[0]),
+        thZ: Number(getComputedStyle(th).zIndex),
+        tdZ: Number(getComputedStyle(tds[0]).zIndex),
+        wrapBg: bg(wrap),
+        evenRowBg: bg(tds[1].parentElement),
+        evenTdBg: bg(tds[1]),
+      };
+    });
+    check(
+      anchor !== null,
+      "the loaded citations table renders anchor cells in its first column",
+      "no anchor th/td cells in the loaded citations table"
+    );
+    if (anchor) {
+      check(
+        anchor.overflows && anchor.scrollable === "true",
+        "the overflowing wrapper states its scrollability as a measured attribute",
+        `wrapper overflows=${anchor.overflows} but data-scrollable=${JSON.stringify(anchor.scrollable)}`
+      );
+      check(
+        anchor.tdPos === "sticky" && anchor.tdBg !== "rgba(0, 0, 0, 0)",
+        "anchor cells are sticky with an opaque background",
+        `anchor td computes position=${anchor.tdPos}, background=${anchor.tdBg}`
+      );
+      check(
+        anchor.thZ > anchor.tdZ,
+        "the corner header outranks body anchor cells in the stacking ladder",
+        `corner th z-index=${anchor.thZ} does not exceed anchor td z-index=${anchor.tdZ}`
+      );
+      check(
+        anchor.evenTdBg === anchor.evenRowBg,
+        "on a striped row the anchor paints the row's own background",
+        `even-row anchor=${anchor.evenTdBg}, its row=${anchor.evenRowBg}`
+      );
+      check(
+        anchor.tdBg === anchor.wrapBg,
+        "on an unstriped row the anchor paints the wrapper's background",
+        `odd-row anchor=${anchor.tdBg}, wrapper=${anchor.wrapBg}`
+      );
+      await page.emulateMedia({ media: "print" });
+      const printed = await page.evaluate(() => {
+        const odd = document.querySelector("#records-panel tbody tr:nth-child(1) td.anchor");
+        const even = document.querySelector("#records-panel tbody tr:nth-child(2) td.anchor");
+        return {
+          pos: getComputedStyle(odd).position,
+          evenBg: getComputedStyle(even).backgroundColor,
+        };
+      });
+      await page.emulateMedia({ media: "screen" });
+      check(
+        printed.pos === "static" && printed.evenBg === "rgba(0, 0, 0, 0)",
+        "in print the anchor is static and stripeless, so nothing paints over the page",
+        `under print media the anchor computes position=${printed.pos}, even-row background=${printed.evenBg} -- a specificity leak lets a screen rule through`
+      );
+    }
+  }
+}
+
 // 3a. Owner search: type and press Enter. A distinct query from the
 //     ones above -- an aggregate over the whole ownership file rather
 //     than a filtered read -- and the only one reached solely through
