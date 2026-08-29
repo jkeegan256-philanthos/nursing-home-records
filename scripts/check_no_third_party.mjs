@@ -332,6 +332,52 @@ if (sharded.length === 0) {
   );
 }
 
+// A sorted display earns its claim. The penalties tab must say its
+// sort and render it: newest first by the named column, with rows
+// carrying no date at the end. The order is applied in the query
+// before the cap, so the claim is true of the whole record rather
+// than of an arbitrary scan slice; the fixture writes its penalty
+// rows out of date order so this cannot pass on sorted input.
+{
+  const penTab = page.locator('[id="tab-penalties"]');
+  if (await penTab.count()) {
+    await penTab.click();
+    await page.locator("#records-panel .tablewrap table").first().waitFor({ timeout: 45_000 }).catch(() => {});
+    await page.waitForTimeout(1500);
+    const countLine = await page
+      .locator("#records-panel .count-line")
+      .first()
+      .innerText()
+      .catch(() => "");
+    check(
+      countLine.includes("newest first by Penalty Date"),
+      "the penalties tab discloses its sort column and direction",
+      `count-line reads ${JSON.stringify(countLine.slice(0, 90))}`
+    );
+    const rendered = await page.evaluate(() => {
+      const ths = [...document.querySelectorAll("#records-panel table thead th")].map(
+        (t) => t.textContent.trim()
+      );
+      const i = ths.indexOf("Penalty Date");
+      if (i < 0) return null;
+      return [...document.querySelectorAll("#records-panel table tbody tr")].map(
+        (r) => r.children[i]?.textContent.trim() ?? ""
+      );
+    });
+    const norm = (rendered ?? []).map((d) => (/^\d{4}-\d{2}-\d{2}$/.test(d) ? d : ""));
+    const dated = norm.filter(Boolean);
+    const firstBlank = norm.indexOf("");
+    const blanksLast =
+      firstBlank === -1 || norm.slice(firstBlank).every((d) => d === "");
+    const descending = dated.every((d, i) => i === 0 || dated[i - 1] >= d);
+    check(
+      rendered !== null && dated.length >= 2 && descending && blanksLast,
+      `penalties render newest first with dateless rows last (${dated.length} dated row(s))`,
+      `Penalty Date column as rendered: ${JSON.stringify(norm)}`
+    );
+  }
+}
+
 // 3a. Owner search: type and press Enter. A distinct query from the
 //     ones above -- an aggregate over the whole ownership file rather
 //     than a filtered read -- and the only one reached solely through

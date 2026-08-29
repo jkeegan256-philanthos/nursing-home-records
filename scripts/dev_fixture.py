@@ -172,11 +172,21 @@ def main() -> None:
         "NH_Penalties_Jun2026.csv": csv_bytes(
             ["CMS Certification Number (CCN)", "Provider Name", "State",
              "Penalty Date", "Penalty Type", "Fine Amount", "Processing Date"],
+            # Written deliberately out of date order, with one dateless
+            # payment-denial row, so the loaded tab's newest-first claim
+            # and its dateless-rows-last position both have something to
+            # prove against rather than passing on sorted input.
             [{"CMS Certification Number (CCN)": f["CMS Certification Number (CCN)"],
               "Provider Name": f["Provider Name"], "State": f["State"],
-              "Penalty Date": "2025-11-03", "Penalty Type": "Fine",
-              "Fine Amount": "13575", "Processing Date": "2026-06-01"}
-             for f in facilities[:4]],
+              "Penalty Date": pd, "Penalty Type": pt,
+              "Fine Amount": fa, "Processing Date": "2026-06-01"}
+             for f in facilities[:4]
+             for pd, pt, fa in [
+                 ("2025-11-03", "Fine", "13575"),
+                 ("2026-01-15", "Fine", "4587"),
+                 ("", "Payment Denial", ""),
+                 ("2024-06-02", "Fine", "9250"),
+             ]],
         ),
         "NH_StateUSAverages_Jun2026.csv": csv_bytes(
             ["State or Nation", "Overall Rating", "Health Inspection Rating",

@@ -84,6 +84,27 @@ function partitionIdentity(
   return { keep, collapsedCount: collapsed.size, line: pieces.join(" · ") };
 }
 
+// Default presentation order for the loaded tables: one published
+// date column per dataset, newest first, disclosed in the count-line
+// beside the row count. This is display vocabulary (ADAPTATION
+// touchpoint 3): a default presentation order by one published
+// column, disclosed, not reader-controlled sorting and not a
+// judgment about which rows matter. A dataset not listed here, or
+// whose column a future batch renames away, renders in engine order
+// and makes no claim; the engine order was never file order to begin
+// with, only whatever the scan emitted.
+const SORT_COLUMNS: Record<string, string> = {
+  penalties: "Penalty Date",
+  health_citations: "Survey Date",
+  fire_safety_citations: "Survey Date",
+  survey_dates: "Survey Date",
+};
+
+function sortColumnFor(key: string, info: TableInfo): string | null {
+  const c = SORT_COLUMNS[key];
+  return c && info.columns.includes(c) ? c : null;
+}
+
 const PREFERRED_ORDER = [
   "health_citations",
   "fire_safety_citations",
@@ -217,10 +238,13 @@ export default function FacilityRecords({
     }
     setTabs((t) => ({ ...t, [key]: { status: "loading" } }));
     try {
-      const result = await queryParquet(urls, {
-        column: info.ccn_column,
-        equals: ccn,
-      });
+      const sortCol = sortColumnFor(key, info);
+      const result = await queryParquet(
+        urls,
+        { column: info.ccn_column, equals: ccn },
+        ROW_LIMIT,
+        sortCol ? { column: sortCol, direction: "DESC" } : undefined
+      );
       setTabs((t) => ({
         ...t,
         [key]:
@@ -341,6 +365,9 @@ export default function FacilityRecords({
                 <span>
                   {tab.result.rows.length.toLocaleString()} row
                   {tab.result.rows.length === 1 ? "" : "s"}
+                  {active && sortColumnFor(active, info)
+                    ? `, newest first by ${sortColumnFor(active, info)}`
+                    : ""}
                   {tab.result.rows.length >= ROW_LIMIT
                     ? ` (showing the first ${ROW_LIMIT.toLocaleString()})`
                     : ""}
@@ -353,12 +380,16 @@ export default function FacilityRecords({
                       info.modified_date?.slice(0, 7) ??
                         map.generated_at.slice(0, 7)
                     )}
-                    fetchAll={() =>
-                      queryParquetAll(urlsFor(info), {
-                        column: info.ccn_column as string,
-                        equals: ccn,
-                      })
-                    }
+                    fetchAll={() => {
+                      // The export runs its own uncapped query with the
+                      // same order, never reusing what the screen holds.
+                      const sortCol = active ? sortColumnFor(active, info) : null;
+                      return queryParquetAll(
+                        urlsFor(info),
+                        { column: info.ccn_column as string, equals: ccn },
+                        sortCol ? { column: sortCol, direction: "DESC" } : undefined
+                      );
+                    }}
                   />
                 ) : null}
               </p>
