@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 53 entries. `scripts/check_project_doc.py` asserts that
+This log holds 54 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -1637,3 +1637,43 @@ one means updating the number; that is the point of it.
   time, runs of identical fine amounts among them, and whether the
   Methods page should teach what a repeated identical fine amount
   means is a question waiting on someone actually asking it.
+- 2026-08-29: the second improvements round ruled and sequenced, and
+  the first half shipped: a print stylesheet built to evidence
+  grade, and a skip link. The ordering the founder set governs the
+  rest and is recorded so the sequence reads as a decision: density
+  work on the loaded tables comes before any sticky-column build,
+  because the reading measure on long-text columns is what makes
+  the citation table wide and tall, and an anchor measured against
+  a layout about to be discarded is not a measurement. The sticky
+  first column is yes in principle, decided by post-compression
+  numbers at phone width against the founder's threshold: an anchor
+  that permanently eats more than roughly a third of the band has
+  traded the anchor for the data. The corner where a sticky column
+  meets the sticky header is handled explicitly in whatever ships.
+  Print is the item aimed at the site's own audience at the moment
+  they use a page as evidence: a reader attaching a printout to a
+  complaint. The interactive chrome leaves the paper; the records,
+  identity line, provenance strips, and batch dates stay; table
+  headers repeat across page breaks and a row never splits across
+  two sheets, both read from generated print output rather than
+  assumed. The half that makes it evidence: every printed page ends
+  with a self-authentication line carrying the page URL and the
+  retrieval date, and the two kinds of date on the paper are
+  labeled as what they are, the batch dates as the data's own and
+  the retrieval date as the printout's, so a reader who has never
+  seen the site can tell vintage from printing. The line comes from
+  a client leaf that mounts at runtime; the built footer was read
+  back to confirm the wordmark and vintage lines around it stayed
+  statically rendered, because a client boundary quietly swallowing
+  its siblings is a static-export regression no gate flags.
+  The skip link is the first focusable element on every page,
+  invisible until focused, targeting the main landmark; proven by
+  driving it, first Tab stop and Enter landing on main.
+  Dark mode is declined, not deferred, and not on cost: the gates
+  have no color eyes, so a second palette would be a permanent
+  surface where regressions are invisible to every automated check
+  this project owns, and a half-correct prefers-color-scheme fires
+  without anyone asking for it. The precondition, recorded so a
+  revisit cannot skip it: automated contrast assertions across
+  surfaces exist and are green before the second palette exists,
+  never the reverse.

@@ -10,6 +10,7 @@ import {
 } from "@/lib/config";
 import { cmsVintage, dataMap } from "@/lib/data";
 import CitePage from "@/components/CitePage";
+import PrintProvenance from "@/components/PrintProvenance";
 
 // The tagline description is the fallback only: every page routes its
 // own head through lib/seo.ts, and the rendered-values gate asserts
@@ -54,6 +55,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         `}</style>
       </head>
       <body>
+        {/* First focusable element on every page: a keyboard or
+            screen-reader user skips the repeated header in one stroke.
+            Invisible until focused. */}
+        <a className="skip-link" href="#main">
+          Skip to content
+        </a>
         <header className="site-header">
           <div className="container">
             <a className="wordmark" href={`${BP}/`}>
@@ -68,7 +75,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </nav>
           </div>
         </header>
-        <main className="container">{children}</main>
+        <main id="main" className="container">{children}</main>
         <footer className="site-footer">
           <div className="container">
             <p>
@@ -119,6 +126,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 {REPO_LABEL}
               </a>
             </p>
+            <PrintProvenance />
           </div>
         </footer>
       </body>
