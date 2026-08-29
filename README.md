@@ -105,6 +105,26 @@ names in its processing notes when it happens. This is a manual
 check, deliberately not wired into the build, whose input stays the
 zip alone.
 
+Prior batches are also obtainable, though CMS documents this
+nowhere: the archive endpoint at
+`https://data.cms.gov/provider-data/api/1/archive/aggregate/theme/nursing-homes/relative`
+returns every monthly snapshot of this theme back to 2025, each
+with a direct zip URL. It was recovered by reading the CMS site's
+own JavaScript bundle, so it can vanish or move without notice;
+treat it as found, not promised. It is what makes the refresh-time
+three-way diff possible: `scripts/diff_batches.py` takes the prior
+zip, the current zip, and the built data directory, and splits the
+two failure modes a two-way check conflates. The site against the
+current zip catches this pipeline dropping or mangling rows; the
+prior zip against the current one catches CMS itself moving, which
+is information to describe, never an error. Schema drift between
+batches is its own loud verdict, since a renamed or dropped column
+is the one CMS movement that can break the pipeline rather than
+describe the world. Like the probe above, the script is an operator
+tool with no network access of its own and is deliberately not
+wired into the build; its behavior is proven against planted
+fixture deltas by `scripts/test_diff_batches.py`, which CI runs.
+
 Committing a zip to `data/` pins the build to that exact batch instead
 of fetching; see `data/README.md`.
 
