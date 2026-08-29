@@ -51,7 +51,7 @@ export default function MethodsPage() {
     .filter((x) => x.f !== null) as { name: string; f: { facilities: number; states: number } }[];
 
   return (
-    <>
+    <div className="prose">
       <h1>How to read these records</h1>
       <p className="lede">
         The ownership file is a disclosure form, not a summary of who owns
@@ -283,6 +283,6 @@ export default function MethodsPage() {
         <a href={`${BP}/about/`}>About</a>: a matching name string is not
         a matching party.
       </p>
-    </>
+    </div>
   );
 }

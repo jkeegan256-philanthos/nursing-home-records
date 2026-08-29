@@ -18,7 +18,7 @@ export const metadata: Metadata = pageMetadata({
 
 export default function GlossaryPage() {
   return (
-    <>
+    <div className="prose">
       <h1>Role definitions</h1>
       <p className="lede">
         The ownership file discloses many kinds of parties, not just owners.
@@ -75,6 +75,6 @@ export default function GlossaryPage() {
         revision and this page moves with it. The dictionary&apos;s own
         revision table (its Table 16) dates every change to the role list.
       </p>
-    </>
+    </div>
   );
 }

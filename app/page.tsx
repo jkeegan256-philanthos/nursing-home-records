@@ -54,26 +54,15 @@ export default function Home() {
       <FacilitySearch />
 
       <h2>Browse by state</h2>
-      <div className="tablewrap">
-        <table className="state-table">
-          <thead>
-            <tr>
-              <th>State</th>
-              <th className="num">Facilities</th>
-            </tr>
-          </thead>
-          <tbody>
-            {states.map((s) => (
-              <tr key={s.state}>
-                <td>
-                  <a href={`${BP}/state/${s.state}/`}>{s.state}</a>
-                </td>
-                <td className="num">{s.count.toLocaleString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <p className="count-line">Certified facilities per state.</p>
+      <ul className="state-columns">
+        {states.map((s) => (
+          <li key={s.state}>
+            <a href={`${BP}/state/${s.state}/`}>{s.state}</a>
+            <span className="statecount">{s.count.toLocaleString()}</span>
+          </li>
+        ))}
+      </ul>
       {providersInfo ? <Provenance info={providersInfo} /> : null}
     </>
   );
