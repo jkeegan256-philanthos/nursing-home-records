@@ -37,6 +37,27 @@ a:hover { color: var(--spruce-deep); }
 
 .container { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
 
+/* First focusable element on every page; invisible until focused. */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 10;
+  background: var(--card);
+  color: var(--spruce);
+  font-weight: 600;
+  padding: 10px 16px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+}
+.skip-link:focus {
+  left: 12px;
+  top: 12px;
+}
+
+/* The print-only self-authentication line; the print block reveals it. */
+.print-provenance { display: none; }
+
 /* header / footer */
 .site-header { border-bottom: 1px solid var(--rule); background: var(--card); }
 .site-header .container {
@@ -336,5 +357,52 @@ details.fullrecord[open] summary { margin-bottom: 10px; }
     top: 0;
     z-index: 1;
     box-shadow: inset 0 -1px 0 var(--rule);
+  }
+}
+
+/* Print: a page becomes the record plus its provenance and nothing
+   interactive. The audience is a reader attaching the page to a
+   complaint, so what must survive on paper is what makes it
+   traceable: the records, the identity line, the provenance strips,
+   the footer's batch dates, and the printed-from line with the
+   retrieval date. Scrollports are opened up so pagination sees the
+   whole table, headers repeat across page breaks, and a row never
+   splits across two sheets. */
+@media print {
+  .site-nav,
+  .searchbox,
+  .search-hint,
+  .search-results,
+  .tabs-shell,
+  .csv-button,
+  .skip-link {
+    display: none !important;
+  }
+  .tablewrap {
+    overflow: visible;
+    max-height: none;
+    border: none;
+  }
+  thead {
+    display: table-header-group;
+  }
+  thead th {
+    position: static;
+    box-shadow: none;
+    border-bottom: 1px solid #777;
+  }
+  tr,
+  .prov,
+  .identity-line,
+  .fact {
+    break-inside: avoid;
+  }
+  .print-provenance {
+    display: block;
+    font-size: 12px;
+    color: var(--ink);
+    border-top: 1px solid #777;
+    padding-top: 6px;
+    margin-top: 10px;
   }
 }
