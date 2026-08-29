@@ -482,7 +482,7 @@ export default function OwnerExplorer() {
                         </td>
                         <td>{r.city}</td>
                         <td>{r.state}</td>
-                        <td>
+                        <td className="longtext">
                           {r.role ? (
                             <a
                               className="quiet-link"

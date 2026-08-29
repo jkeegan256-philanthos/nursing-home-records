@@ -117,7 +117,7 @@ export default async function OwnerPage({
                 </td>
                 <td>{r[2]}</td>
                 <td>{r[3]}</td>
-                <td>
+                <td className="longtext">
                   {r[4] ? (
                     <a
                       className="quiet-link"

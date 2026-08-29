@@ -23,6 +23,26 @@ const GLOSSARY_COLUMNS = new Set([
   "Owner Type",
 ]);
 
+// Columns whose values run long enough to deserve a reading measure,
+// chosen by measurement over the real batch rather than by eye:
+// deficiency descriptions run to CMS's own cap on nearly every row,
+// and roles and owner names run past a comfortable line. The measure
+// wraps and never truncates; an ellipsis would hide a published
+// value.
+const LONG_TEXT_COLUMNS = new Set([
+  "Deficiency Description",
+  "Deficiency Category",
+  "Role played by Owner or Manager in Facility",
+  "Owner Name",
+]);
+
+// The subset whose values run to paragraph length, and so also get
+// the reading measure as a floor, not only a cap: in a wide loaded
+// table sitting at min-content width, a floor is the only bound that
+// can act. Kept narrow deliberately -- a floor on a short-valued
+// column would widen the table for nothing.
+const PARAGRAPH_COLUMNS = new Set(["Deficiency Description"]);
+
 // Columns that restate the facility's own identity, which the header
 // record above the tabs already shows. A column collapses only when it
 // is in this set AND every fetched row agrees on its value: the values
@@ -398,7 +418,7 @@ export default function FacilityRecords({
                   Identical in every row shown: {part.line}.
                 </p>
               ) : null}
-              <div className="tablewrap">
+              <div className="tablewrap zebra">
                 <table>
                   <thead>
                     <tr>
@@ -414,7 +434,16 @@ export default function FacilityRecords({
                           const v = r[idx];
                           const col = shownCols[j];
                           return (
-                          <td key={j}>
+                          <td
+                            key={j}
+                            className={
+                              LONG_TEXT_COLUMNS.has(col)
+                                ? PARAGRAPH_COLUMNS.has(col)
+                                  ? "longtext longform"
+                                  : "longtext"
+                                : undefined
+                            }
+                          >
                             {v == null || v === "" ? (
                               <span className="muted">&ndash;</span>
                             ) : col === "Owner Name" ? (
