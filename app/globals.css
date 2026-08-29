@@ -174,6 +174,34 @@ details.fullrecord[open] summary { margin-bottom: 10px; }
 
 /* record tabs */
 .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 14px; }
+/* Edge fades on the tab strip when it scrolls. The attributes are set
+   from measured overflow, never painted unconditionally: a fade over a
+   fully visible strip would signal content that is not there. */
+.tabs-shell { position: relative; }
+.tabs-shell::before,
+.tabs-shell::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 14px;
+  width: 28px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 120ms;
+}
+.tabs-shell::before {
+  left: 0;
+  background: linear-gradient(to right, var(--paper), rgba(250, 250, 248, 0));
+}
+.tabs-shell::after {
+  right: 0;
+  background: linear-gradient(to left, var(--paper), rgba(250, 250, 248, 0));
+}
+.tabs-shell[data-fade-left]::before { opacity: 1; }
+.tabs-shell[data-fade-right]::after { opacity: 1; }
+/* One line above a loaded table carrying the values its collapsed
+   identity columns agree on. */
+.identity-line { font-size: 13px; margin: 0 0 8px; }
 .tabs button {
   font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 999px;
   border: 1px solid var(--rule); background: var(--card); color: var(--ink); cursor: pointer;
@@ -247,6 +275,19 @@ details.fullrecord[open] summary { margin-bottom: 10px; }
      override was fighting the base rule rather than helping it. Deleted
      -- the base `auto-fit, minmax(180px, 1fr)` already gives one column
      on a phone and two once there is room for two. */
+
+  /* The tab pills become one scrolling row instead of a stack that
+     pushed the records below the fold. A control strip may nest-scroll
+     where a page-length table must not: the trap argument was about
+     content, not a 40px row. The selected pill is scrolled into view
+     from the component, and the edge fades above signal the overflow. */
+  .tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+  }
+  .tabs button { white-space: nowrap; flex: 0 0 auto; }
 
   /* Tighter rhythm for the single-column facts ladder. On a phone the
      header record stacks every rating and fact singly, and the records
