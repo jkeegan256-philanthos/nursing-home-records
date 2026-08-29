@@ -140,6 +140,31 @@ thead th {
 tbody tr:hover { background: #f4f6f3; }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 
+/* Long-text cells sit at a reading measure. Which columns count as
+   long -- and which of those run to paragraph length -- is decided
+   in the component, by measured value lengths over the real batch,
+   not by eye. The two bounds do different work. The cap stops a long
+   column from stretching a table that has free space. The floor is
+   for paragraph-length text only: a wide loaded table sits at
+   min-content width, where a cap can never bind and auto layout
+   starves the paragraph column to a sliver while short flag columns
+   keep the width their headers demand, wrapping a description to
+   twenty-odd lines. Wrapping only, never truncation: an ellipsis
+   would hide a published value, by the same rule that keeps counts
+   uncapped. */
+td.longtext { max-width: 45ch; }
+td.longtext.longform { min-width: 45ch; }
+
+/* Zebra fill on loaded tables: row identity where hover does not
+   exist (touch). A fill, not a border change; body-text contrast
+   against the fill is computed and asserted, not eyeballed. Print
+   drops the fill and darkens the row hairline instead, so the stripe
+   neither vanishes silently on paper nor spends toner. The hover rule
+   is restated after the stripe at equal specificity so a pointer
+   still reads over an even row. */
+.zebra tbody tr:nth-child(even) { background: #f4f6f3; }
+.zebra tbody tr:hover { background: #eaeee7; }
+
 /* Present in the text and to assistive tech, absent from the layout.
    Used to carry a published value that a glyph only depicts. */
 .sr-only {
@@ -391,6 +416,16 @@ details.fullrecord[open] summary { margin-bottom: 10px; }
     box-shadow: none;
     border-bottom: 1px solid #777;
   }
+  /* Row identity on paper is the hairline, not the zebra fill:
+     browsers drop background fills by default when printing, so the
+     stripe cannot be trusted to arrive. The screen hairline is too
+     pale to survive the same default, so it is darkened here --
+     lighter than the header rule, which keeps the hierarchy. */
+  .zebra tbody tr:nth-child(even),
+  .zebra tbody tr:hover {
+    background: none;
+  }
+  td { border-bottom-color: #999; }
   tr,
   .prov,
   .identity-line,
