@@ -163,6 +163,12 @@ export default function FacilityRecords({
   // a fully visible strip signals content that is not there.
   const tablistRef = useRef<HTMLDivElement | null>(null);
   const [fade, setFade] = useState({ left: false, right: false });
+  // The anchor column is a state by the same rule as the fades: it
+  // exists only while the wrapper measurably overflows sideways, so
+  // the attribute is set from measurement after rows render and on
+  // resize, never painted unconditionally.
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const [scrollable, setScrollable] = useState(false);
 
   function recalcFade() {
     const el = tablistRef.current;
@@ -173,12 +179,24 @@ export default function FacilityRecords({
     });
   }
 
+  function recalcScrollable() {
+    const el = wrapRef.current;
+    setScrollable(el ? el.scrollWidth > el.clientWidth : false);
+  }
+
   useEffect(() => {
     recalcFade();
     window.addEventListener("resize", recalcFade);
     return () => window.removeEventListener("resize", recalcFade);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map]);
+
+  useEffect(() => {
+    recalcScrollable();
+    window.addEventListener("resize", recalcScrollable);
+    return () => window.removeEventListener("resize", recalcScrollable);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tabs, active]);
 
   useEffect(() => {
     let alive = true;
@@ -418,12 +436,18 @@ export default function FacilityRecords({
                   Identical in every row shown: {part.line}.
                 </p>
               ) : null}
-              <div className="tablewrap zebra">
+              <div
+                className="tablewrap zebra"
+                ref={wrapRef}
+                data-scrollable={scrollable ? "true" : undefined}
+              >
                 <table>
                   <thead>
                     <tr>
-                      {shownCols.map((c) => (
-                        <th key={c}>{c}</th>
+                      {shownCols.map((c, j) => (
+                        <th key={c} className={j === 0 ? "anchor" : undefined}>
+                          {c}
+                        </th>
                       ))}
                     </tr>
                   </thead>
@@ -433,15 +457,18 @@ export default function FacilityRecords({
                         {part.keep.map((idx, j) => {
                           const v = r[idx];
                           const col = shownCols[j];
+                          const longtext = LONG_TEXT_COLUMNS.has(col)
+                            ? PARAGRAPH_COLUMNS.has(col)
+                              ? "longtext longform"
+                              : "longtext"
+                            : undefined;
                           return (
                           <td
                             key={j}
                             className={
-                              LONG_TEXT_COLUMNS.has(col)
-                                ? PARAGRAPH_COLUMNS.has(col)
-                                  ? "longtext longform"
-                                  : "longtext"
-                                : undefined
+                              j === 0
+                                ? ["anchor", longtext].filter(Boolean).join(" ")
+                                : longtext
                             }
                           >
                             {v == null || v === "" ? (
