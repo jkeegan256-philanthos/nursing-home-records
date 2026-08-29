@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 55 entries. `scripts/check_project_doc.py` asserts that
+This log holds 56 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -1727,3 +1727,48 @@ one means updating the number; that is the point of it.
   parity above all: the pinned cell must compute the same paint as
   the row it sits in, striped and unstriped, because that is the
   regression a screenshot review would miss.
+- 2026-08-29: the refresh verification gains a third leg, and the
+  archive endpoint that makes it possible goes on the record. The
+  founder recovered, by reading the CMS site's own JavaScript
+  bundle, an undocumented archive endpoint that returns every
+  monthly snapshot of this theme back to 2025 with direct zip URLs.
+  That gives the project something it never had: prior batches. The
+  September refresh check therefore becomes a three-way diff,
+  scripts/diff_batches.py, adopted because it splits the two
+  failure modes a two-way check conflates: the site against the
+  current CMS zip catches this pipeline dropping or mangling rows,
+  and the prior zip against the current one catches CMS itself
+  moving, which is the thing worth seeing and describing. Schema
+  drift between batches is a third verdict of its own, loud, since
+  a renamed or dropped column is the one CMS movement that can
+  break the pipeline rather than describe the world.
+  Three boundaries, stated so the green is never read for more than
+  it says. Row identity is the full tuple, because these files
+  publish no primary key; an edited row therefore appears as one
+  removal plus one addition, and the report says so in words, since
+  the founder's own run illustrated the trap: thirteen provider
+  name restylings read as 26 moved rows until the pairs were read.
+  The integrity verdict checks the transform alone, parquet against
+  the zip that built it; it says nothing about what the deployed
+  site serves, which the founder's outside instrument covers, and a
+  green INTEGRITY line must never be cited as proof the live site
+  is correct. And CMS movement is information, never failure: the
+  script exits nonzero only when the transform is wrong.
+  The script takes local paths and makes no network requests, so
+  its behavior is proven against planted fixture deltas red-first
+  (eleven assertions failed before it existed) and it runs wherever
+  the zips are. In the refresh session the zips arrive by handoff,
+  since this environment cannot reach data.cms.gov; the trigger is
+  instructed to report a blocked handoff as its own outcome rather
+  than a skipped step, so silence is never mistaken for a pass.
+  Recorded as capability, not commitment: with real prior batches
+  obtainable, cross-batch questions, the owner-anchoring problem
+  among them, become measurable against history instead of
+  reasoned about. And one observation in the entry-53 style: three
+  times today a "looks wrong" turned out to be CMS publishing
+  something odd, faithfully reproduced, most recently a Huntsville
+  facility in a large owner's footprint that traced to CMS's own
+  file. Whether the corrections page should say plainly that
+  discrepancies are usually faithful reproductions, with a pointer
+  to how to check, is a question waiting on the same question
+  arriving again, weighed and parked by the founder today.
