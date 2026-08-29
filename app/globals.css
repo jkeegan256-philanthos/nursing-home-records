@@ -248,6 +248,16 @@ details.fullrecord[open] summary { margin-bottom: 10px; }
      -- the base `auto-fit, minmax(180px, 1fr)` already gives one column
      on a phone and two once there is room for two. */
 
+  /* Tighter rhythm for the single-column facts ladder. On a phone the
+     header record stacks every rating and fact singly, and the records
+     a reader came for sit below all of it; closing up the space
+     between rungs shortens that scroll at every width without touching
+     the column count, whose history is above. A two-column variant
+     stays open separately, pending measurement against the real
+     batch's longest published values rather than invented ones. */
+  .factgrid { gap: 4px 24px; }
+  .fact dt { margin-bottom: 0; }
+
   /* Thumb-sized hit areas. The header's own vertical padding shrinks by
      what the button gains, so the row is the height it was and the
      target is the size a thumb needs. */

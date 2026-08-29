@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 50 entries. `scripts/check_project_doc.py` asserts that
+This log holds 51 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -1489,3 +1489,44 @@ one means updating the number; that is the point of it.
   readers print these records to attach to complaints; the grid
   reflows and the hollow stars survive on paper. The print check,
   like the rest, saw the static surfaces only.
+- 2026-08-29: the facility page's phone facts ladder tightened, and
+  the reason recorded precisely, because the obvious reading of the
+  decision is the wrong one. Two remedies were built and measured
+  against the scroll distance past the header record: a two-column
+  grid at 390 pixels and up, which saved about 464 pixels where it
+  applied and nothing below 385, and a tighter single-column rhythm,
+  which saved a uniform 158 pixels at every width including 320. The
+  single column shipped. It did not win on margin: 464 against 158
+  is not a small margin, and the tiebreaker rule set for this
+  decision never fired. It won because the two-column arm's safety
+  case rested on invented evidence. The measurement's long values
+  were CMS vocabulary where the column is enumerated but synthetic
+  in the two unbounded columns, chain name and legal business name,
+  which are precisely the columns most likely to run long in the
+  real batch and precisely the wrapping risk that forced this grid's
+  one documented reversal. CMS legal business names routinely run 45
+  to 60 characters; at a 170 pixel cell that is three or four lines,
+  not the two clean lines the arm's screenshots showed. A case built
+  on invented maxima in the highest-risk columns is not measured, it
+  is re-argued, and this log exists because those are different.
+  The reopen condition was then met the same day, and it closed the
+  arm rather than opening it. The founder pulled the real maxima
+  from the providers Parquet the production site itself serves,
+  2026-08-29, 14,690 rows of the live August batch: Chain Name maxes
+  at 88 characters with a 99th percentile of 39, blank for a third
+  of facilities and worst-case for a specific thirty; Legal Business
+  Name maxes at 70 with a 99th percentile of 56, and 1,782
+  facilities carry one over 40 characters. At a 170 pixel cell, 88
+  characters is roughly four lines and 70 roughly three, against the
+  two clean lines the synthetic screenshots showed. The two columns
+  the measurement had to invent are the two that break the arm's
+  premise, and they break it into exactly the failure the original
+  deletion was reacting to. The two-column arm is closed on that
+  evidence. Stated plainly so nobody re-tests for the wrong failure:
+  the longest unbreakable tokens, 19 and 22 characters, fit the
+  cell, so the failure mode is line count, never overflow. If those
+  two columns ever get their own treatment, spanning both tracks
+  while the short facts pair up, that is a new finding with its own
+  evidence, not a re-run of this one, and any combination of
+  remedies is examined as its own screenshot rather than assumed to
+  be the sum of approved parts.
