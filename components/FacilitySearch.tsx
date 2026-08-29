@@ -104,7 +104,7 @@ export default function FacilitySearch() {
         type="search"
         value={q}
         onChange={(e) => setQ(e.target.value)}
-        placeholder="Search facilities by name, city, ZIP, CCN, or owner names"
+        placeholder="Search by name, city, ZIP, CCN, or owner name"
         aria-label="Search facilities and owner names"
       />
       {failed ? (

@@ -19,7 +19,7 @@ export const metadata: Metadata = pageMetadata({
 
 export default function AboutPage() {
   return (
-    <>
+    <div className="prose">
       <h1>About this site</h1>
       <p className="lede">
         Nursing Home Records republishes the ownership and inspection data
@@ -216,6 +216,6 @@ export default function AboutPage() {
         with CMS, which publishes its own correction process on each dataset
         page.
       </p>
-    </>
+    </div>
   );
 }

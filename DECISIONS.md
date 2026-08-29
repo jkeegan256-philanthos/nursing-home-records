@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 49 entries. `scripts/check_project_doc.py` asserts that
+This log holds 50 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -1435,3 +1435,57 @@ one means updating the number; that is the point of it.
   since July; ci.yml joins the workflow tree beside build-deploy;
   the ten-minute estimate aligned to the measured six; a dangling
   "see above" now points at ADAPTATION.md.
+- 2026-08-28: a visual review of every page type at four widths, and
+  the presentation pass its rulings produced. The verdict first: the
+  document character is the identity and it stays; every accepted
+  change moves how far the eye travels, not what the site is. The
+  method: the fixture export screenshotted in a real browser at 320,
+  390, 768, and 1280, read against the stylesheet whole. Scope
+  stated plainly: this pass covered the statically rendered
+  surfaces only. The engine-loaded halves of facility pages, the
+  citation, penalty, and ownership tables a reader with a real
+  concern actually sits in, could not load in the review
+  environment and went unreviewed, so a second visual pass against
+  the production site is planned rather than left to be discovered.
+  Shipped, per founder ruling on each finding: a reading measure of
+  72 characters on the prose pages' paragraphs and lists, while
+  tables, provenance strips, and the header keep the full container,
+  because Methods and About were rendering 130-character lines on
+  the pages whose whole job is being read. The Data page's ledger
+  paragraph, which had accreted into ten lines of the site's
+  smallest type as clauses earned their place in it, promoted to
+  body prose under "Reading this ledger" with every word unchanged
+  and the provenance strip returned to its one-line job; the
+  founder's condition that any standalone rewording come back for
+  sign-off was met by needing none. The state page's averages table
+  capped at 640 pixels so a measure and its two values sit in one
+  eye span. The home page's browse-by-state table replaced by a
+  columned list, a founder override of the proposed width cap,
+  because capping a two-column list of 53 sparse rows relocates the
+  emptiness instead of removing it, while columns make the block
+  short; each state keeps its count beside it. The home search
+  placeholder shortened to fit a phone. And one finding dissolved on
+  contact with the tree: the owner-page role links proposed for
+  quiet-link treatment already had it, the review having
+  misread a dotted underline as solid in a compressed screenshot;
+  what survived was the founder's condition, verified by
+  measurement: focus-visible is a 2 pixel outline independent of
+  underline style, and the link color reads at roughly 16 to 1
+  against both surfaces.
+  Held back, by founder override: the facility page's phone-width
+  facts column, fourteen fields stacked singly ahead of the records
+  a reader came for. The proposed remedy was one arm of two, so
+  both are to be built and measured, a narrower grid minimum
+  against a tighter single-column rhythm, at 320, 360, and 390,
+  with the numbers reported before either ships, and the tie going
+  to the single column because that grid already carries one
+  documented reversal and a few hundred pixels do not justify
+  relitigating it. Accepted as it stands: the Ownership page's
+  empty right half at desktop, which is the restraint reading as
+  itself, recorded so it reads later as a decision and not a blind
+  spot. Verified beyond the gates, which have no eyes: after-shots
+  at all four widths, zero horizontal document overflow at 320 and
+  390, and print output of a facility and a state page, since
+  readers print these records to attach to complaints; the grid
+  reflows and the hollow stars survive on paper. The print check,
+  like the rest, saw the static surfaces only.

@@ -31,7 +31,7 @@ export default function DataPage() {
   ];
 
   return (
-    <>
+    <div className="prose">
       {/* One Dataset per table, identified by CMS's own dataset id, so
           catalog crawlers see what the tables below already say. */}
       <JsonLd
@@ -143,7 +143,13 @@ export default function DataPage() {
               </tbody>
             </table>
           </div>
-          <p className="prov">
+          {/* Promoted out of the provenance strip: this is the page's
+              epistemics, not a source citation, and it had accreted into
+              ten lines of the site's smallest type. The words are
+              unchanged; only the container moved, and the strip keeps
+              its one-line job below. */}
+          <h3>Reading this ledger</h3>
+          <p>
             This ledger records what this site served and when. It proves the
             mirror&apos;s history, not CMS&apos;s; CMS&apos;s own history
             lives in its monthly archive of month-end snapshots. Each entry
@@ -163,7 +169,10 @@ export default function DataPage() {
             batch beside the checksum of the file they came from, so a
             number that moves while its source has not is caught as a
             defect in this pipeline rather than reported as a change in
-            CMS&apos;s data. Machine-readable:{" "}
+            CMS&apos;s data.
+          </p>
+          <p className="prov">
+            Machine-readable:{" "}
             <a className="mono" href={`${BP}/data/ledger.json`}>
               ledger.json
             </a>
@@ -215,6 +224,6 @@ export default function DataPage() {
           </ul>
         </>
       ) : null}
-    </>
+    </div>
   );
 }

@@ -48,6 +48,10 @@ a:hover { color: var(--spruce-deep); }
 .site-nav { display: flex; gap: 18px; font-size: 14px; }
 .site-footer { border-top: 1px solid var(--rule); margin-top: 64px; padding: 24px 0 48px; color: var(--faint); font-size: 13px; }
 .site-footer p { margin: 4px 0; }
+/* The cite button is inline in the vintage sentence and wraps when
+   the line fills; a little top margin keeps the wrapped line from
+   reading as detached. */
+.site-footer .csv-button { margin-top: 4px; }
 
 main { padding-top: 32px; }
 
@@ -57,6 +61,37 @@ h2 { font-family: var(--serif); font-weight: 600; font-size: 21px; margin: 36px 
 .lede { color: var(--faint); font-size: 16px; max-width: 62ch; margin: 0 0 24px; }
 .mono { font-family: var(--mono); font-size: 0.92em; letter-spacing: 0.01em; }
 .muted { color: var(--faint); }
+
+/* Reading measure for the prose pages (About, Methods, Data,
+   glossary). Paragraphs and list text cap near the width running
+   text is comfortably read at; tables, provenance strips, and
+   anything data-shaped keep the full container. */
+.prose p, .prose li, .prose dd { max-width: 72ch; }
+.prose .prov { max-width: none; }
+
+/* The state page's averages block: three narrow columns stretched
+   across the container put a long empty run in every row between
+   the measure and its values. Capped so label and value sit within
+   one eye span. */
+.averages .tablewrap { max-width: 640px; }
+
+/* Browse-by-state as a columned list. As a two-column table, 53
+   sparse rows stretched the block tall and thin, and capping the
+   table would only relocate the emptiness; columns make the block
+   short instead, and each state keeps its count beside it. */
+.state-columns {
+  list-style: none; margin: 8px 0 0; padding: 4px 16px;
+  columns: 3 200px; column-gap: 40px;
+  background: var(--card); border: 1px solid var(--rule);
+}
+.state-columns li {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: 12px; padding: 6px 2px; border-bottom: 1px solid var(--rule-soft);
+  break-inside: avoid; font-size: 13.5px;
+}
+.state-columns li:last-child { border-bottom: none; }
+.state-columns a { font-weight: 600; text-decoration: none; }
+.state-columns .statecount { font-variant-numeric: tabular-nums; color: var(--faint); }
 
 /* the provenance strip: the site's signature element */
 .prov {
@@ -147,8 +182,6 @@ details.fullrecord[open] summary { margin-bottom: 10px; }
 .tabs button[aria-selected="true"] { background: var(--spruce); border-color: var(--spruce); color: #fff; }
 .tab-status { color: var(--faint); font-size: 13.5px; padding: 14px 2px; }
 
-/* state grid on home */
-.state-table td:first-child a { font-weight: 600; text-decoration: none; }
 .count-line { font-size: 13.5px; color: var(--faint); margin: 8px 2px; }
 .count-line.has-button { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .csv-button {
