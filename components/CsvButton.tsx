@@ -4,9 +4,11 @@ import { useState } from "react";
 import { downloadCsv } from "@/lib/csv";
 import type { QueryResult } from "@/lib/duckdb-client";
 
-// The button never exports what's on screen: fetchAll runs its own
-// uncapped query for the same key, so the file holds every row even if
-// the visible table is truncated.
+// fetchAll supplies the complete record, never a capped slice: the
+// engine-backed callers run their own uncapped query, and the state
+// page passes its full server-rendered rows, which are already whole.
+// Either way the file holds every row even where the visible table
+// is truncated.
 export default function CsvButton({
   filename,
   fetchAll,

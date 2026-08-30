@@ -16,8 +16,16 @@ import CsvButton from "@/components/CsvButton";
 import CopyName from "@/components/CopyName";
 import Stars from "@/components/Stars";
 
+// Excluded from grouping, per the 2026-08-30 ruling in DECISIONS.md:
+// blank names and the literal string 'None', which is CMS's published
+// no-owner convention; grouping it as an owner would present a
+// convention as a person. The detail view below applies the same rule,
+// so the search box and a pasted URL agree about what names an owner.
+// The excluded rows themselves stay in every facility ownership tab
+// and every CSV download.
 const NAMED =
   `"Owner Name" IS NOT NULL AND trim("Owner Name") <> '' AND "Owner Name" <> 'None'`;
+const isUnnamed = (name: string) => name.trim() === "" || name === "None";
 
 // Headroom, not a live cap: sized far above any footprint a batch has
 // produced, and deliberately not annotated with the current maximum,
@@ -66,7 +74,9 @@ export default function OwnerExplorer() {
   const [searchError, setSearchError] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [detail, setDetail] = useState<Detail | null>(null);
-  const [detailState, setDetailState] = useState<"idle" | "loading" | "error">("idle");
+  const [detailState, setDetailState] = useState<
+    "idle" | "loading" | "error" | "unnamed"
+  >("idle");
   const [ratings, setRatings] = useState<Map<string, string> | null>(null);
   // Owner-name to slug map for the pre-rendered pages, fetched once and
   // only after a name is selected. A missing map just means no
@@ -103,6 +113,11 @@ export default function OwnerExplorer() {
     if (!info || !selected) {
       setDetail(null);
       setDetailState("idle");
+      return;
+    }
+    if (isUnnamed(selected)) {
+      setDetail(null);
+      setDetailState("unnamed");
       return;
     }
     let alive = true;
@@ -349,6 +364,14 @@ export default function OwnerExplorer() {
             <p className="tab-status">
               The records for this name could not be loaded. Reload the page to
               try again.
+            </p>
+          )}
+          {detailState === "unnamed" && (
+            <p className="tab-status">
+              CMS publishes the literal &apos;None&apos; when a disclosure row
+              names no owner, so it is not grouped as an owner here. Those rows
+              appear in each facility&apos;s ownership tab and in the CSV
+              downloads.
             </p>
           )}
           {detail && detail.fallback && (

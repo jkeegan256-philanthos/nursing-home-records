@@ -68,7 +68,16 @@ jobs:
           python-version: "3.12"
 
       - name: Install DuckDB
-        run: pip install duckdb
+        run: pip install duckdb pyyaml
+
+      - name: Assert the deploy workflow cannot trigger itself
+        # The one gate whose subject is this very file, so a direct
+        # push to main that edits it must not deploy unchecked; on the
+        # PR path CI runs it, and habit is not a constraint. The other
+        # PR gates (decision log, prose, transform tests) stay off the
+        # deploy path on purpose: a monthly data refresh should not
+        # fail on the shape of a paragraph.
+        run: python3 scripts/check_loop_guard.py
 
       - name: Transform the monthly zip
         run: python scripts/build_data.py

@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """
 Build a miniature replica of the CMS nursing-homes theme zip at
-build/fixture/theme_fixture.zip. File names, headers, and the manifest
-schema match the real June 2026 download; the rows are fabricated.
+build/fixture/theme_fixture.zip. File names and the manifest schema
+match the real June 2026 download; headers are representative subsets
+of the real columns (the real penalties file carries roughly twice
+these), and the rows are fabricated.
 
 Use it to test the pipeline without the 39 MB real zip:
 

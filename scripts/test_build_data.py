@@ -2,10 +2,12 @@
 """
 Assertions on the transform, run in CI before the fixture build.
 
-Scope is deliberately narrow: the three fidelity bugs fixed on
-2026-08-22, each reproduced as a failing case first. The fixture build
-that follows proves the pipeline runs; this proves it runs correctly on
-the inputs that used to break it silently.
+Scope: outcomes that used to go wrong silently, each reproduced as a
+failing case first. The three fidelity bugs fixed on 2026-08-22, the
+count-drift discriminator, and the two zip modes (a repackaged archive
+and a manifest-only revision). The fixture build that follows proves
+the pipeline runs; this proves it runs correctly on the inputs that
+used to break it.
 
     python3 scripts/test_build_data.py
 """

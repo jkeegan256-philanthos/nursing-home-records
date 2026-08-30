@@ -112,7 +112,7 @@ export default function OwnersPage() {
             ) : null}
             {" "}· grouped by exact name, otherwise unmodified
             {owners.blank_owner_rows
-              ? ` · ${owners.blank_owner_rows.toLocaleString()} rows with a blank name are omitted here but appear on facility pages`
+              ? ` · ${owners.blank_owner_rows.toLocaleString()} rows naming no owner (blank, or CMS's literal 'None') are omitted here but appear on facility pages`
               : ""}
           </p>
         </>

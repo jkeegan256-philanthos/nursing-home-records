@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 56 entries. `scripts/check_project_doc.py` asserts that
+This log holds 59 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -1772,3 +1772,51 @@ one means updating the number; that is the point of it.
   discrepancies are usually faithful reproductions, with a pointer
   to how to check, is a question waiting on the same question
   arriving again, weighed and parked by the founder today.
+- 2026-08-30: the 'None' exclusion ruled: sanctioned, and disclosed
+  as what it is. The full-repository review found, three independent
+  readers converging, that rows whose Owner Name is the literal
+  published string 'None' were excluded from the Owners page and its
+  search alongside blank names, that the only disclosure called every
+  excluded row "blank", which a 'None' row is not, and that the
+  explorer's search and its URL-addressed detail view disagreed about
+  whether the string names an owner. No entry had ever ruled the
+  exclusion. The ruling: the exclusion is correct, because 'None' is
+  CMS's published no-owner convention and grouping it as an owner
+  would present a convention as a person, which is worse than
+  omitting it. What was wrong was the description and the
+  inconsistency, so the disclosure on the Owners page and the
+  transform's processing note now name both excluded forms, blank
+  and the literal 'None'; the explorer's detail view applies the
+  same rule as its search and explains itself when a reader arrives
+  at the name by URL; and the rendered gate asserts, red-first, that
+  the page's omission disclosure names the literal string whenever
+  rows were omitted. The excluded rows themselves remain in every
+  facility ownership tab and every CSV, exactly as before: this
+  ruling changes descriptions and consistency, not data.
+- 2026-08-30: the footer's fidelity sentence narrowed to what the
+  principles actually promise. It said figures are shown "with no
+  edits, computations, or filtering", while principle 1 itself
+  carves out counts of rows and groupings by published fields, the
+  site displays those counts on the home page, the owner surfaces,
+  and Methods, and the owners artifacts filter unnamed rows under
+  the ruling above. A blanket claim stronger than the charter's own
+  boundary, sitting in the one line every page carries. It now says
+  what is true: every figure is CMS's own, shown as published; the
+  only numbers the site adds are counts of published rows; nothing
+  is scored, ranked, or edited. Same remedy shape as the 2026-08-22
+  retraction: the sentence changes, the behavior was already
+  honest.
+- 2026-08-30: the SITE_AUTHOR populating edit, recorded late. The
+  2026-08-23 entry said the constant ships empty, and at some point
+  after, the founder's name was set in lib/config.ts without a log
+  entry, leaving the log's standing claim false on three surfaces:
+  the entry, ADAPTATION touchpoint 10's "It ships empty", and the
+  comment above the constant itself, all found by the review's
+  cross-check after the audit's first pass missed it. The decision
+  the 2026-08-23 entry recorded, a real-name byline rendered only
+  when set, stands and is implemented; this entry records the edit
+  that populated it, and the two documents and the comment now say
+  the true thing: empty is a valid state, this deployment sets the
+  name, and a fork that copies the file inherits it unless it
+  clears or replaces the value. The unlogged edit is the defect
+  this entry repairs; the name itself was always correct.

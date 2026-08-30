@@ -13,8 +13,8 @@ This is the rare style rule worth a check, because an em dash is hard to
 catch by reading and trivial to catch by grep. It is also where prose
 gating stops.
 
-Scope is what a stranger reads: site copy under app/ and components/,
-plus PROJECT.md, README.md, and ADAPTATION.md. Code comments, commit
+Scope is what a stranger reads: site copy under app/, components/,
+and lib/, plus PROJECT.md, README.md, and ADAPTATION.md. Code comments, commit
 messages, and identifiers are working surfaces and are out of scope,
 because extending a style rule into them is how a one-line rule becomes
 a chore.

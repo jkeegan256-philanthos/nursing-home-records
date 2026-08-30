@@ -239,8 +239,9 @@ export function ownerSlugFor(name: string): string | null {
   return _slugByName.get(name) ?? null;
 }
 
-// Join-critical lookups (CCN, State, and the six columns build_data.py
-// guards) use col() and stop the build. Every other ProviderInfo column
+// Join-critical lookups (the six columns build_data.py's SLIM_COLUMNS
+// guards, CCN and State among them) use col() and stop the build.
+// Every other ProviderInfo column
 // the site reads goes through colOrNull()/field(): a CMS rename blanks
 // the affected fields and surfaces in missingProviderColumns(), which
 // the Data page prints as a processing note — a dented page, not a dead
