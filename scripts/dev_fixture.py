@@ -113,6 +113,18 @@ def main() -> None:
     facilities[-1]["Provider Name"] = "CARE </script> CENTER 12"
     facilities[-1]["Legal Business Name"] = "CARE </script> CENTER 12, LLC"
 
+    # A second hostile row, for the serializer's other entities. The
+    # name above exercises the angle brackets; this one carries the
+    # apostrophe, the ampersand, and the double quote through every
+    # rendered surface, because deploy run 63 failed on the first real
+    # apostrophe (Coeur d'Alene, ID) the rendered gate's widened
+    # sample ever met: the checker's escaping model had never run the
+    # branch. With these planted, every entity the serializer escapes
+    # is exercised by CI on every build instead of first in
+    # production.
+    facilities[6]["Provider Name"] = 'O\'BRIEN & "SONS" CARE CENTER 7'
+    facilities[6]["City/Town"] = "COEUR D'ALENE"
+
     citations = []
     for f in facilities:
         for c in range(random.randint(2, 5)):
