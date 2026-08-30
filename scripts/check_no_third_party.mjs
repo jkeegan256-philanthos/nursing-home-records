@@ -676,6 +676,10 @@ check(
 // check, which forces someone to drive it here rather than assume the
 // shared helper makes it safe. That assumption is what missed the
 // extension fetch and the star glyphs both.
+// One hole beyond the documented bump-the-number limit: the counts are
+// per file, so a call removed and another added in the same file keeps
+// the count equal and the new path undriven. If you are swapping call
+// sites, drive the new one here anyway.
 const KNOWN_QUERY_CALLERS = {
   "components/FullRecord.tsx": 1,
   "components/FacilityRecords.tsx": 2,
@@ -772,7 +776,7 @@ check(
 
 check(
   offOrigin.size === 0,
-  `zero off-origin requests${offOrigin.size ? "" : " across every page above"}`,
+  "no request left this origin, from any page or interaction above",
   `the page contacted ${offOrigin.size} off-origin URL(s):\n      ` +
     [...offOrigin].join("\n      ")
 );

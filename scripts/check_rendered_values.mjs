@@ -93,7 +93,12 @@ for (const st of states) {
   if (existsSync(f)) scan(f);
 }
 const facDir = join(DIR, "facility");
-const facilities = existsSync(facDir) ? readdirSync(facDir).slice(0, 200) : [];
+// A first-N sample concentrates on whatever order the filesystem
+// happens to return, undisclosed; a sorted fixed-stride spread covers
+// the whole range and is the same on every run.
+const facilityDirsAll = existsSync(facDir) ? readdirSync(facDir).sort() : [];
+const facStep = Math.max(1, Math.ceil(facilityDirsAll.length / 200));
+const facilities = facilityDirsAll.filter((_, i) => i % facStep === 0).slice(0, 200);
 for (const c of facilities) {
   const f = join(facDir, c, "index.html");
   if (existsSync(f)) scan(f);
@@ -298,7 +303,9 @@ if (existsSync(OWNER_PAGES_PATH)) {
     JSON.parse(readFileSync(OWNER_PAGES_PATH, "utf8")).owners.map((o) => [o.slug, o])
   );
   const ownerDir = join(DIR, "owner");
-  const ownerDirs = existsSync(ownerDir) ? readdirSync(ownerDir).slice(0, 50) : [];
+  const ownerDirsAll = existsSync(ownerDir) ? readdirSync(ownerDir).sort() : [];
+  const ownerStep = Math.max(1, Math.ceil(ownerDirsAll.length / 50));
+  const ownerDirs = ownerDirsAll.filter((_, i) => i % ownerStep === 0).slice(0, 50);
   for (const slug of ownerDirs) {
     const o = bySlug.get(slug);
     if (!o) continue;
@@ -394,14 +401,21 @@ check(
     : "no facility JSON-LD was checked, so this run proves nothing"
 );
 
-// The escape proof needs its hostile input to exist: if no sampled
-// name carries a closing script tag, the round trip was not exercised
-// and this run is silent where it claims to speak.
-if (facilities.length > 0 && facilities.length <= 200) {
+// The escape proof needs its hostile input to exist. When the sample
+// is the whole export (the fixture), the planted name must be present
+// and the assertion is firm. When the export outruns the sample (a
+// real batch), the escape was exercised by CI's fixture run; printing
+// a green here would be success claimed for finding nothing, so it is
+// a stated skip instead.
+if (facilityDirsAll.length > 0 && facilityDirsAll.length <= facilities.length) {
   check(
-    hostileSeen || facilities.length >= 200,
+    hostileSeen,
     "a name containing a closing script tag survived serialization intact",
-    "no sampled facility name contains </script>, so the escape was never exercised; the fixture is supposed to plant one"
+    "no facility name contains </script>; the fixture is supposed to plant one, so the escape went unexercised"
+  );
+} else if (!hostileSeen) {
+  console.log(
+    "  --    no sampled name carries </script> on this batch; the escape is proven by the fixture in CI"
   );
 }
 
@@ -539,6 +553,27 @@ if (existsSync(OWNER_PAGES_PATH)) {
         ? `owner links point at pages that do not exist: ${broken.slice(0, 5).join(", ")}`
         : "owner pages exist for this batch and the largest-footprints table links none of them"
     );
+  }
+}
+
+// The omission disclosure must name what it omits: ownership rows are
+// excluded from the Owners page for blank names and for CMS's literal
+// 'None' alike, and calling both "blank" described a published value
+// as an absence (ruled 2026-08-30). React escapes apostrophes in text,
+// so the built HTML is matched on either form.
+{
+  const ownersTop = "build/owners-top.json";
+  const ownersIndex = join(DIR, "owners", "index.html");
+  if (existsSync(ownersTop) && existsSync(ownersIndex)) {
+    const omitted = JSON.parse(readFileSync(ownersTop, "utf8")).blank_owner_rows;
+    if (omitted > 0) {
+      const html = readFileSync(ownersIndex, "utf8");
+      check(
+        /(?:'|&#x27;|&#39;)None(?:'|&#x27;|&#39;)/.test(html),
+        "the Owners page's omission disclosure names CMS's literal 'None'",
+        "rows are omitted for the literal 'None' as well as blanks, and the page's disclosure does not say so"
+      );
+    }
   }
 }
 

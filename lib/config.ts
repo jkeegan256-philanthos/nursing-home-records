@@ -14,9 +14,14 @@ export const REPO_URL = "https://github.com/jkeegan256-philanthos/nursing-home-r
 // than hiding it behind link text. Derived so the two cannot diverge.
 export const REPO_LABEL = REPO_URL.replace(/^https?:\/\//, "");
 // The person accountable for this site. Empty is a valid state and the
-// byline simply does not render, so a fork does not inherit a name and
-// a blank never ships as a half-finished attribution.
+// byline simply does not render; this deployment sets it, so a fork
+// that copies this file inherits a real person's name unless it clears
+// or replaces the value (ADAPTATION touchpoint 10).
 export const SITE_AUTHOR = "Joseph Keegan";
+// Stamped onto every CSV filename a reader downloads. Deployment
+// identity, same hazard class as SITE_URL: a fork that keeps it ships
+// files wearing this site's name.
+export const CSV_PREFIX = "nursinghomerecords";
 // Where readers can report an error. Point this anywhere you like.
 export const CORRECTIONS_URL = `${REPO_URL}/issues`;
 export const CORRECTIONS_EMAIL = "NursingHomeRecords.org@gmail.com";

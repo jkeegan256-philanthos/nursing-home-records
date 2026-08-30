@@ -21,8 +21,8 @@ slug reservation — permanently, on the next deploy, with nothing but a
 processing note to mark it.
 
 So the build now reads the deployed copy first, this committed copy
-second, and refuses to build on neither. See the 2026-08-22 entry in
-PROJECT.md.
+second, and refuses to build on neither. See the 2026-08-22 entries in
+DECISIONS.md.
 
 ## The commit-back loop
 

@@ -80,8 +80,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="container">
             <p>
               An independent presentation of public data from the CMS Provider
-              Data Catalog. Not affiliated with CMS. Figures are shown exactly
-              as published, with no edits, computations, or filtering.
+              Data Catalog. Not affiliated with CMS. Every figure is CMS&apos;s
+              own, shown as published; the only numbers this site adds are
+              counts of published rows, and nothing is scored, ranked, or
+              edited.
             </p>
             {/* Two dates because they answer different questions and only
                 one was being answered. The processing date says when this

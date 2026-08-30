@@ -102,9 +102,10 @@ converts every CSV to Parquet as pure text with row counts asserted,
 splits tables over 30 MB by state, and rebuilds a Next.js static
 export: one page per state, one per facility, an Ownership page that
 searches all owner names in the browser via DuckDB-WASM, and a Data
-page with checksums and downloads. Deployed to GitHub Pages. About
-545 MB and 14,751 pages per batch. No servers, no database, no
-secrets.
+page with checksums and downloads. Deployed to GitHub Pages, roughly
+twenty thousand pages per batch; README's measured sections carry
+the dated figures, because a number in this file is a number nothing
+re-measures. No servers, no database, no secrets.
 
 Every page carries a Content-Security-Policy meta tag confining the
 document to this origin. It covers the document only. A worker takes

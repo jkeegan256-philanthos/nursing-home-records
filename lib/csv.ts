@@ -2,6 +2,7 @@
 // published: quoting is the only transformation, and the UTF-8 BOM is
 // there so Excel opens the file with the right encoding.
 
+import { CSV_PREFIX } from "@/lib/config";
 import type { QueryResult } from "@/lib/duckdb-client";
 
 function field(v: string | null): string {
@@ -17,11 +18,11 @@ export function toCsv(result: QueryResult): string {
   return BOM + lines.join("\r\n") + "\r\n";
 }
 
-/** nursinghomerecords_<table>_<key>_<vintage>.csv */
+/** <CSV_PREFIX>_<table>_<key>_<vintage>.csv */
 export function csvFilename(table: string, key: string, vintage: string): string {
   const part = (s: string) =>
     s.replace(/[^A-Za-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "x";
-  return `nursinghomerecords_${part(table)}_${part(key)}_${part(vintage)}.csv`;
+  return `${CSV_PREFIX}_${part(table)}_${part(key)}_${part(vintage)}.csv`;
 }
 
 export function downloadCsv(filename: string, result: QueryResult): void {

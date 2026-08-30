@@ -9,7 +9,7 @@
 // self-contained, because DuckDB 1.4 does not statically link the
 // Parquet reader. The first read_parquet() call autoloads it over the
 // network, from extensions.duckdb.org, unless the engine has been
-// pointed somewhere else. See the 2026-08-22 entries in PROJECT.md.
+// pointed somewhere else. See the 2026-08-22 entries in DECISIONS.md.
 import { copyFileSync, existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";

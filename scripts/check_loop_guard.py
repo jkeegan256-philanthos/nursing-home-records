@@ -16,6 +16,14 @@ to satisfy branch protection. Nothing in the diff would look wrong.
 So the guard that has to survive that change is the declared one, and
 this is the check that keeps it declared.
 
+One honest limit: the record-state assertions below are text-presence
+tripwires. They assert the words ("git add state", "refusing to push")
+exist in the job's script, not that the behavior does, so a rewording
+that keeps the words while dropping the refusal would pass. The
+behavioral half is the job's own staged-files check at run time; this
+gate keeps the declaration from quietly disappearing, which is the
+failure it was built for.
+
     python3 scripts/check_loop_guard.py
 """
 

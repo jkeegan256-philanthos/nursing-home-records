@@ -85,12 +85,15 @@ number exists anywhere to drift.
     than the name inheritance above, and just as quiet.
 
     `SITE_AUTHOR` is the sharpest of them, because it names a
-    person rather than a place. It ships empty and the byline
-    renders only when it is set, so a fork inherits no name by
-    default -- but a fork that copies a populated `lib/config.ts`
-    inherits one silently, and the reader has no way to tell. Set
-    it to yourself or leave it empty. Both are correct; keeping
-    someone else's is not.
+    person rather than a place. Empty is a valid state and the
+    byline renders only when it is set, but this deployment sets
+    it to the founder's real name, so a fork of this tree inherits
+    that name silently, and the reader has no way to tell. Set it
+    to yourself or clear it. Both are correct; keeping someone
+    else's is not. The CSV export filename prefix in
+    `lib/config.ts` (`CSV_PREFIX`) is the same kind of string:
+    every file a reader downloads carries it, and a fork that
+    leaves it stamps its exports with this site's name.
 
 ## Already generic, no adaptation needed
 

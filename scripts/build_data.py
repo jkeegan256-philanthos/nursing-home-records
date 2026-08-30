@@ -246,6 +246,10 @@ def convert_table(
     # as CMS published it, spaces and all.
     state_expr = f"trim({qident(state_col)})" if state_col else None
     src_bytes = csv_path.stat().st_size
+    # providers is never split whatever its size: the build reads it
+    # whole for page generation and the search index, so a shard
+    # layout would serve nobody and complicate the one table
+    # everything joins against.
     partition = src_bytes >= PARTITION_MIN_BYTES and state_col is not None and table != "providers"
     if src_bytes >= PARTITION_MIN_BYTES and state_col is None:
         warn(f"{csv_path.name} is large but has no state column; writing a single file")
@@ -441,6 +445,11 @@ def export_owners(
     st = qident(own_meta["state_column"]) if own_meta["state_column"] else None
     # trim() so " UT " and "UT" are not counted as two states.
     st_expr = f"count(DISTINCT trim({st}))" if st else "0"
+    # The Owners page groups named owners. Excluded, per the 2026-08-30
+    # ruling in DECISIONS.md: NULL, whitespace-only, and the literal
+    # string 'None', which is CMS's published no-owner convention;
+    # grouping it as an owner would present a convention as a person.
+    # The excluded rows stay in every facility table and every CSV.
     named = (
         f"SELECT * FROM {rel} WHERE \"Owner Name\" IS NOT NULL "
         f"AND trim(\"Owner Name\") <> '' AND \"Owner Name\" <> 'None'"
@@ -461,7 +470,11 @@ def export_owners(
         f"SELECT count(*) FROM ({named})"
     ).fetchone()[0]
     if blank_rows:
-        warn(f"ownership: {blank_rows:,} rows have a blank owner name; they appear in facility tables but not on the Owners page")
+        warn(
+            f"ownership: {blank_rows:,} rows carry no owner name (blank, or "
+            f"the literal 'None', CMS's no-owner convention); they appear in "
+            f"facility tables but not on the Owners page"
+        )
 
     # Full owner index for the home-page unified search: every named
     # owner, exact strings, loaded by the browser only when a search
