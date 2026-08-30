@@ -230,8 +230,23 @@ const descriptionOf = (head) =>
   /<meta[^>]*content="([^"]*)"[^>]*name="description"/.exec(head)?.[1] ??
   "";
 const titleOf = (head) => /<title>([\s\S]*?)<\/title>/.exec(head)?.[1] ?? "";
+// Mirrors React's escapeHtml exactly: the five characters its
+// serializer escapes in text and attribute values (amp, lt, gt,
+// quot, and the apostrophe as &#x27;). This model and the serializer
+// drift independently, which is how deploy run 63 failed on the
+// first real apostrophe the widened sample met: the set here was
+// missing #x27 and had never run that branch. The fixture now plants
+// all five entities in published values, so a divergence between
+// this function and what React emits goes red in CI instead of on a
+// deploy. If a character is ever added or removed on either side,
+// the other side and the fixture move with it.
 const esc = (s) =>
-  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
 
 const sitemapFile = join(DIR, "sitemap.xml");
 const sitemapUrls = new Set(
