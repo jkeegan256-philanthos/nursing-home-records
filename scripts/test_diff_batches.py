@@ -148,6 +148,60 @@ def main() -> None:
             "identical zips report zero movement",
         )
 
+        # --- the monthly turnover: CMS stamps every filename with the
+        # month, so a real September-to-October diff shares zero exact
+        # basenames. The instrument must pair files by their
+        # stamp-stripped identity or it reports an empty diff at the one
+        # moment it exists for. Same planted delta, every CSV re-stamped.
+        rotated = tmp / "rotated.zip"
+        with zipfile.ZipFile(variant) as zin, zipfile.ZipFile(rotated, "w") as zout:
+            for name in zin.namelist():
+                out_name = name.replace("_Jun2026", "_Sep2026") if name.endswith(".csv") else name
+                zout.writestr(out_name, zin.read(name))
+        r = run(["--prior", str(FIXTURE_ZIP), "--current", str(rotated)])
+        out = r.stdout
+        m = re.search(
+            r"NH_Ownership_Jun2026\.csv -> NH_Ownership_Sep2026\.csv.*?only in prior: (\d+).*?only in current: (\d+)",
+            out, re.S,
+        )
+        check(
+            m is not None and m.group(1) == "2" and m.group(2) == "2",
+            "a month-stamp rotation still pairs the files and reports the 2/2 delta",
+            out[:600],
+        )
+        check(
+            "file only in" not in out,
+            "no rotated file is misreported as added or removed",
+            out[:400],
+        )
+        check(
+            "Penalty Kind" in out and "Penalty Type" in out,
+            "the schema verdict survives the rotation",
+        )
+
+        # --- two zip entries that flatten to one basename would silently
+        # halve the diff; the transform refuses this shape and so must
+        # the instrument.
+        clash = tmp / "clash.zip"
+        with zipfile.ZipFile(FIXTURE_ZIP) as zin, zipfile.ZipFile(clash, "w") as zout:
+            for name in zin.namelist():
+                zout.writestr(name, zin.read(name))
+            zout.writestr("extra/" + OWN, zin.read(OWN))
+        r = run(["--current", str(clash)])
+        check(
+            r.returncode != 0 and OWN in (r.stdout + r.stderr) and "Traceback" not in r.stderr,
+            "two entries flattening to one name are refused with a named verdict",
+            f"rc={r.returncode} {r.stderr[-200:]}",
+        )
+
+        # --- unreadable input is a named verdict, not a stack trace.
+        r = run(["--current", str(tmp / "missing.zip")])
+        check(
+            r.returncode != 0 and "FAIL" in (r.stdout + r.stderr) and "Traceback" not in r.stderr,
+            "a missing input fails with a named verdict, no traceback",
+            f"rc={r.returncode} {r.stderr[-200:]}",
+        )
+
         # --- integrity: a faithful parquet, then a corrupted one ---
         import duckdb
 
