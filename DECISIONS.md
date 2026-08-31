@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 59 entries. `scripts/check_project_doc.py` asserts that
+This log holds 61 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -1820,3 +1820,43 @@ one means updating the number; that is the point of it.
   name, and a fork that copies the file inherits it unless it
   clears or replaces the value. The unlogged edit is the defect
   this entry repairs; the name itself was always correct.
+- 2026-08-31: the reviewing manual split out of PROJECT.md into
+  REVIEWING.md. The founder read the charter whole, the one document
+  the full-repository review never measured, and found it had become
+  two: an eleven-hundred-word charter and a nineteen-hundred-word
+  engineering-practice manual that grows with every incident, inside
+  a file whose own closing section says it is meant to be read first
+  and stay short. The same argument that split this log out on
+  2026-08-24, arriving at a different seam. The stub left behind
+  carries the corollaries' weight rather than only a pointer, at the
+  founder's direction: the manual is required reading before editing,
+  and a session that feels briefed by PROJECT.md alone would never
+  open it. Two gates extended, each seen red before being trusted:
+  check:doc asserts the charter names REVIEWING.md and that the file
+  exists, mirroring the DECISIONS.md pair, and the prose gate scans
+  REVIEWING.md, whose house-style rule now names all four governed
+  files explicitly instead of saying "this file", because prose moves
+  between files and a referent that moves with it is how a rule stops
+  covering the document it lives in. The six hundred words justifying
+  the one-line em-dash rule moved with the manual; that finding is
+  relocated to where growth is expected, not resolved.
+- 2026-08-31: two charter claims corrected, both instances of the
+  review's structural finding, a claim true when written and untrue
+  at a later date, found in the document that first named the
+  pattern. "Future phases, none started" had contained a finished
+  phase since 2026-08-06, when the ergonomics release shipped the CSV
+  button on state tables, facility record tabs, and the owner search;
+  the heading now records the shipped phase and scopes "neither
+  started" to the two that remain, and those are to be cited by name
+  rather than by list position from here on, because this log's own
+  "phase 3 fence" reference now points at what the renumbered list
+  calls 2 (the fence is batch retention's and stands; only the index
+  moved). And the Purpose section's numbers, the same class the D
+  package removed from the architecture section a week earlier, are
+  now anchored rather than bare: the ownership split leans on the
+  home page's count line, which re-counts it from every published
+  batch, and the resident figure carries its date because nothing
+  re-measures it. Ruled by the founder from four options; measuring
+  the characterization at deploy was declined because it would block
+  data publication on charter prose, through a branch fixture CI
+  cannot run, which is the shape that produced the deploy-63 failure.

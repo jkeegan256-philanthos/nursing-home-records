@@ -6,9 +6,9 @@ homes theme exactly as CMS ships it, live at
 monthly from the CMS source zip. No calculations, no filtering, no
 editorial layer. One zip goes in each month; a browsable site comes out.
 
-Reviewing or changing this? `PROJECT.md` has a short "Reviewing this
-project" section on why reading the code is not enough here, and what
-to run instead.
+Reviewing or changing this? `REVIEWING.md` is the manual on why
+reading the code is not enough here, and what to run instead. It was
+split out of `PROJECT.md` on 2026-08-31.
 
 Read `PROJECT.md` first. It holds the goals, the principles, and the
 declined scope that every change must respect. `DECISIONS.md` is the

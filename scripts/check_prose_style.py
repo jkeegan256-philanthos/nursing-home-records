@@ -2,8 +2,8 @@
 """
 Assert no em dash appears in prose a stranger reads.
 
-The rule and its reasoning live in PROJECT.md, under "House style" in
-the reviewing section. In short: heavy em dash use now reads as a tell
+The rule and its reasoning live in REVIEWING.md, under "House style".
+In short: heavy em dash use now reads as a tell
 for machine-written prose, this site's credibility rests on being
 accountably human-authored with a name on the About page, and the cost
 of leaving the preference unwritten is that it recurs in every copy pass
@@ -14,7 +14,8 @@ catch by reading and trivial to catch by grep. It is also where prose
 gating stops.
 
 Scope is what a stranger reads: site copy under app/, components/,
-and lib/, plus PROJECT.md, README.md, and ADAPTATION.md. Code comments, commit
+and lib/, plus PROJECT.md, REVIEWING.md, README.md, and ADAPTATION.md.
+Code comments, commit
 messages, and identifiers are working surfaces and are out of scope,
 because extending a style rule into them is how a one-line rule becomes
 a chore.
@@ -47,7 +48,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 EM_DASH = "—"
 
-DOCS = ["PROJECT.md", "README.md", "ADAPTATION.md"]
+DOCS = ["PROJECT.md", "REVIEWING.md", "README.md", "ADAPTATION.md"]
 # Exempt in full. The log moved out of PROJECT.md on 2026-08-24, so the
 # carve-out is now a whole file rather than a section of one, which is
 # simpler to state and impossible to get subtly wrong.
@@ -105,8 +106,8 @@ if problems:
     for p in problems:
         print(f"  - {p}")
     print(
-        f"\nThe rule and its reasoning are in PROJECT.md, under "
-        f'"House style" in the reviewing section. When replacing one, look '
+        f"\nThe rule and its reasoning are in REVIEWING.md, under "
+        f'"House style". When replacing one, look '
         f"at the job it was doing: a parenthetical aside wants commas, an "
         f"abrupt turn wants a colon or a full stop, and an interruption "
         f"usually wants to be two sentences. A blanket replace with commas "
