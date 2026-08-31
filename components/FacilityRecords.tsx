@@ -77,6 +77,11 @@ function partitionIdentity(
       keep.push(i);
       return;
     }
+    // Values compare raw, never trimmed (ruled 2026-08-31): if two
+    // published values differ by whitespace, they differ, and the
+    // column stays expanded. Trimming for a comparison is a value-based
+    // reading the charter has not licensed, and failing toward showing
+    // more is the right direction.
     const first = rows[0][i];
     if (rows.every((r) => r[i] === first)) {
       collapsed.set(c, first == null ? "" : String(first));

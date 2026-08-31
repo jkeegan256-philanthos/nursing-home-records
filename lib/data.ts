@@ -193,8 +193,8 @@ export function methodsFigures(): MethodsFigures | null {
 }
 
 // One place decides whether the capacity figure is publishable, so the
-// page cannot accidentally print "0 individuals" as though it taught
-// something. A figure that describes nobody teaches nothing.
+// page cannot accidentally print "0 name strings" as though it taught
+// something. A figure that describes nothing teaches nothing.
 export function capacityFigure() {
   const c = methodsFigures()?.capacity;
   if (!c || c.people < 1 || c.some_owning < 1) return null;

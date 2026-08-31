@@ -20,7 +20,7 @@ export const metadata: Metadata = pageMetadata({
 // firm's footprint by one, inside a day. A figure typed into this page
 // would be a claim about a batch that is no longer the batch on it.
 // Counts of one are not hypothetical: the fixture produces them, and a
-// real batch could too. A figure that reads "1 individuals ... 1 hold"
+// real batch could too. A figure that reads "1 name strings ... 1 hold"
 // undermines the sentence it appears in, so agreement is computed
 // rather than assumed.
 const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
@@ -153,19 +153,20 @@ export default function MethodsPage() {
       {capacity ? (
         <p>
           In the current batch, of the{" "}
-          {capacity.people.toLocaleString()}{" "}
-          {plural(capacity.people, "individual", "individuals")} disclosed
-          at {capacity.threshold} or more facilities,{" "}
-          {capacity.none_owning.toLocaleString()}{" "}
+          {capacity.people.toLocaleString()} distinct{" "}
+          {plural(capacity.people, "name string", "name strings")} filed
+          with owner type Individual and disclosed at {capacity.threshold}{" "}
+          or more facilities, {capacity.none_owning.toLocaleString()}{" "}
           {verb(capacity.none_owning)} no role whose published description
           contains the words{" "}
           <span className="mono">{capacity.ownership_marker.toLowerCase()}</span>{" "}
           anywhere in the file. Of the{" "}
-          {capacity.some_owning.toLocaleString()} who {verb(capacity.some_owning)}{" "}
+          {capacity.some_owning.toLocaleString()} that {verb(capacity.some_owning)}{" "}
           such a role somewhere, {capacity.mixed.toLocaleString()}{" "}
           {verb(capacity.mixed)} it at only some of their facilities. A
           single label applied to any of them would be wrong at some of
-          the buildings they are attached to.
+          the buildings the name is attached to. These are counts of
+          exact published names, not of people.
         </p>
       ) : null}
       <p>
