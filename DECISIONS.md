@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 63 entries. `scripts/check_project_doc.py` asserts that
+This log holds 64 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -1884,3 +1884,22 @@ one means updating the number; that is the point of it.
   raw comparison is now a dated ruling recorded at the comparison
   itself instead of an accident of implementation a refactor could
   quietly reverse.
+- 2026-08-31: the prose rule's scope is its description, not a list.
+  Founder ruling on the review's WHAT 9: state/README.md and
+  data/README.md are prose strangers read, and they sat outside the
+  rule's enumerated scope, one of them carrying the banned character
+  three times. The gate now discovers every Markdown document in the
+  repository instead of consulting a filename list, so a new document
+  joins the scan by existing; the enumeration was what drifted, and
+  it had already been rewritten once when the rule changed files.
+  Two exemptions stand and are stated as rules in REVIEWING.md:
+  DECISIONS.md because it is append-only, and review/ because it is
+  largely other reviewers' notes transcribed verbatim, and editing
+  either for punctuation would be editing a record. The three dashes
+  in state/README.md were replaced by the job each was doing, one
+  abrupt turn to a colon and one aside to parentheses, and the new
+  scan was seen red on the pre-fix file before being trusted.
+  data/README.md is hand-written, carried no dashes, and simply
+  joins the scan; the review note that it carried them did not
+  reproduce, which is recorded here so the discrepancy is a fact
+  with a date rather than a silent drop.

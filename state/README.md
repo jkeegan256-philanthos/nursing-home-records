@@ -17,7 +17,7 @@ the build reads it first. But it is also the thing being rebuilt, and
 keeping the only copy of a site's history on that site makes the site its
 own single point of failure. Before this directory existed, one timed-out
 fetch was enough to restart the ledger chain from zero and drop every
-slug reservation — permanently, on the next deploy, with nothing but a
+slug reservation: permanently, on the next deploy, with nothing but a
 processing note to mark it.
 
 So the build now reads the deployed copy first, this committed copy
@@ -56,6 +56,6 @@ A fork, or a genuine first build, has no chain to protect. Point
 `NH_STATE_URL` at your own deployed `/data/` URL. Until that URL serves
 these files, the build starts each file's chain by itself and says so.
 
-If the URL is unreachable rather than merely empty — the domain does not
-resolve yet, say — the build stops rather than guess. `NH_STATE_BOOTSTRAP=1`
+If the URL is unreachable rather than merely empty (the domain does
+not resolve yet, say), the build stops rather than guess. `NH_STATE_BOOTSTRAP=1`
 starts a fresh chain on purpose. The deploy workflow never sets it.
