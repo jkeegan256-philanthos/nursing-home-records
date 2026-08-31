@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 61 entries. `scripts/check_project_doc.py` asserts that
+This log holds 63 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -1860,3 +1860,27 @@ one means updating the number; that is the point of it.
   the characterization at deploy was declined because it would block
   data publication on charter prose, through a branch fixture CI
   cannot run, which is the shape that produced the deploy-63 failure.
+- 2026-08-31: the Methods capacity figure reworded from "{N}
+  individuals" to counts of distinct name strings filed with owner
+  type Individual, with one sentence beside the numbers saying they
+  count exact published names, not people. The old wording was the
+  site making the identity claim it exists to refuse, on the page
+  that teaches a name is not a person; principle 2 is the whole
+  reason the site declines to merge names, and a count labeled
+  "individuals" merges them by implication. Founder ruling from the
+  review's WHAT list (item 8). The build log line and the guard
+  comments moved to the same vocabulary in the same change; the
+  computed figures themselves are untouched, because the number was
+  always right and only its label claimed more than the data does.
+- 2026-08-31: identity-collapse comparison ruled: no trimming.
+  partitionIdentity compares raw published values, so two values
+  differing only by whitespace differ, and the identity column stays
+  expanded in the row table rather than collapsing on a cleaned
+  reading. The review asked whether trimming for a comparison is
+  licensed where trimming for display is not; the founder's answer
+  is no. Failing toward showing more is the right direction, and a
+  trim is a value-based reading the charter has not licensed. The
+  code already compared raw, so nothing moved; the change is that
+  raw comparison is now a dated ruling recorded at the comparison
+  itself instead of an accident of implementation a refactor could
+  quietly reverse.

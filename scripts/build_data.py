@@ -371,7 +371,8 @@ def export_methods_figures(
     marker = qlit(f"%{OWNERSHIP_ROLE_MARKER}%")
     n = int(METHODS_FACILITY_THRESHOLD)
 
-    # One pass: per individual, how many facilities, and at how many of
+    # One pass: per Individual-typed name string, how many facilities,
+    # and at how many of
     # them does any role carry the ownership marker.
     row = con.execute(
         f"""
@@ -412,7 +413,7 @@ def export_methods_figures(
     }
     out.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(
-        f"  methods: {people:,} individuals at {n}+ facilities; "
+        f"  methods: {people:,} Individual-typed name strings at {n}+ facilities; "
         f"{none_owning:,} with no {OWNERSHIP_ROLE_MARKER.lower()} role, "
         f"{mixed:,} of {some_owning:,} holding one at only some"
     )
