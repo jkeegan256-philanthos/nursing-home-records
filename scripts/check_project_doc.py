@@ -94,6 +94,24 @@ if not DOC.exists():
     )
     sys.exit(1)
 
+# The reviewing manual was split out the same way on 2026-08-31, so it
+# gets the same pair of assertions: the charter names it, and the file
+# it names exists.
+MANUAL = ROOT / "REVIEWING.md"
+if MANUAL.name not in CHARTER.read_text(encoding="utf-8"):
+    print(
+        f"FAIL  PROJECT.md never mentions {MANUAL.name}, so the charter "
+        f"points at nothing. The reviewing manual was split out of it on "
+        f"2026-08-31; if it moved again, point the charter at wherever "
+        f"it went."
+    )
+    sys.exit(1)
+if not MANUAL.exists():
+    print(
+        f"FAIL  PROJECT.md points at {MANUAL.name} and no such file exists"
+    )
+    sys.exit(1)
+
 text = DOC.read_text(encoding="utf-8")
 lines = text.splitlines()
 body = lines

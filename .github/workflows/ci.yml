@@ -40,7 +40,7 @@ jobs:
         # One character, in prose a stranger reads. Hard to catch by
         # reading, trivial to catch by grep, and left unwritten it
         # recurs in every copy pass forever. The rule and its carve-out
-        # for DECISIONS.md, which is append-only, are in PROJECT.md.
+        # for DECISIONS.md, which is append-only, are in REVIEWING.md.
         # This is where prose gating stops.
         run: npm run check:prose
 
