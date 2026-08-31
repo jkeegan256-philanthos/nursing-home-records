@@ -118,13 +118,16 @@ Corollaries, each earned by an incident:
 
 ## House style: no em dash in prose a stranger reads
 
-No em dash (U+2014) in site copy or in PROJECT.md, REVIEWING.md,
-README.md, or ADAPTATION.md. En dash (U+2013) is fine for ranges, and
-hyphens are ordinary punctuation; the rule names one character, by
-codepoint rather than by glyph so that stating it does not violate it,
-and it names this file explicitly rather than as "this file", because
-prose moves between files and a referent that moves with it is how a
-rule quietly stops covering the document it lives in. Code comments,
+No em dash (U+2014) in prose a stranger reads: site copy, and every
+Markdown document in this repository. The scope is that description,
+not a list of filenames, because an enumerated list is what drifts:
+two reader-facing READMEs sat outside the earlier list, one carrying
+the banned character, and the list had already been rewritten once
+when this rule changed files (ruled 2026-08-31). A description also
+covers whatever file this rule happens to live in, wherever prose
+moves. En dash (U+2013) is fine for ranges, and hyphens are ordinary
+punctuation; the rule names one character, by codepoint rather than
+by glyph so that stating it does not violate it. Code comments,
 commit messages, and identifiers are working surfaces and are out of
 scope, because extending a style rule into them is how a one-line rule
 becomes a chore.
@@ -149,13 +152,16 @@ wants commas, an abrupt turn wants a colon or a full stop, and an
 interruption usually wants to be two sentences. A blanket replace with
 commas produces worse prose than the dashes it removes.
 
-`scripts/check_prose_style.py` enforces this, and one carve-out belongs
-in the rule rather than only in the script: **`DECISIONS.md` is exempt
-in full.** Its entries are append-only, so sweeping punctuation through
-them would be editing the permanent record for aesthetics, which is the
-worse violation. Existing entries keep their dashes as artifacts of when
-they were written. New entries should follow the rule even though
-nothing checks them.
+`scripts/check_prose_style.py` enforces this, and the carve-outs
+belong in the rule rather than only in the script: **`DECISIONS.md`
+and the `review/` directory are exempt in full.** The log's entries
+are append-only, so sweeping punctuation through them would be
+editing the permanent record for aesthetics, which is the worse
+violation; existing entries keep their dashes as artifacts of when
+they were written, and new entries should follow the rule even though
+nothing checks them. The review corpus is largely other reviewers'
+notes transcribed verbatim, and their punctuation is part of the
+record by the same argument.
 
 This is where prose gating stops. A style gate invites more style gates,
 and this project already knows what a review pipeline does with room to

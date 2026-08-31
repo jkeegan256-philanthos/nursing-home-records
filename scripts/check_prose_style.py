@@ -13,12 +13,15 @@ This is the rare style rule worth a check, because an em dash is hard to
 catch by reading and trivial to catch by grep. It is also where prose
 gating stops.
 
-Scope is what a stranger reads: site copy under app/, components/,
-and lib/, plus PROJECT.md, REVIEWING.md, README.md, and ADAPTATION.md.
-Code comments, commit
-messages, and identifiers are working surfaces and are out of scope,
-because extending a style rule into them is how a one-line rule becomes
-a chore.
+Scope is what a stranger reads, discovered rather than enumerated:
+site copy under app/, components/, and lib/, plus every Markdown
+document in the repository. An enumerated list is what drifts; two
+reader-facing READMEs sat outside the old one, one of them carrying
+the character the rule bans, so a new document now joins the scan by
+existing instead of by someone remembering a list. Code comments,
+commit messages, and identifiers are working surfaces and are out of
+scope, because extending a style rule into them is how a one-line
+rule becomes a chore.
 
 Honouring that exclusion inside a .tsx file means skipping comment
 lines, which this does structurally rather than by parsing: whole-line
@@ -27,15 +30,18 @@ a line that also carries code will be flagged. That residue is left
 rather than chased, because the alternative is parsing JSX to tell a
 string from a comment, and the cost of a false positive is one comma.
 
-One carve-out, and it is a rule rather than a convenience. DECISIONS.md
-is append-only. Sweeping punctuation through past entries would be
-editing the permanent record for aesthetics, which is a worse violation
-than the dashes, so entries keep theirs as artifacts of when they were
-written. That does mean a new entry can carry one and this check will
-not say so. Stated here rather than discovered later. Before
-2026-08-24 the log lived inside PROJECT.md and the exemption was a
-section of that file; now it is a whole file, which is the same rule
-with one fewer way to get it wrong.
+Two carve-outs, and they are rules rather than conveniences.
+DECISIONS.md is append-only: sweeping punctuation through past
+entries would be editing the permanent record for aesthetics, which
+is a worse violation than the dashes, so entries keep theirs as
+artifacts of when they were written. That does mean a new entry can
+carry one and this check will not say so. Stated here rather than
+discovered later. Before 2026-08-24 the log lived inside PROJECT.md
+and the exemption was a section of that file; now it is a whole file,
+which is the same rule with one fewer way to get it wrong. And
+review/ holds the full-repository review's working notes, largely
+transcribed verbatim from other reviewers; their punctuation is part
+of the record by the same argument.
 
     python3 scripts/check_prose_style.py
 """
@@ -48,13 +54,30 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 EM_DASH = "—"
 
-DOCS = ["PROJECT.md", "REVIEWING.md", "README.md", "ADAPTATION.md"]
-# Exempt in full. The log moved out of PROJECT.md on 2026-08-24, so the
-# carve-out is now a whole file rather than a section of one, which is
-# simpler to state and impossible to get subtly wrong.
+# Markdown scope is discovered, not enumerated (ruled 2026-08-31, from
+# the review's WHAT list): every .md in the tree joins the scan by
+# existing. Build products and dependencies are not this repository's
+# prose; the exemptions are records, per the docstring.
+SKIP_DIRS = {"node_modules", "out", ".next", ".git"}
+# Exempt in full: the append-only log, and the review corpus whose
+# text is largely other writers' verbatim notes. Editing either for
+# punctuation would be editing a record.
 EXEMPT = ["DECISIONS.md"]
+EXEMPT_DIRS = ["review"]
 CODE_DIRS = ["app", "components", "lib"]
 CODE_SUFFIXES = {".tsx", ".ts"}
+
+
+def markdown_docs() -> list[Path]:
+    found: list[Path] = []
+    for p in sorted(ROOT.rglob("*.md")):
+        rel = p.relative_to(ROOT)
+        if any(part in SKIP_DIRS for part in rel.parts):
+            continue
+        if any(rel.parts[0] == d for d in EXEMPT_DIRS):
+            continue
+        found.append(p)
+    return found
 
 
 problems: list[str] = []
@@ -88,10 +111,8 @@ def scan(path: Path, skip_comments: bool = False) -> None:
             problems.append(f"{rel}:{n}: {line.strip()[:88]}")
 
 
-for name in DOCS:
-    p = ROOT / name
-    if p.exists():
-        scan(p)
+for p in markdown_docs():
+    scan(p)
 
 for d in CODE_DIRS:
     base = ROOT / d
@@ -117,4 +138,5 @@ if problems:
 
 print(f"  ok    no em dash in {scanned} file(s) of reader-facing prose")
 print(f"  --    {', '.join(EXEMPT)} is append-only and was not scanned")
+print(f"  --    {', '.join(d + '/' for d in EXEMPT_DIRS)} holds transcribed records and was not scanned")
 print("\nthe prose reads as written by a person")
