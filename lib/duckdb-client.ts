@@ -101,8 +101,7 @@ export function sqlLit(value: string): string {
   return `'${value.replace(/'/g, "''")}'`;
 }
 
-/** Run one SQL statement and return plain strings. */
-export async function querySQL(sql: string): Promise<QueryResult> {
+async function runSQL(sql: string): Promise<QueryResult> {
   const db = await getDB();
   const conn = await db.connect();
   try {
@@ -115,6 +114,48 @@ export async function querySQL(sql: string): Promise<QueryResult> {
   } finally {
     await conn.close();
   }
+}
+
+/** Blank out quoted spans so the keyword scan below reads only SQL,
+ * never data: 'SMITH LIMITED' is a published name, not a cap. */
+function withoutQuoted(sql: string): string {
+  return sql.replace(/'(?:[^']|'')*'/g, "''").replace(/"(?:[^"]|"")*"/g, '""');
+}
+
+/** Run one uncapped SQL statement and return plain strings.
+ *
+ * The cap-and-order contract is the signature, not a comment (ruled
+ * 2026-08-31): a LIMIT without an ORDER BY truncates to an arbitrary
+ * scan slice while the page presents the result as the record, so
+ * this door takes no cap and queryCapped cannot be called without an
+ * order. Unordered is legal only here, uncapped. */
+export async function querySQL(sql: string): Promise<QueryResult> {
+  if (/\blimit\b/i.test(withoutQuoted(sql))) {
+    throw new Error(
+      "querySQL is the uncapped door: a capped query goes through queryCapped, which requires an order"
+    );
+  }
+  return runSQL(sql);
+}
+
+/** The only door that emits LIMIT: the cap and the order arrive in
+ * the same call or not at all. Appends both itself, so a caller
+ * cannot smuggle an unordered cap past the contract. */
+export async function queryCapped(
+  sql: string,
+  orderBy: OrderBy | OrderBy[],
+  limit: number
+): Promise<QueryResult> {
+  const order = Array.isArray(orderBy) ? orderBy : [orderBy];
+  if (order.length === 0) {
+    throw new Error("queryCapped requires at least one order key");
+  }
+  if (/\blimit\b/i.test(withoutQuoted(sql))) {
+    throw new Error("queryCapped appends its own LIMIT; pass the query without one");
+  }
+  return runSQL(
+    `${sql}${orderClause(order)} LIMIT ${Math.max(0, Math.floor(limit))}`
+  );
 }
 
 /** Rows a table query returns at most; the UI's truncation notices use the same number. */
@@ -138,20 +179,27 @@ function parquetSource(url: string | string[]): string {
  * land at the end wherever the engine's default might put them. */
 export type OrderBy = { column: string; direction: "ASC" | "DESC" };
 
-function orderClause(orderBy?: OrderBy): string {
-  if (!orderBy) return "";
-  return ` ORDER BY ${sqlIdent(orderBy.column)} ${orderBy.direction} NULLS LAST`;
+function orderClause(orderBy?: OrderBy | OrderBy[]): string {
+  const list = !orderBy ? [] : Array.isArray(orderBy) ? orderBy : [orderBy];
+  if (list.length === 0) return "";
+  const keys = list.map(
+    (o) => `${sqlIdent(o.column)} ${o.direction} NULLS LAST`
+  );
+  return ` ORDER BY ${keys.join(", ")}`;
 }
 
-/** Run one SELECT against Parquet over HTTP, filtered by equality. */
+/** Run one SELECT against Parquet over HTTP, filtered by equality and
+ * capped, so the order is not optional: see queryCapped. */
 export async function queryParquet(
   url: string | string[],
   where: { column: string; equals: string },
-  limit = ROW_LIMIT,
-  orderBy?: OrderBy
+  orderBy: OrderBy | OrderBy[],
+  limit = ROW_LIMIT
 ): Promise<QueryResult> {
-  return querySQL(
-    `SELECT * FROM ${parquetSource(url)} WHERE ${sqlIdent(where.column)} = ${sqlLit(where.equals)}${orderClause(orderBy)} LIMIT ${Math.max(0, Math.floor(limit))}`
+  return queryCapped(
+    `SELECT * FROM ${parquetSource(url)} WHERE ${sqlIdent(where.column)} = ${sqlLit(where.equals)}`,
+    orderBy,
+    limit
   );
 }
 

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { BP } from "@/lib/config";
 import type { DataMap } from "@/lib/data";
-import { queryParquet } from "@/lib/duckdb-client";
+import { queryParquetAll } from "@/lib/duckdb-client";
 
 type State =
   | { status: "idle" }
@@ -25,7 +25,10 @@ export default function FullRecord({ ccn }: { ccn: string }) {
       const info = map.tables["providers"];
       if (!info?.ccn_column) throw new Error("no providers table");
       const url = new URL(`${BP}/${info.path}`, window.location.origin).toString();
-      const res = await queryParquet(url, {
+      // The providers table holds one row per CCN, so this filter
+      // returns one row. Uncapped because the query contract permits
+      // no cap without an order, and a one-row read needs neither.
+      const res = await queryParquetAll(url, {
         column: info.ccn_column,
         equals: ccn,
       });

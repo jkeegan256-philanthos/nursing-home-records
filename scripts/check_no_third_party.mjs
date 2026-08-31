@@ -585,6 +585,41 @@ if (owner) {
     `owner "${owner}": explorer rendered ${ownerRows} disclosure row(s)`,
     `the owner explorer rendered no rows for "${owner}"`
   );
+
+  // The presentation order is disclosed in the count-line and applied
+  // in the query (never after the fetch), so both halves are asserted
+  // on the rendered view: the sentence is present, and the State
+  // column really is non-decreasing. The same sentence appears on the
+  // pre-rendered /owner/ pages, which apply the same keys at build
+  // time; those run no query and are covered by the page-type loads.
+  const ownerCountLine = await page
+    .locator(".record-head .count-line")
+    .first()
+    .innerText()
+    .catch(() => "");
+  check(
+    ownerCountLine.includes("listed by state, then city, facility, and role"),
+    "the owner detail discloses its presentation order in the count-line",
+    `count-line reads ${JSON.stringify(ownerCountLine.slice(0, 100))}`
+  );
+  const ownerStates = await page.evaluate(() => {
+    const ths = [...document.querySelectorAll(".record-head table thead th")].map(
+      (t) => t.textContent.trim()
+    );
+    const i = ths.indexOf("State");
+    if (i < 0) return null;
+    return [...document.querySelectorAll(".record-head table tbody tr")].map(
+      (r) => r.children[i]?.textContent.trim() ?? ""
+    );
+  });
+  const statesInOrder =
+    ownerStates !== null &&
+    ownerStates.every((s, i) => i === 0 || ownerStates[i - 1] <= s);
+  check(
+    statesInOrder,
+    `owner detail rows render in the disclosed order (${ownerStates?.length ?? 0} row(s), state ascending)`,
+    `State column as rendered: ${JSON.stringify((ownerStates ?? []).slice(0, 12))}`
+  );
 }
 
 // 4. The remaining page types. The state and pre-rendered owner pages
@@ -682,12 +717,17 @@ check(
 // sites, drive the new one here anyway.
 const KNOWN_QUERY_CALLERS = {
   "components/FullRecord.tsx": 1,
-  "components/FacilityRecords.tsx": 2,
-  // The fifth call is the per-state facility counts on the owner
-  // detail view, driven by the same owner-detail navigation below.
-  "components/OwnerExplorer.tsx": 5,
+  // Tab load splits by contract: capped-and-ordered queryParquet for
+  // datasets with a sort column, uncapped queryParquetAll otherwise,
+  // plus the CSV export's own uncapped call.
+  "components/FacilityRecords.tsx": 3,
+  // Detail rows (queryCapped, plus the uncapped degraded-batch
+  // fallback), the two SQL count queries, the search (queryCapped),
+  // and the CSV export -- all driven by the searches and the
+  // owner-detail navigation below.
+  "components/OwnerExplorer.tsx": 6,
 };
-const QUERY_CALL = /\b(querySQL|queryParquet|queryParquetAll)\(/g;
+const QUERY_CALL = /\b(querySQL|queryCapped|queryParquet|queryParquetAll)\(/g;
 const actualCallers = {};
 for (const dir of ["components", "lib", "app"]) {
   const walk = (d) => {

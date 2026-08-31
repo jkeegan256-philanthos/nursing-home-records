@@ -69,8 +69,9 @@ export default async function OwnerPage({
         {o.facilities.toLocaleString()}{" "}
         {o.facilities === 1 ? "facility" : "facilities"} in {o.states}{" "}
         {o.states === 1 ? "state" : "states"}, {o.rows.length.toLocaleString()}{" "}
-        disclosure rows. Same name can be more than one person; different
-        spellings of one person are listed separately.{" "}
+        disclosure rows, listed by state, then city, facility, and role.
+        Same name can be more than one person; different spellings of one
+        person are listed separately.{" "}
         <a href={`${BP}/owners/?name=${encodeURIComponent(o.name)}`}>
           Open in the live explorer
         </a>{" "}
