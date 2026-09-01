@@ -94,7 +94,7 @@ const EXT_ORIGIN = "https://extensions.duckdb.org";
 const EXT_SHA256 = {
   "v1.4.3": {
     wasm_eh: "22765c8f7dc741cda2b571a66ac7bb355295d7d69a6c37e5315b265672984f55",
-    wasm_mvp: "PENDING-FIRST-VERIFIED-FETCH",
+    wasm_mvp: "0785c6c95d003eff4faa7b3b4b660f02c9c92f6d68d135ddf330d42e3a650600",
   },
 };
 
