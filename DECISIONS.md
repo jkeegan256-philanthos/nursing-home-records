@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 66 entries. `scripts/check_project_doc.py` asserts that
+This log holds 67 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -1936,3 +1936,21 @@ one means updating the number; that is the point of it.
   assertion was seen red first, the sentence against the prior
   build's bundle and the order against a build with the keys
   deliberately emptied, nine rows rendering in scan order.
+- 2026-08-31: the extension binary pinned by content. Founder ruling
+  on the review's WHAT 5, overruling the recorded counterargument in
+  so many words: a hard failure on refresh day is recoverable, a
+  silently different binary in every reader's path is not. The
+  Parquet extension is the one third-party executable this site puts
+  in every reader's browser; the origin gate confines where it comes
+  from, and vendor-assets.mjs now confines what it is, a sha256 per
+  engine version and platform checked on the fetch path and the
+  cached path alike, with a stopped build and a message naming the
+  observed hash as the only outcome for a miss. Bumping the engine
+  means recording the new hashes in the same change, on purpose. The
+  wasm_eh pin was measured from the vendored file and is verified
+  against a fresh origin fetch by every CI run; the wasm_mvp pin was
+  recorded from the first pinned CI fetch, whose deliberate red
+  printed the observed hash, since this sandbox's egress cannot
+  reach extensions.duckdb.org and the number had to come from a
+  fetch that did. Seen red twice before trusted: the unpinned
+  platform on CI, and a tampered pin against the local cache.

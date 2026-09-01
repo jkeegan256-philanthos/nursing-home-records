@@ -10,7 +10,8 @@
 // Parquet reader. The first read_parquet() call autoloads it over the
 // network, from extensions.duckdb.org, unless the engine has been
 // pointed somewhere else. See the 2026-08-22 entries in DECISIONS.md.
-import { copyFileSync, existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
@@ -81,6 +82,36 @@ const EXT_PLATFORMS = ["wasm_eh", "wasm_mvp"];
 const EXTENSIONS = ["parquet"];
 const EXT_ORIGIN = "https://extensions.duckdb.org";
 
+// The one third-party executable in every reader's path, pinned by
+// content (ruled 2026-08-31). The origin gate confines where it comes
+// from; this confines what it is: a sha256 per engine version and
+// platform, checked on the fetch path and the cached path alike. A
+// missing or mismatched pin stops the build. That is deliberate, and
+// it overrules the recorded counterargument: a hard failure on
+// refresh day is recoverable, a silently different binary in every
+// reader's browser is not. Bumping the engine means recording the
+// new hashes here, on purpose, in the same change.
+const EXT_SHA256 = {
+  "v1.4.3": {
+    wasm_eh: "22765c8f7dc741cda2b571a66ac7bb355295d7d69a6c37e5315b265672984f55",
+    wasm_mvp: "0785c6c95d003eff4faa7b3b4b660f02c9c92f6d68d135ddf330d42e3a650600",
+  },
+};
+
+function assertPinned(version, platform, body, source) {
+  const got = createHash("sha256").update(body).digest("hex");
+  const want = EXT_SHA256[version]?.[platform];
+  if (got !== want) {
+    throw new Error(
+      `extension ${version}/${platform} from ${source}: sha256 ${got} does not ` +
+        `match the pin ${JSON.stringify(want)}. Nothing ships unpinned or ` +
+        `changed: if this is a deliberate engine bump or a verified upstream ` +
+        `republish, record the new hash in EXT_SHA256 in this file, in the ` +
+        `same change, on purpose.`
+    );
+  }
+}
+
 const version = await engineVersion();
 console.log(`  DuckDB engine ${version}`);
 
@@ -89,7 +120,10 @@ for (const platform of EXT_PLATFORMS) {
     const rel = `duckdb/extensions/${version}/${platform}/${name}.duckdb_extension.wasm`;
     const to = join(root, "public", rel);
     if (existsSync(to)) {
-      console.log(`  public/${rel}  ${(statSync(to).size / 1024).toFixed(0)} KB (cached)`);
+      // The cached path verifies too: a stale or altered file on disk
+      // is exactly as much the reader's executable as a fresh fetch.
+      assertPinned(version, platform, readFileSync(to), "cache");
+      console.log(`  public/${rel}  ${(statSync(to).size / 1024).toFixed(0)} KB (cached, sha256 verified)`);
       total += statSync(to).size;
       continue;
     }
@@ -103,10 +137,11 @@ for (const platform of EXT_PLATFORMS) {
       );
     }
     const body = Buffer.from(await res.arrayBuffer());
+    assertPinned(version, platform, body, EXT_ORIGIN);
     mkdirSync(dirname(to), { recursive: true });
     writeFileSync(to, body);
     total += body.length;
-    console.log(`  public/${rel}  ${(body.length / 1024).toFixed(0)} KB`);
+    console.log(`  public/${rel}  ${(body.length / 1024).toFixed(0)} KB (sha256 verified)`);
   }
 }
 
