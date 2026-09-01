@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 64 entries. `scripts/check_project_doc.py` asserts that
+This log holds 66 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -1903,3 +1903,36 @@ one means updating the number; that is the point of it.
   joins the scan; the review note that it carried them did not
   reproduce, which is recorded here so the discrepancy is a fact
   with a date rather than a silent drop.
+- 2026-08-31: the cap-and-order contract moved from comment to
+  signature. Founder ruling on the review's WHAT 4: any query
+  carrying a LIMIT must take an order argument, and unordered is
+  legal only where there is no cap, so that bypassing is impossible
+  rather than discouraged. querySQL is now the uncapped door and
+  refuses SQL containing LIMIT outside quoted spans; queryCapped is
+  the only code that emits LIMIT and cannot be called without an
+  order; queryParquet's order parameter became required. The type
+  checker was the first red: it rejected both existing
+  capped-unordered call sites by name before either was touched.
+  Under the contract the record tabs split honestly, capped and
+  ordered where a dataset has a disclosed date column, uncapped and
+  unordered where it does not, bounded by the facility's own rows
+  exactly as the CSV export already was. The owner explorer's detail
+  rows are now ordered in the query rather than sorted after the
+  fetch, which closes the review's post-fetch-sort finding: the old
+  sort was true only of the slice that survived the cap. The CSV's
+  uncapped re-query is unchanged. The origins gate's caller
+  declaration moved to the new counts, which is that tripwire firing
+  at the person making the change, as designed.
+- 2026-08-31: owner-surface presentation order disclosed. Founder
+  ruling on the review's WHAT 7: silence was defensible when nothing
+  else disclosed, but beside two tables that name their sort,
+  silence reads as omission. Both owner surfaces, the explorer
+  detail and the pre-rendered /owner/ pages, now say "listed by
+  state, then city, facility, and role" in the count-line, the same
+  idiom the record tabs use, and both apply the same four keys, the
+  explorer in the query and the build in export_owner_pages. The
+  origins gate asserts both halves on the driven owner: the sentence
+  is present and the rendered State column is non-decreasing. Each
+  assertion was seen red first, the sentence against the prior
+  build's bundle and the order against a build with the keys
+  deliberately emptied, nine rows rendering in scan order.

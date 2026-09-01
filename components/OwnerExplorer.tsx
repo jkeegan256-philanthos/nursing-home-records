@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { BP, CMS_DATASET_URL } from "@/lib/config";
 import type { DataMap, TableInfo } from "@/lib/data";
 import {
+  queryCapped,
   queryParquetAll,
   querySQL,
   sqlIdent,
@@ -33,6 +34,17 @@ const isUnnamed = (name: string) => name.trim() === "" || name === "None";
 // batches. The header counts come from SQL over all rows either way,
 // and the rendered notice says so if a batch ever exceeds this.
 const DETAIL_ROW_LIMIT = 3000;
+
+// The presentation order for detail rows, disclosed in the count-line
+// and identical to the order the pre-rendered /owner/ pages apply at
+// build time: two surfaces showing the same record must not disagree
+// about what "listed by state" means.
+const DETAIL_ORDER = [
+  "State",
+  "City/Town",
+  "Provider Name",
+  "Role played by Owner or Manager in Facility",
+];
 
 type Hit = { name: string; types: string; facilities: number };
 type DetailRow = {
@@ -125,9 +137,19 @@ export default function OwnerExplorer() {
     const url = new URL(`${BP}/${info.path}`, window.location.origin).toString();
     (async () => {
       try {
-        const res = await querySQL(
-          `SELECT * FROM read_parquet(${sqlLit(url)}) WHERE "Owner Name" = ${sqlLit(selected)} LIMIT ${DETAIL_ROW_LIMIT}`
-        );
+        // Capped, so ordered in the query itself: the contract in
+        // lib/duckdb-client.ts, and the sort ruling's reason, since
+        // ordering after the fetch would order only the capped slice.
+        // Keys are filtered to the columns this batch carries; a batch
+        // missing all four renders the fallback table anyway and is
+        // read uncapped, because a cap without an order is illegal.
+        const src = `SELECT * FROM read_parquet(${sqlLit(url)}) WHERE "Owner Name" = ${sqlLit(selected)}`;
+        const orderKeys = DETAIL_ORDER.filter((c) =>
+          info.columns.includes(c)
+        ).map((column) => ({ column, direction: "ASC" as const }));
+        const res = orderKeys.length
+          ? await queryCapped(src, orderKeys, DETAIL_ROW_LIMIT)
+          : await querySQL(src);
         if (!alive) return;
         const need = [
           info.ccn_column ?? "CMS Certification Number (CCN)",
@@ -179,13 +201,9 @@ export default function OwnerExplorer() {
           pct: (idx[5] >= 0 ? r[idx[5]] : "") ?? "",
           since: (idx[6] >= 0 ? r[idx[6]] : "") ?? "",
         }));
-        rows.sort(
-          (a, b) =>
-            a.state.localeCompare(b.state) ||
-            a.city.localeCompare(b.city) ||
-            a.facility.localeCompare(b.facility) ||
-            a.role.localeCompare(b.role)
-        );
+        // Rows arrive already ordered by the query; sorting here again
+        // would be the post-fetch sort the ruling forbids, true only
+        // of the slice that survived the cap.
         const types = [...new Set(res.rows.map((r) => (idx[7] >= 0 ? r[idx[7]] : null)).filter(Boolean) as string[])];
         const roles = [...new Set(rows.map((r) => r.role).filter(Boolean))];
         setDetail({
@@ -265,11 +283,18 @@ export default function OwnerExplorer() {
         .filter(Boolean)
         .map((t) => `contains(upper("Owner Name"), upper(${sqlLit(t)}))`)
         .join(" AND ");
-      const res = await querySQL(
+      // Capped at 60 hits, so the order rides in the same call: most
+      // facilities first, then name, both from the query. The count
+      // is aliased so the order key is a named output column.
+      const res = await queryCapped(
         `SELECT "Owner Name", string_agg(DISTINCT coalesce("Owner Type", '')), ` +
-          `count(DISTINCT ${ccn}) FROM read_parquet(${sqlLit(url)}) ` +
-          `WHERE ${NAMED} AND ${match} ` +
-          `GROUP BY 1 ORDER BY 3 DESC, 1 LIMIT 60`
+          `count(DISTINCT ${ccn}) AS "Facility count" FROM read_parquet(${sqlLit(url)}) ` +
+          `WHERE ${NAMED} AND ${match} GROUP BY 1`,
+        [
+          { column: "Facility count", direction: "DESC" },
+          { column: "Owner Name", direction: "ASC" },
+        ],
+        60
       );
       setHits(
         res.rows.map((r) => ({
@@ -435,8 +460,9 @@ export default function OwnerExplorer() {
                   {detail.totalRows > detail.rows.length
                     ? ` (showing the first ${detail.rows.length.toLocaleString()})`
                     : ""}
-                  . Same name can be more than one person; different spellings
-                  of one person are listed separately.
+                  , listed by state, then city, facility, and role. Same name
+                  can be more than one person; different spellings of one
+                  person are listed separately.
                 </span>
                 {info ? (
                   <CsvButton

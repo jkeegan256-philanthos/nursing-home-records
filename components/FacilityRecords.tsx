@@ -115,9 +115,10 @@ function partitionIdentity(
 // touchpoint 3): a default presentation order by one published
 // column, disclosed, not reader-controlled sorting and not a
 // judgment about which rows matter. A dataset not listed here, or
-// whose column a future batch renames away, renders in engine order
-// and makes no claim; the engine order was never file order to begin
-// with, only whatever the scan emitted.
+// whose column a future batch renames away, is read uncapped and
+// renders in engine order, making no claim; the engine order was
+// never file order to begin with, only whatever the scan emitted,
+// and the query contract permits no cap without an order.
 const SORT_COLUMNS: Record<string, string> = {
   penalties: "Penalty Date",
   health_citations: "Survey Date",
@@ -147,7 +148,7 @@ const PREFERRED_ORDER = [
 type TabState =
   | { status: "idle" }
   | { status: "loading" }
-  | { status: "done"; result: QueryResult }
+  | { status: "done"; result: QueryResult; capped: boolean }
   | { status: "empty" }
   | { status: "absent"; note: string }
   | { status: "error"; message: string };
@@ -282,18 +283,24 @@ export default function FacilityRecords({
     setTabs((t) => ({ ...t, [key]: { status: "loading" } }));
     try {
       const sortCol = sortColumnFor(key, info);
-      const result = await queryParquet(
-        urls,
-        { column: info.ccn_column, equals: ccn },
-        ROW_LIMIT,
-        sortCol ? { column: sortCol, direction: "DESC" } : undefined
-      );
+      // Capped and ordered, or uncapped and unordered: the query
+      // contract in lib/duckdb-client.ts permits no third shape, and
+      // a single facility's own rows bound the uncapped branch the
+      // same way they bound the CSV export below.
+      const result = sortCol
+        ? await queryParquet(
+            urls,
+            { column: info.ccn_column, equals: ccn },
+            { column: sortCol, direction: "DESC" },
+            ROW_LIMIT
+          )
+        : await queryParquetAll(urls, { column: info.ccn_column, equals: ccn });
       setTabs((t) => ({
         ...t,
         [key]:
           result.rows.length === 0
             ? { status: "empty" }
-            : { status: "done", result },
+            : { status: "done", result, capped: !!sortCol },
       }));
     } catch (err) {
       console.error(`records query failed for ${key}`, err);
@@ -411,7 +418,7 @@ export default function FacilityRecords({
                   {active && sortColumnFor(active, info)
                     ? `, newest first by ${sortColumnFor(active, info)}`
                     : ""}
-                  {tab.result.rows.length >= ROW_LIMIT
+                  {tab.capped && tab.result.rows.length >= ROW_LIMIT
                     ? ` (showing the first ${ROW_LIMIT.toLocaleString()})`
                     : ""}
                 </span>
