@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 67 entries. `scripts/check_project_doc.py` asserts that
+This log holds 68 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -1954,3 +1954,23 @@ one means updating the number; that is the point of it.
   reach extensions.duckdb.org and the number had to come from a
   fetch that did. Seen red twice before trusted: the unpinned
   platform on CI, and a tampered pin against the local cache.
+- 2026-08-31: the glossary freshness claim earned its check. Founder
+  ruling on the review's WHAT 6: build the check, keep the claim,
+  because the dictionary is republished with every batch and the
+  comparison is the cheaper half of principle 7. check:glossary
+  parses the quoted definitions, role values, and stated vintage out
+  of lib/glossary.ts and asserts each appears in the batch's own
+  NH_Data_Dictionary.pdf, normalized for the typography PDF text
+  extraction does not own; the page's sentence now says the build
+  refuses to publish until the page matches the dictionary, which is
+  what the check makes true. The fixture's stand-in dictionary, a
+  three-line PDF with no text, is replaced by a real one generated
+  from the site's own quotes through the checker's parser, so CI
+  runs every branch of the comparison and deliberately proves
+  plumbing rather than freshness; the deploy path runs the same
+  check against CMS's actual PDF, and that half meets its first real
+  dictionary on the September refresh. Seen red three ways before
+  being trusted: the old textless stand-in (a check that cannot read
+  its evidence must not pass), a deliberately drifted quote named by
+  term, and the parser guard that fails when it finds fewer entries
+  than the file is known to hold.
