@@ -23,7 +23,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install DuckDB
-        run: pip install duckdb pyyaml
+        run: pip install duckdb pyyaml pymupdf
 
       - name: Assert the decision log is intact
         # PROJECT.md claims every decision and reversal is recorded at
@@ -66,6 +66,14 @@ jobs:
 
       - name: Build static site from the fixture
         run: npm run build
+
+      - name: Assert the glossary quotes this batch's dictionary
+        # The Role definitions page claims verbatim quotes from the
+        # data dictionary and that the page moves when CMS revises
+        # one. The fixture's dictionary is generated from the site's
+        # own quotes, so here this proves the check's plumbing runs;
+        # the deploy runs it against CMS's actual PDF for freshness.
+        run: npm run check:glossary
 
       - name: Install Chromium for the origin check
         run: npx playwright install --with-deps chromium

@@ -72,8 +72,10 @@ export default function GlossaryPage() {
           NH_Data_Dictionary.pdf
         </a>
         . If CMS revises a definition, the next monthly batch carries the
-        revision and this page moves with it. The dictionary&apos;s own
-        revision table (its Table 16) dates every change to the role list.
+        revision, and a build check compares every quote on this page
+        against that batch&apos;s dictionary: the site does not publish
+        until this page matches it. The dictionary&apos;s own revision
+        table (its Table 16) dates every change to the role list.
       </p>
     </div>
   );

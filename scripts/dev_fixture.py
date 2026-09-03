@@ -92,6 +92,36 @@ def facility(i: int, st: str) -> dict:
     }
 
 
+def dictionary_pdf() -> bytes:
+    """A real mini dictionary, built from the site's own glossary
+    quotes via check_glossary's parser, so check:glossary runs every
+    branch in CI: parse, extract, normalize, compare. On the fixture
+    that proves plumbing, deliberately not freshness; the deploy path
+    runs the same check against CMS's actual PDF, and a branch that
+    only runs at deploy has never run (deploy 63's lesson)."""
+    import check_glossary
+    import pymupdf
+
+    entries, roles, vintage = check_glossary.parse_glossary()
+    # Straightened through the checker's own table: the base PDF font
+    # cannot encode typographic quotes and dashes, and the comparison
+    # normalizes both sides through the same function anyway.
+    text = check_glossary.straighten(
+        "CMS Nursing Home Data Dictionary (" + vintage + ")\n\n"
+        + "\n\n".join(f"{t}: {d}" for t, d in entries)
+        + "\n\nRole values:\n"
+        + "\n".join(roles)
+    )
+    doc = pymupdf.open()
+    page = doc.new_page()
+    rect = pymupdf.Rect(36, 36, page.rect.width - 36, page.rect.height - 36)
+    leftover = page.insert_textbox(rect, text, fontsize=6)
+    if leftover < 0:
+        raise SystemExit("fixture dictionary text overflowed its page; "
+                         "grow the layout rather than truncating quotes")
+    return doc.tobytes()
+
+
 def csv_bytes(cols: list[str], rows: list[dict]) -> bytes:
     buf = io.StringIO()
     w = csv.DictWriter(buf, fieldnames=cols, quoting=csv.QUOTE_ALL, lineterminator="\r\n")
@@ -230,7 +260,7 @@ def main() -> None:
             ["CMS Certification Number (CCN)", "State", "Value"],
             [{"CMS Certification Number (CCN)": "000001", "State": "UT", "Value": "1"}],
         ),
-        "NH_Data_Dictionary.pdf": b"%PDF-1.4\n%fixture stand-in\n%%EOF\n",
+        "NH_Data_Dictionary.pdf": dictionary_pdf(),
     }
 
     manifest = []

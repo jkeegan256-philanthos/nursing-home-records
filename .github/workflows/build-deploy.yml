@@ -68,7 +68,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install DuckDB
-        run: pip install duckdb pyyaml
+        run: pip install duckdb pyyaml pymupdf
 
       - name: Assert the deploy workflow cannot trigger itself
         # The one gate whose subject is this very file, so a direct
@@ -113,6 +113,13 @@ jobs:
         # identical filled glyphs with colour as the only difference, so
         # a copied or scraped page turned every rating into five.
         run: npm run check:rendered
+
+      - name: Assert the glossary quotes this batch's dictionary
+        # The freshness half: the same check CI runs on the generated
+        # fixture dictionary, here against the PDF CMS shipped in this
+        # batch. If CMS revised a definition, this build stops until
+        # lib/glossary.ts says what the dictionary now says.
+        run: npm run check:glossary
 
       - name: Assert the deployed site will talk only to itself
         # The pull-request run checks the fixture export. This checks the

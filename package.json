@@ -14,6 +14,7 @@
     "data": "python3 scripts/build_data.py",
     "fixture": "python3 scripts/dev_fixture.py && NH_PARTITION_MIN_BYTES=500 NH_OWNER_PAGE_MIN=2 NH_METHODS_FACILITY_MIN=2 NH_STATE_URL= python3 scripts/build_data.py --zip build/fixture/theme_fixture.zip",
     "check:loop": "python3 scripts/check_loop_guard.py",
+    "check:glossary": "python3 scripts/check_glossary.py",
     "check:doc": "python3 scripts/check_project_doc.py",
     "check:prose": "python3 scripts/check_prose_style.py",
     "check:origins": "node scripts/check_no_third_party.mjs",
