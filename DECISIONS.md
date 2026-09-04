@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 69 entries. `scripts/check_project_doc.py` asserts that
+This log holds 70 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -2002,3 +2002,40 @@ one means updating the number; that is the point of it.
   rendered gate asserts every role and count a named example shows
   is the export's, firm on real batches and a stated skip on the
   fixture, where the names are absent by design.
+- 2026-09-04: watchers built for the two watchable revisit
+  conditions from 2026-08-27, shipped before the September refresh on
+  purpose, so the first refresh under the new regime is their first
+  real run. The two conditions get different mechanisms, and the
+  difference is the point. The formula-character condition is a hard
+  stop on a data condition: that entry reserved a batch publishing an
+  owner name beginning with equals, plus, minus, or at for a human
+  ruling, revisit rather than inherit, and a decision reserved for a
+  human must reach one, which on this project means a red build
+  before publish (deploys 63 and 71 are the precedent: failed loud,
+  served nothing wrong, ruled within the hour). Tab and carriage
+  return join the entry's four characters because spreadsheet
+  software treats them as formula-leading too; that widening is
+  stated here rather than done quietly. Scope is what is published,
+  every owner name in the exported table, and the failure message
+  carries the entry's date, the offending names verbatim, and both
+  standing reasons not to escape, so the refresh-morning ruling takes
+  a minute and not an excavation. The stated cost is accepted: on the
+  batch where this first fires, the site stays on the prior build
+  until someone rules, the correct price for a decision the log
+  deliberately refused to make in advance. The index-weight condition
+  is a threshold on a growth curve: the tripwire was set with no
+  number, so the founder set one, 700 KB compressed, chosen rather
+  than measured, about 56% headroom over the recorded 447 KB, large
+  enough that ordinary drift never fires and small enough that a real
+  change does. It is measured the way a reader pays it, compressed,
+  by local gzip labeled in the message as a proxy for what GitHub
+  Pages serves. Neither watcher is a warning, because a warning
+  nobody reads is how this class of condition became unwatched. Both
+  seen red first against the real mechanisms: a planted equals-name
+  stopping the build with the full ruling context printed, and an
+  index genuinely inflated past the real threshold with ninety
+  thousand incompressible names, no lowered bar. The third revisit
+  condition, the metastore schema change, stays external and stays
+  named as unheld: it is watched, if at all, by a trigger no
+  repository machinery can prove exists, and no watcher built here
+  should imply otherwise. The honest count is two watched of three.

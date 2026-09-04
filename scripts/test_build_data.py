@@ -397,13 +397,92 @@ def test_top_owner_roles_are_derived_per_role() -> None:
               f"got {got!r}")
 
 
-for t in (    test_whitespace_state_does_not_split_a_state,
+# ---------------------------------------------------------------- watchers
+
+def _own_row(ccn: str, name: str, role: str = "CORPORATE OFFICER") -> dict:
+    return {
+        "CMS Certification Number (CCN)": ccn,
+        "Provider Name": f"HOME {ccn}", "City/Town": "TOWN",
+        "State": "UT", "ZIP Code": "84000",
+        "Role played by Owner or Manager in Facility": role,
+        "Owner Type": "Individual", "Owner Name": name,
+        "Ownership Percentage": "NOT APPLICABLE",
+        "Association Date": "since 01/01/2015",
+        "Processing Date": "2026-06-01",
+    }
+
+
+_OWN_COLS = list(_own_row("0", "X").keys())
+
+
+def test_formula_leading_owner_name_stops_the_build() -> None:
+    """Entry 70's first watcher: the 2026-08-27 entry reserves a batch
+    publishing a formula-leading owner name for a human ruling, so the
+    build must stop before publish and the message must let that human
+    rule in a minute: the entry's date, the names verbatim, and the
+    standing reasons not to escape."""
+    rows = [
+        _own_row("111111", "SMITH, JANE"),
+        _own_row("222222", "=SUM(A1) LLC"),
+    ]
+    files = {
+        "NH_ProviderInfo_Jun2026.csv": csv_bytes(
+            list(provider("0", "UT").keys()),
+            [provider("111111", "UT"), provider("222222", "UT")],
+        ),
+        "NH_Ownership_Jun2026.csv": csv_bytes(_OWN_COLS, rows),
+    }
+    with tempfile.TemporaryDirectory() as td:
+        res = run_transform(files, Path(td))
+        out = res.stdout + res.stderr
+        check(res.returncode != 0,
+              "watchers: a formula-leading owner name stops the build", out[-300:])
+        check("=SUM(A1) LLC" in out,
+              "watchers: the offending name is printed verbatim", out[-300:])
+        check("2026-08-27" in out and "revisit" in out,
+              "watchers: the message carries the entry date and the "
+              "revisit-not-inherit condition", out[-300:])
+        check("shown as published" in out and "one page away" in out,
+              "watchers: both standing reasons ride in the message", out[-300:])
+
+
+def test_owner_index_weight_past_threshold_stops_the_build() -> None:
+    """Entry 70's second watcher, fired against the real threshold by
+    a genuinely inflated index rather than a lowered bar: enough
+    unique incompressible names that owners-slim.json exceeds 700 KB
+    gzip-compressed."""
+    import hashlib as _h
+    rows = [
+        _own_row("111111", f"OWNER {_h.sha256(str(i).encode()).hexdigest()[:28].upper()} {i}")
+        for i in range(90_000)
+    ]
+    files = {
+        "NH_ProviderInfo_Jun2026.csv": csv_bytes(
+            list(provider("0", "UT").keys()), [provider("111111", "UT")],
+        ),
+        "NH_Ownership_Jun2026.csv": csv_bytes(_OWN_COLS, rows),
+    }
+    with tempfile.TemporaryDirectory() as td:
+        res = run_transform(files, Path(td))
+        out = res.stdout + res.stderr
+        check(res.returncode != 0,
+              "watchers: an owner index past 700 KB compressed stops the build",
+              out[-300:])
+        check("proxy" in out and "chosen" in out,
+              "watchers: the message labels gzip a proxy and the threshold "
+              "chosen, not measured", out[-300:])
+
+
+for t in (
+    test_whitespace_state_does_not_split_a_state,
     test_two_files_one_table_name_is_fatal,
     test_other_shard_holds_the_rows_and_unions_cleanly,
     test_count_drift_discriminates_cms_from_us,
     test_repackaged_zip_is_named_not_mistaken_for_data,
     test_manifest_only_change_is_named_metadata_not_data,
     test_top_owner_roles_are_derived_per_role,
+    test_formula_leading_owner_name_stops_the_build,
+    test_owner_index_weight_past_threshold_stops_the_build,
 ):
     t()
 

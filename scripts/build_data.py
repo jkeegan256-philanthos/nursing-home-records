@@ -21,6 +21,7 @@ any mismatch.
 from __future__ import annotations
 
 import argparse
+import gzip
 import hashlib
 import json
 import os
@@ -455,6 +456,45 @@ def export_owners(
         f"SELECT * FROM {rel} WHERE \"Owner Name\" IS NOT NULL "
         f"AND trim(\"Owner Name\") <> '' AND \"Owner Name\" <> 'None'"
     )
+
+    # Watcher for the 2026-08-27 formula-character condition (entry
+    # 70). That entry declines CSV formula escaping per batch, on the
+    # measured fact that no published owner name begins with a
+    # formula-leading character, and reserves the contrary batch for a
+    # human: revisit, not inherit. A decision reserved for a human
+    # must reach one, and the one mechanism here that reliably does is
+    # a red gate before publish (deploys 63 and 71 are the precedent:
+    # failed loud, served nothing wrong, ruled within the hour). Tab
+    # and carriage return ride with the entry's four characters
+    # because spreadsheet software treats them as formula-leading too;
+    # the widening is stated in entry 70, not done quietly. Scope is
+    # what is published: every owner name in the exported table.
+    formula_offenders = [
+        r[0]
+        for r in con.execute(
+            f"SELECT DISTINCT \"Owner Name\" FROM {rel} "
+            f"WHERE \"Owner Name\" IS NOT NULL "
+            f"AND regexp_matches(\"Owner Name\", ?) ORDER BY 1 LIMIT 20",
+            ["^[=+@\t\r-]"],
+        ).fetchall()
+    ]
+    if formula_offenders:
+        die(
+            f"{len(formula_offenders)} published owner name(s) begin with a "
+            f"formula-leading character (equals, plus, minus, at, tab, or "
+            f"carriage return): "
+            + "; ".join(repr(o) for o in formula_offenders)
+            + ". The 2026-08-27 entry declined CSV formula escaping per "
+            f"batch and reserved exactly this batch for a human ruling: "
+            f"revisit, not inherit. The standing reasons not to escape, so "
+            f"the ruling takes a minute and not an excavation: escaping "
+            f"would modify a published value on a site whose footer "
+            f"promises figures shown as published, and the untouched CMS "
+            f"originals are republished one page away, so a reader opening "
+            f"those carries identical exposure either way. Nothing ships "
+            f"until someone rules and logs the ruling."
+        )
+    print("  ok    no published owner name begins with a formula-leading character")
     # 150 exported vs 100 rendered on the Owners page: intentional
     # headroom so the page slice can grow without waiting for a rebuild.
     top = con.execute(
@@ -502,13 +542,42 @@ def export_owners(
         f"SELECT \"Owner Name\", string_agg(DISTINCT coalesce(\"Owner Type\", '')), "
         f"count(DISTINCT {ccn}) FROM ({named}) GROUP BY 1 ORDER BY 1"
     ).fetchall()
-    (parquet_root.parent / "owners-slim.json").write_text(
-        json.dumps(
-            {"columns": ["Owner Name", "Owner Type", "Facilities"], "rows": all_named},
-            ensure_ascii=False,
-            separators=(",", ":"),
-        ),
-        encoding="utf-8",
+    slim_json = json.dumps(
+        {"columns": ["Owner Name", "Owner Type", "Facilities"], "rows": all_named},
+        ensure_ascii=False,
+        separators=(",", ":"),
+    )
+    (parquet_root.parent / "owners-slim.json").write_text(slim_json, encoding="utf-8")
+
+    # Watcher for the 2026-08-27 index-weight tripwire, which was set
+    # with no number attached (entry 70 attaches one). The reader pays
+    # this file compressed, so it is measured compressed: local gzip,
+    # a proxy for what GitHub Pages actually serves, and labeled as a
+    # proxy in the message. The threshold is chosen, not measured:
+    # 700 KB, about 56% headroom over the 447 KB that entry recorded,
+    # large enough that ordinary batch drift never fires it and small
+    # enough that a real change does. A threshold breach fails like
+    # everything else here, because a warning nobody reads is how this
+    # class of condition became unwatched in the first place.
+    slim_gz = len(gzip.compress(slim_json.encode("utf-8")))
+    SLIM_MAX_COMPRESSED = 700 * 1024
+    if slim_gz > SLIM_MAX_COMPRESSED:
+        die(
+            f"owners-slim.json is {slim_gz:,} bytes gzip-compressed (local "
+            f"gzip, a proxy for what GitHub Pages serves), past the 700 KB "
+            f"threshold. The threshold was chosen on 2026-09-04, not "
+            f"measured: about 56% headroom over the 447 KB the 2026-08-27 "
+            f"entry recorded on the wire. That entry's tripwire says "
+            f"revisit with the then-current numbers rather than cite the "
+            f"old ones, and this failure is that revisit arriving: raw "
+            f"size {len(slim_json.encode('utf-8')):,} bytes across "
+            f"{len(all_named):,} named owners. Decide with today's "
+            f"numbers, log the decision, and either raise the threshold "
+            f"on purpose or change how the index is built."
+        )
+    print(
+        f"  ok    owners-slim.json is {slim_gz:,} bytes gzip-compressed "
+        f"(threshold 716,800; gzip is a local proxy for the wire)"
     )
 
     (build_dir / "owners-top.json").write_text(
