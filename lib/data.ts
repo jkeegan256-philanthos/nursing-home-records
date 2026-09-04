@@ -151,7 +151,16 @@ export type OwnersTop = {
   dataset_id: string | null;
   modified_date: string | null;
   source_file: string | null;
-  top: { name: string; types: string; facilities: number; states: number }[];
+  top: {
+    name: string;
+    types: string;
+    facilities: number;
+    states: number;
+    // Distinct facilities per published role, largest first. A party
+    // can hold several roles at one facility, so these need not sum
+    // to the name's facility count.
+    roles: { role: string; facilities: number }[];
+  }[];
 };
 let _owners: OwnersTop | null = null;
 export function ownersTop(): OwnersTop | null {

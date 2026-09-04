@@ -451,6 +451,47 @@ check(
   `aggregateRating or Review markup found on ${reviewVocab.length} page(s), e.g. ${reviewVocab[0]}`
 );
 
+// The Methods page's named examples teach from the roles CMS filed,
+// derived per batch (entry 69): every role and count the page shows
+// for a named example must be the export's, in the export's order.
+// The names are properties of the real file, so on the fixture the
+// examples are absent by design and this is a stated skip; the firm
+// branch runs on every real batch, where the examples exist.
+{
+  const methodsPage = join(DIR, "methods", "index.html");
+  const topPath = "build/owners-top.json";
+  const html = existsSync(methodsPage) ? readFileSync(methodsPage, "utf8") : "";
+  const top = existsSync(topPath)
+    ? JSON.parse(readFileSync(topPath, "utf8")).top
+    : [];
+  const named = ["FORVIS MAZARS LLP", "CIBC BANK USA"].filter((n) =>
+    html.includes(esc(n))
+  );
+  if (named.length === 0) {
+    console.log(
+      "  --    Methods named examples absent from this batch (the fixture " +
+        "by design); their role breakdowns are asserted on real batches"
+    );
+  } else {
+    for (const name of named) {
+      const row = top.find((t) => t.name === name);
+      const missing = (row?.roles ?? []).filter(
+        (r) =>
+          !html.includes(
+            `${esc(r.role)}</span> at ${r.facilities.toLocaleString()}`
+          )
+      );
+      check(
+        !!row && row.roles.length > 0 && missing.length === 0,
+        `Methods shows ${name}'s roles as exported (${row?.roles.length ?? 0} role(s))`,
+        row
+          ? `missing from the page: ${missing.map((r) => `${r.role} at ${r.facilities}`).join("; ")}`
+          : `${name} rendered on Methods but is not in ${topPath}`
+      );
+    }
+  }
+}
+
 // The Data page's catalog: one Dataset per table, identified by CMS's
 // own dataset id, matching the data map.
 {

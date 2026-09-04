@@ -339,14 +339,71 @@ def test_manifest_only_change_is_named_metadata_not_data() -> None:
             revised.stdout[-300:],
         )
 
+# ---------------------------------------------------------------- roles
 
-for t in (
-    test_whitespace_state_does_not_split_a_state,
+def test_top_owner_roles_are_derived_per_role() -> None:
+    """The Methods page teaches from named example parties using the
+    roles CMS filed for them, never an outside characterization, so
+    the top-owner export carries a per-role distinct-facility
+    breakdown for each name. One name filed in two roles across
+    overlapping facilities is exactly the shape the page renders: the
+    counts need not sum to the name's facility count, and the order
+    is by footprint, largest role first."""
+    def own(ccn: str, role: str) -> dict:
+        return {
+            "CMS Certification Number (CCN)": ccn,
+            "Provider Name": f"HOME {ccn}", "City/Town": "TOWN",
+            "State": "UT", "ZIP Code": "84000",
+            "Role played by Owner or Manager in Facility": role,
+            "Owner Type": "Individual", "Owner Name": "BREAKDOWN, PAT",
+            "Ownership Percentage": "NOT APPLICABLE",
+            "Association Date": "since 01/01/2015",
+            "Processing Date": "2026-06-01",
+        }
+
+    own_cols = list(own("0", "").keys())
+    rows = [
+        own("111111", "OPERATIONAL/MANAGERIAL CONTROL"),
+        own("222222", "OPERATIONAL/MANAGERIAL CONTROL"),
+        own("111111", "5% OR GREATER DIRECT OWNERSHIP INTEREST"),
+    ]
+    files = {
+        "NH_ProviderInfo_Jun2026.csv": csv_bytes(
+            list(provider("0", "UT").keys()),
+            [provider("111111", "UT"), provider("222222", "UT")],
+        ),
+        "NH_Ownership_Jun2026.csv": csv_bytes(own_cols, rows),
+    }
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        res = run_transform(files, root)
+        check(res.returncode == 0, "roles: transform succeeds on the two-role batch",
+              res.stderr[-400:] if res.returncode else "")
+        tops = list(root.rglob("owners-top.json"))
+        check(len(tops) == 1, "roles: exactly one owners-top.json written",
+              str(tops))
+        if not tops:
+            return
+        top = json.loads(tops[0].read_text(encoding="utf-8"))["top"]
+        row = next((r for r in top if r["name"] == "BREAKDOWN, PAT"), None)
+        check(row is not None, "roles: the two-role name is in the export", str(top)[:200])
+        got = row.get("roles") if row else None
+        want = [
+            {"role": "OPERATIONAL/MANAGERIAL CONTROL", "facilities": 2},
+            {"role": "5% OR GREATER DIRECT OWNERSHIP INTEREST", "facilities": 1},
+        ]
+        check(got == want,
+              "roles: per-role distinct-facility breakdown, largest first",
+              f"got {got!r}")
+
+
+for t in (    test_whitespace_state_does_not_split_a_state,
     test_two_files_one_table_name_is_fatal,
     test_other_shard_holds_the_rows_and_unions_cleanly,
     test_count_drift_discriminates_cms_from_us,
     test_repackaged_zip_is_named_not_mistaken_for_data,
     test_manifest_only_change_is_named_metadata_not_data,
+    test_top_owner_roles_are_derived_per_role,
 ):
     t()
 

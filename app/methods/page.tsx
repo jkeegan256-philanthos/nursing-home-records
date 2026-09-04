@@ -28,7 +28,28 @@ const verb = (n: number) => (n === 1 ? "holds" : "hold");
 
 function footprint(name: string) {
   const row = ownersTop()?.top.find((t) => t.name === name);
-  return row ? { facilities: row.facilities, states: row.states } : null;
+  return row
+    ? { facilities: row.facilities, states: row.states, roles: row.roles ?? [] }
+    : null;
+}
+
+// A named example's roles, as CMS filed them: exact strings, largest
+// footprint first, derived from the batch like the counts beside
+// them. The file's own words are the only characterization offered
+// (ruled 2026-09-04); a label from outside the file is exactly the
+// flattening this section teaches against.
+function RoleList({ roles }: { roles: { role: string; facilities: number }[] }) {
+  return (
+    <>
+      {roles.map((r, i) => (
+        <span key={r.role || "(blank)"}>
+          {i > 0 ? (i === roles.length - 1 ? ", and " : ", ") : ""}
+          <span className="mono">{r.role || "(blank role)"}</span> at{" "}
+          {r.facilities.toLocaleString()}
+        </span>
+      ))}
+    </>
+  );
 }
 
 export default function MethodsPage() {
@@ -79,24 +100,30 @@ export default function MethodsPage() {
       {forvis || cibc ? (
         <p>
           Two of the largest footprints in the current batch make the
-          point.{" "}
+          point, with the roles CMS filed for each, in the file&apos;s own
+          words.{" "}
           {forvis ? (
             <>
-              FORVIS MAZARS LLP, an accounting firm, appears at{" "}
+              FORVIS MAZARS LLP appears at{" "}
               {forvis.facilities.toLocaleString()} facilities in{" "}
-              {forvis.states} states.{" "}
+              {forvis.states} states: <RoleList roles={forvis.roles} />.{" "}
             </>
           ) : null}
           {cibc ? (
             <>
               CIBC BANK USA appears at {cibc.facilities.toLocaleString()}{" "}
-              facilities in {cibc.states} states.{" "}
+              facilities in {cibc.states} states:{" "}
+              <RoleList roles={cibc.roles} />.{" "}
             </>
           ) : null}
-          Neither figure describes a nursing home operator. Sorting the
-          ownership file by how often a name appears produces a list of
-          the most frequently disclosed parties, which is a different
-          question from who operates the most facilities.
+          The mix is the lesson. Most of a large footprint can be
+          contracted, advisory, or lending roles while the same name
+          holds a disclosed ownership interest at a handful of
+          facilities, so there is no correct label for the party, only
+          the role disclosed at each facility. Sorting the ownership
+          file by how often a name appears produces a list of the most
+          frequently disclosed parties, which is a different question
+          from who operates the most facilities.
         </p>
       ) : null}
 
