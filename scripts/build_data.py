@@ -462,6 +462,24 @@ def export_owners(
         f"count(DISTINCT {ccn}), {st_expr} FROM ({named}) "
         f"GROUP BY 1 ORDER BY 3 DESC, 1 LIMIT 150"
     ).fetchall()
+    # Per-role footprints for the same names, so a page teaching from
+    # a named example shows the roles CMS actually filed for it rather
+    # than a characterization from outside the file (entry 69). Counts
+    # are distinct facilities per role; a party can hold several roles
+    # at one facility, so they need not sum to the name's total.
+    role_col = "Role played by Owner or Manager in Facility"
+    roles_by_name: dict[str, list] = {r[0]: [] for r in top}
+    if top and role_col in own_meta["columns"]:
+        in_list = ", ".join("?" for _ in top)
+        for name, role, n in con.execute(
+            f"SELECT \"Owner Name\", coalesce({qident(role_col)}, ''), "
+            f"count(DISTINCT {ccn}) FROM ({named}) "
+            f"WHERE \"Owner Name\" IN ({in_list}) "
+            f"GROUP BY 1, 2 ORDER BY 3 DESC, 2",
+            [r[0] for r in top],
+        ).fetchall():
+            roles_by_name[name].append({"role": role, "facilities": n})
+
     total_owners = con.execute(
         f"SELECT count(DISTINCT \"Owner Name\") FROM ({named})"
     ).fetchone()[0]
@@ -503,7 +521,13 @@ def export_owners(
                 "modified_date": own_meta.get("modified_date"),
                 "source_file": own_meta.get("source_file"),
                 "top": [
-                    {"name": r[0], "types": r[1], "facilities": r[2], "states": r[3]}
+                    {
+                        "name": r[0],
+                        "types": r[1],
+                        "facilities": r[2],
+                        "states": r[3],
+                        "roles": roles_by_name.get(r[0], []),
+                    }
                     for r in top
                 ],
             },

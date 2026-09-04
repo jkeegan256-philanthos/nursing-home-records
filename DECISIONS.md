@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 68 entries. `scripts/check_project_doc.py` asserts that
+This log holds 69 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -1974,3 +1974,31 @@ one means updating the number; that is the point of it.
   its evidence must not pass), a deliberately drifted quote named by
   term, and the parser guard that fails when it finds fewer entries
   than the file is known to hold.
+- 2026-09-04: Methods named parties ruled, and corrected by the
+  founder's own reading of the August batch. The names stay: the
+  section teaches that a role is not an ownership stake, a teaching
+  page that refuses to name its example teaches nothing, and
+  principle 4 forbids singling anyone out for scrutiny, not
+  illustration; the Genesis spelling cluster remains the clearest
+  demonstration of principle 2 on the site. But the page called
+  FORVIS MAZARS LLP "an accounting firm" and said neither named
+  figure describes a nursing home operator, while the file it
+  teaches people to read discloses both parties holding ownership
+  interests at some facilities: FORVIS at ten as a 5% or greater
+  direct interest beside 283 as ADP and 79 as
+  operational/managerial control, CIBC BANK USA at nine direct and
+  one indirect beside its security and mortgage interests. The site
+  was making an identity claim about a party in the middle of
+  explaining why it never makes identity claims about parties. The
+  fix uses the site's own material: the outside characterization is
+  gone, each named example now shows the roles CMS filed for it with
+  distinct-facility counts per role, derived from the batch like the
+  footprints and omitted with them if a rotation drops the name, and
+  the lesson sentence is the true one, that most of a large
+  footprint can be contracted or lending roles while the same name
+  holds a disclosed ownership interest at a handful of facilities.
+  Checked at both layers, red first: the transform test plants one
+  name in two roles and asserts the per-role breakdown, and the
+  rendered gate asserts every role and count a named example shows
+  is the export's, firm on real batches and a stated skip on the
+  fixture, where the names are absent by design.
