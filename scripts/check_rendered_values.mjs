@@ -460,7 +460,19 @@ check(
 {
   const methodsPage = join(DIR, "methods", "index.html");
   const topPath = "build/owners-top.json";
-  const html = existsSync(methodsPage) ? readFileSync(methodsPage, "utf8") : "";
+  // React's serializer separates adjacent text nodes with empty
+  // comments, so the built page reads "</span> at <!-- -->283" where
+  // the JSX reads "</span> at 283". Stripped before matching: the
+  // separator is serializer plumbing, not content. This is how
+  // deploy run 71 failed on this assertion's first real render, the
+  // same shape as run 63: a checker's model of the serializer, in a
+  // branch that had never met the serializer's real output. The
+  // match pattern was then proven green against a genuine build
+  // with a planted fixture owner before being trusted again.
+  const stripSep = (s) => s.replace(/<!-- -->/g, "");
+  const html = existsSync(methodsPage)
+    ? stripSep(readFileSync(methodsPage, "utf8"))
+    : "";
   const top = existsSync(topPath)
     ? JSON.parse(readFileSync(topPath, "utf8")).top
     : [];
