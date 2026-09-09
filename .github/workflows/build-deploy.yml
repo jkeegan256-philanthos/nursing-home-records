@@ -121,6 +121,13 @@ jobs:
         # lib/glossary.ts says what the dictionary now says.
         run: npm run check:glossary
 
+      - name: Report the export's whole size
+        # Entry 49 and the hosting note ask for the uncompressed
+        # export re-measured against the 1 GB Pages cap; this prints
+        # it on every refresh, where the monthly check-in reads logs,
+        # so the figure is measured rather than assumed.
+        run: du -sb out && find out -type f | wc -l
+
       - name: Assert the deployed site will talk only to itself
         # The pull-request run checks the fixture export. This checks the
         # export that is actually about to be served, with the real batch

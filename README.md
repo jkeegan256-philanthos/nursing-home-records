@@ -6,14 +6,13 @@ homes theme exactly as CMS ships it, live at
 monthly from the CMS source zip. No calculations, no filtering, no
 editorial layer. One zip goes in each month; a browsable site comes out.
 
-Reviewing or changing this? `REVIEWING.md` is the manual on why
-reading the code is not enough here, and what to run instead. It was
-split out of `PROJECT.md` on 2026-08-31.
-
-Read `PROJECT.md` first. It holds the goals, the principles, and the
-declined scope that every change must respect. `DECISIONS.md` is the
-log beside it: every feature this project shipped and then reversed,
-dated and at full length. Reversals are documented here, not erased.
+Read `PROJECT.md` first: the goals, the principles, and the declined
+scope that every change must respect. Changing or reviewing anything?
+`REVIEWING.md` is the manual on why reading the code is not enough
+here and what to run instead, split out of the charter on 2026-08-31.
+`DECISIONS.md` is the log beside them: every decision this project
+made and every one it reversed, dated and at full length. Reversals
+are documented, not erased.
 
 Forking? Work through the touchpoints in `ADAPTATION.md`, which is the
 only place they are listed. This file deliberately does not repeat them
@@ -215,12 +214,15 @@ usually is not.
 
 ## Hosting notes
 
-- GitHub Pages caps a published site at 1 GB. The export was last
-  measured whole on the June batch at 545 MB, before the owner pages
-  shipped; it has grown since (20,377 pages against June's 14,751),
-  and the compressed Pages artifact measured 234 MB on run 49. Worth
-  re-measuring the uncompressed size at the next refresh rather than
-  assuming the headroom.
+- GitHub Pages caps a published site at 1 GB. Dated figures, newest
+  first: on 2026-09-05 (scheduled run 74, the August batch) the
+  compressed Pages artifact finalized at 246,215,027 bytes, about
+  235 MiB, against 234 MB on run 49; the June batch's export was
+  measured whole at 545 MB before the owner pages shipped. The
+  uncompressed export total has not been re-measured since, because
+  no log printed it; the deploy workflow now reports it on every
+  run, so the next refresh answers it from the log instead of a
+  guess.
 - Cloudflare Pages caps deployments at 20,000 files. The pre-rendered
   pages alone are over 40,000 files (each page ships an HTML file
   plus a small payload file), so this export does not fit there
