@@ -97,13 +97,14 @@ jobs:
         # deploy still publishes in that case, and BLOCKED must
         # survive a green run rather than hide in a log.
         run: |
+          set -o pipefail
           CUR=$(ls data/*.zip | head -n 1) && test -f "$CUR"
           if curl -fL --retry 3 --max-time 180 -o /tmp/prior.zip "$NH_STATE_URL/downloads/theme_nursing-homes_current.zip"; then
-            python3 scripts/diff_batches.py --prior /tmp/prior.zip --current "$CUR" --site public/data
+            python3 scripts/diff_batches.py --prior /tmp/prior.zip --current "$CUR" --site public/data | tee /tmp/diff-report.txt
           else
             echo "::warning title=three-way diff BLOCKED::prior zip not fetchable from $NH_STATE_URL; SCHEMA and MOVEMENT not checked this run, handoff needed"
             printf '%s\n' "## three-way diff BLOCKED" "prior zip not fetchable; SCHEMA and MOVEMENT not checked this run, handoff needed" >> "$GITHUB_STEP_SUMMARY"
-            python3 scripts/diff_batches.py --current "$CUR" --site public/data
+            python3 scripts/diff_batches.py --current "$CUR" --site public/data | tee /tmp/diff-report.txt
           fi
 
       - uses: actions/setup-node@v7
@@ -145,13 +146,6 @@ jobs:
         # lib/glossary.ts says what the dictionary now says.
         run: npm run check:glossary
 
-      - name: Report the export's whole size
-        # Entry 49 and the hosting note ask for the uncompressed
-        # export re-measured against the 1 GB Pages cap; this prints
-        # it on every refresh, where the monthly check-in reads logs,
-        # so the figure is measured rather than assumed.
-        run: du -sb out && find out -type f | wc -l
-
       - name: Assert the deployed site will talk only to itself
         # The pull-request run checks the fixture export. This checks the
         # export that is actually about to be served, with the real batch
@@ -174,6 +168,19 @@ jobs:
           name: carried-state
           path: state/
           if-no-files-found: error
+
+      - name: Report sizes and repeat the batch diff at the tail of the log
+        # Two measurements the monthly check-in reads, placed after
+        # the uploads on purpose: the pages upload lists every
+        # exported file, which pushes anything printed earlier beyond
+        # what log tooling reading a bounded tail can reach. The
+        # export size answers entry 49's re-measure against the 1 GB
+        # Pages cap; the diff report is a verbatim copy of the
+        # three-way diff step's output, so the per-file counts read
+        # as evidence rather than being inferred from a green step.
+        # The judgement stays in the diff step above, which is the
+        # one that can fail.
+        run: du -sb out && find out -type f | wc -l && cat /tmp/diff-report.txt
 
   deploy:
     needs: build
