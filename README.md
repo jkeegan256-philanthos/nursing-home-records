@@ -110,19 +110,23 @@ nowhere: the archive endpoint at
 returns every monthly snapshot of this theme back to 2025, each
 with a direct zip URL. It was recovered by reading the CMS site's
 own JavaScript bundle, so it can vanish or move without notice;
-treat it as found, not promised. It is what makes the refresh-time
-three-way diff possible: `scripts/diff_batches.py` takes the prior
-zip, the current zip, and the built data directory, and splits the
-two failure modes a two-way check conflates. The site against the
-current zip catches this pipeline dropping or mangling rows; the
-prior zip against the current one catches CMS itself moving, which
-is information to describe, never an error. Schema drift between
-batches is its own loud verdict, since a renamed or dropped column
-is the one CMS movement that can break the pipeline rather than
-describe the world. Like the probe above, the script is an operator
-tool with no network access of its own and is deliberately not
-wired into the build; its behavior is proven against planted
-fixture deltas by `scripts/test_diff_batches.py`, which CI runs.
+treat it as found, not promised; it is the route to batches older
+than the one the site serves. The refresh-time three-way diff
+itself runs in every deploy since 2026-09-10: the workflow fetches
+the zip the deployed site currently serves as the prior side, and
+`scripts/diff_batches.py` takes that, the current zip, and the
+built data directory, splitting the two failure modes a two-way
+check conflates. The site against the current zip catches this
+pipeline dropping or mangling rows, and that verdict stops the
+deploy; the prior zip against the current one catches CMS itself
+moving, which is information to describe, never an error. Schema
+drift between batches is its own loud verdict, since a renamed or
+dropped column is the one CMS movement that can break the pipeline
+rather than describe the world. The report, one count line per
+paired file, is repeated at the tail of the deploy log where the
+monthly check-in reads it. The script itself has no network access
+of its own; its behavior is proven against planted fixture deltas
+by `scripts/test_diff_batches.py`, which CI runs.
 
 Committing a zip to `data/` pins the build to that exact batch instead
 of fetching; see `data/README.md`.
@@ -214,15 +218,22 @@ usually is not.
 
 ## Hosting notes
 
-- GitHub Pages caps a published site at 1 GB. Dated figures, newest
-  first: on 2026-09-05 (scheduled run 74, the August batch) the
-  compressed Pages artifact finalized at 246,215,027 bytes, about
-  235 MiB, against 234 MB on run 49; the June batch's export was
-  measured whole at 545 MB before the owner pages shipped. The
-  uncompressed export total has not been re-measured since, because
-  no log printed it; the deploy workflow now reports it on every
-  run, so the next refresh answers it from the log instead of a
-  guess.
+- GitHub Pages' 1 GB limit is enforced against the uploaded
+  artifact, not the uncompressed tree: sites that trip it get an
+  explicit deploy annotation naming the artifact size. This site's
+  artifact finalized at 246,215,027 bytes on run 74 (2026-09-05),
+  about 24% of the cap. The uncompressed export, first measured for
+  real on run 77 (2026-09-10, `du -sb out` in the deploy log), is
+  1,739,305,814 bytes across 102,211 files; that is not the
+  quantity GitHub measures. An earlier 545 MB figure from the June
+  batch is not comparable, because nothing in the log establishes
+  what it counted; it is retired here rather than reconciled into a
+  growth curve. The limit itself is soft: larger tarballs are not
+  guaranteed to deploy, mostly because deployments time out past 10
+  minutes, there is an unofficial absolute ceiling of 10 GB, and a
+  soft bandwidth limit of 100 GB per month. With 102,211 files, the
+  number to watch as pages grow is deploy duration, since file
+  count drives tar and upload time more than bytes do.
 - Cloudflare Pages caps deployments at 20,000 files. The pre-rendered
   pages alone are over 40,000 files (each page ships an HTML file
   plus a small payload file), so this export does not fit there
