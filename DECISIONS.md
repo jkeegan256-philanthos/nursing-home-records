@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 70 entries. `scripts/check_project_doc.py` asserts that
+This log holds 71 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -2039,3 +2039,37 @@ one means updating the number; that is the point of it.
   named as unheld: it is watched, if at all, by a trigger no
   repository machinery can prove exists, and no watcher built here
   should imply otherwise. The honest count is two watched of three.
+- 2026-09-10: the three-way batch diff moved from on-request to
+  every refresh, and the posture shift it completes is named here in
+  one place. The September check-in's diff came back BLOCKED, the
+  first real exercise of that outcome, and the founder's ruling on
+  it: prove the route in a month whose answer is known, and prefer a
+  route with no handoff, because a monthly instrument depending on
+  someone remembering is the revisit-conditions problem in new
+  clothes. So the deploy now runs scripts/diff_batches.py itself,
+  with the prior side defined as the zip the deployed site serves at
+  that moment and the current side the zip the run fetched; the
+  verdicts land in the deploy log the monthly check-in already
+  reads, one line per paired file with counts, so a quiet month
+  reads as compared-everything and found-nothing rather than
+  compared-nothing. A prior zip that cannot be fetched surfaces as a
+  run annotation and a step-summary banner, not a log-only sentence,
+  because the deploy still publishes in that case and BLOCKED must
+  survive a green run. INTEGRITY keeps its design from entry 56 and
+  gains its tooth: a transform that does not match the current zip
+  now stops the deploy. That makes three distinct data conditions
+  that stop a refresh before publish, and the aggregate is the
+  change worth stating plainly rather than leaving to be inferred
+  from three entries: the formula-character watcher (entry 70), the
+  pinned extension binary (entry 67), and now transform integrity.
+  The project has moved from publish-and-describe to publish only if
+  the data passes, deliberately, with each stop reserved for a
+  condition where publishing would serve something wrong or ship a
+  decision nobody made. Movement between batches remains
+  information, never failure. Proven before trust: the exact command
+  ran locally against the fixture batch on both sides with INTEGRITY
+  MATCH and a count line for every pair, the BLOCKED branch ran
+  against this sandbox's blocked egress and produced the annotation,
+  the summary banner, and an INTEGRITY-only diff, and the merge's
+  own deploy is the September proof against a batch known
+  byte-identical, read as evidence that every file was compared.

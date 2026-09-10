@@ -82,6 +82,30 @@ jobs:
       - name: Transform the monthly zip
         run: python scripts/build_data.py
 
+      - name: Three-way batch diff against the served batch
+        # Entry 56's refresh integrity protocol, run on every refresh
+        # where the data already is, so no month depends on someone
+        # remembering a handoff (entry 71). The prior side is the zip
+        # the deployed site serves right now; the current side is the
+        # zip this run fetched or the one committed in data/. SCHEMA
+        # and MOVEMENT print as descriptions with one line per paired
+        # file, so a quiet month reads as compared-everything and
+        # found-nothing, never as compared-nothing. INTEGRITY is the
+        # only nonzero exit and stops a corrupted transform from
+        # publishing. A prior zip that cannot be fetched surfaces as
+        # a run annotation and a step-summary banner because the
+        # deploy still publishes in that case, and BLOCKED must
+        # survive a green run rather than hide in a log.
+        run: |
+          CUR=$(ls data/*.zip | head -n 1) && test -f "$CUR"
+          if curl -fL --retry 3 --max-time 180 -o /tmp/prior.zip "$NH_STATE_URL/downloads/theme_nursing-homes_current.zip"; then
+            python3 scripts/diff_batches.py --prior /tmp/prior.zip --current "$CUR" --site public/data
+          else
+            echo "::warning title=three-way diff BLOCKED::prior zip not fetchable from $NH_STATE_URL; SCHEMA and MOVEMENT not checked this run, handoff needed"
+            printf '%s\n' "## three-way diff BLOCKED" "prior zip not fetchable; SCHEMA and MOVEMENT not checked this run, handoff needed" >> "$GITHUB_STEP_SUMMARY"
+            python3 scripts/diff_batches.py --current "$CUR" --site public/data
+          fi
+
       - uses: actions/setup-node@v7
         with:
           node-version: 24
