@@ -385,11 +385,13 @@ details.fullrecord[open] summary { margin-bottom: 10px; }
 .th-sort:hover { color: var(--spruce); }
 
 @media (max-width: 640px) {
-  /* The phone scale shifts the same roles down together: 26 h1 /
-     15 body / 13 tables. The nav stays 12.5px deliberately, an
-     exception the wrap comment below earned by measurement. */
+  /* The phone scale shifts display roles down (26 h1, 13 tables)
+     while body holds the 16px floor at every width: phones are where
+     sustained reading happens, and the legibility literature and
+     WCAG reflow guidance converge on 16 as the floor. The nav stays
+     12.5px deliberately, an exception the wrap comment below earned
+     by measurement. */
   h1 { font-size: 26px; }
-  body { font-size: 15px; }
   .container { padding: 0 14px; }
   .record-head { padding: 16px; }
   table { font-size: 13px; }

@@ -2295,9 +2295,12 @@ one means updating the number; that is the point of it.
   noise wearing precision's badge. Collapsed to eight roles, 32
   headline, 22 section, 18 lede, 16 body and thesis, 14 tables and
   facts and nav, 13 metadata, 11.5 uppercase labels, mono relative,
-  with the phone scale shifting the same roles down together and one
-  named exception, the nav's 12.5, which an earlier measured wrap
-  earned. The sharpest finding is recorded as a class, not an
+  with the phone scale shifting the display roles down while body
+  holds the 16 pixel floor at every width, the reviewer's catch
+  before merge, since the pass's own finding was phone type running
+  smaller than desktop and a 15 pixel phone body would have kept the
+  inversion it was built to close; one named exception stands, the
+  nav's 12.5, which an earlier measured wrap earned. The sharpest finding is recorded as a class, not an
   instance: grey marking important text, in the lede on every page,
   in the home thesis styled as a caption, and in the identity line,
   because a future session adding a secondary element will reach for
