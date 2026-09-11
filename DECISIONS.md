@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 73 entries. `scripts/check_project_doc.py` asserts that
+This log holds 74 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -2107,3 +2107,37 @@ one means updating the number; that is the point of it.
   what was meant, and the shared lesson is to state who holds a
   position before arguing with it. Recorded so the absence of the
   attack reads as explained history, not as a gap in the record.
+- 2026-09-11: the About page's first whole-read since its rewrite,
+  and the one revision it produced. Five omissions in "The rules this
+  site follows" restored, every one an instance of the pattern this
+  project has now named six times, a claim true where it was written
+  and left behind when the thing it describes moved: the counting
+  carve-out from principle 1, the affirmative half of principle 2,
+  the neutral sort keys of principle 4, and, from principle 5, the
+  public processing warnings and the manifest and data dictionary in
+  the republished set. Each began as a charter correction the
+  public paraphrase never received. The principle-7 sentence stays
+  universal by founder ruling, with its scope now named on the page
+  itself, what the site does at run time, so the universal is
+  bounded by what it covers rather than by this entry; the exposure
+  is accepted with eyes open, since this cycle produced three checks
+  that passed for the wrong reason, and keeping the sentence is a
+  bet on the gates. The single-name-campaigns rule joins the
+  declined-scope section on About, by founder ruling, because that
+  section is where a named party goes to learn the site's posture
+  toward them, and the entry-72 form is the sentence that answers
+  them. The protective "Researching a name further" section moves up
+  to sit directly after the rules that explain its refusals, and the
+  families paragraph now leads "Who this serves", since it was
+  always the better writing and the honest one about Care Compare.
+  The for-profit figure is anchored the way the charter's Purpose
+  sentence was anchored on 2026-09-10, leaning on the Facilities
+  page's per-batch re-count. One reviewer finding was withdrawn
+  after pushback: the SITE_AUTHOR conditional is not dead code but
+  the mechanism ADAPTATION touchpoint 10 depends on, and the lesson
+  travels, check what relies on a branch, not whether it runs here.
+  And the structural finding became a rule rather than a gate:
+  REVIEWING.md now says a change to Principles or Declined scope is
+  not complete until About's paraphrase is re-read against it,
+  because prose correspondence has no honest checker and a
+  structural check would go green while the substance drifted.
