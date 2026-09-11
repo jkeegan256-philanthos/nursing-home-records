@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 79 entries. `scripts/check_project_doc.py` asserts that
+This log holds 80 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -2324,3 +2324,24 @@ one means updating the number; that is the point of it.
   are sent, then data, about, glossary. Method for every pass:
   a measured audit first, each change naming its tenet, before and
   after renders at both widths delivered for a ruling before merge.
+- 2026-09-11: visual series pass 2, the facility page. The audit's
+  honest center: the page's phone length, 11,870 pixels on a real
+  facility in the reviewer's production measurement, is dominated by
+  the loaded record tables, which are the record itself and not
+  padding, so the tenets' claim is on the header block. One change:
+  the four ratings split into their own grid and pair two-up on
+  phones, because stacked singly they pushed the records a reader
+  came for a full screen deeper, and their values are fixed-width
+  star runs, which exempts them from the facts ladder's earned
+  single-column caution; that caution stands untouched for the
+  facts, whose published values have unknown length, and its
+  two-column variant stays open pending measurement against the
+  real batch's longest values, a measurement production access can
+  make and this sandbox cannot. Verified at 1280, 390, and 320:
+  desktop unchanged in substance, zero horizontal overflow at every
+  width, labels wrapping inside their cells, and the fixture page
+  about a hundred pixels shorter at 390 from the header alone. The
+  redundancy between the chips and the always-shown facts is
+  recorded as deliberate, not drift: the facts row exists so absence
+  never carries meaning, per the gate that asserts it, and the chips
+  are the glance those facts are not.
