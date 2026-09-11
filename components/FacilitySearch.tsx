@@ -99,14 +99,24 @@ export default function FacilitySearch() {
   const searching = q.trim().length >= 2;
 
   // The dead end is not allowed to be the whole answer (ruled
-  // 2026-09-11, from the first reader walk: "Life Care Center of
-  // Bellingham" matched nothing while six Bellingham facilities and
-  // seventeen Life Care names sat one query away, because every
-  // token must match). When a multi-word search matches nothing as a
-  // whole, show what the file contains for each word separately:
-  // exact published values, counted in full, listed in the index's
-  // own name order, labeled as partial matches. No merging, no
-  // ranking, no guessing which word the reader meant.
+  // 2026-09-11, from the first reader walk: a chain-plus-city query
+  // matched nothing while six facilities in that city sat one query
+  // away, because every token must match). When a multi-word search
+  // matches nothing as a whole, show what the file contains for each
+  // word separately: exact published values, counted in full, listed
+  // in the index's own name order, labeled as partial matches. No
+  // merging, no ranking, no guessing which word the reader meant.
+  //
+  // Groups render rarest word first (ruled 2026-09-11, second round:
+  // in typed order the live page put the useful group 2,264px down a
+  // phone). Ascending by facility match count, ties by position in
+  // the query, so the order is deterministic and the sort key is a
+  // count of published rows, which principle 1 allows; this is not
+  // relevance ranking. A word matching more than SUPPRESS_MAX
+  // facilities shows its counts and no list, because a list that
+  // narrows nothing teaches nothing; the same rule and threshold
+  // apply to a word's owner-name matches on their own count. 500 is
+  // chosen, not measured, like the 700 KB index threshold.
   type Partial = {
     token: string;
     facCount: number;
@@ -114,12 +124,15 @@ export default function FacilitySearch() {
     ownCount: number;
     owns: OwnerHit[];
   };
+  const SUPPRESS_MAX = 500;
   const partials: Partial[] = useMemo(() => {
     if (!slim || !searching || hits.length > 0 || tokens.length < 2) return [];
     const out: Partial[] = [];
     const [ci, ni, cti, si, zi, ri] = [0, 1, 2, 3, 4, 5];
+    const seen = new Set<string>();
     for (const token of tokens) {
-      if (token.length < 3) continue;
+      if (token.length < 3 || seen.has(token)) continue;
+      seen.add(token);
       let facCount = 0;
       const facs: Hit[] = [];
       for (const r of slim.rows) {
@@ -156,8 +169,23 @@ export default function FacilitySearch() {
       }
       out.push({ token, facCount, facs, ownCount, owns });
     }
+    out.sort(
+      (a, b) =>
+        a.facCount - b.facCount ||
+        tokens.indexOf(a.token) - tokens.indexOf(b.token)
+    );
     return out;
   }, [slim, owners, searching, hits, tokens]);
+  // When every group is over the threshold or empty, the reader gets
+  // counts and no listings: correct, and a new kind of dead end, so
+  // it carries its own route onward.
+  const anyListed = partials.some(
+    (p) =>
+      (p.facCount > 0 && p.facCount <= SUPPRESS_MAX) ||
+      (p.facCount <= SUPPRESS_MAX &&
+        p.ownCount > 0 &&
+        p.ownCount <= SUPPRESS_MAX)
+  );
 
   return (
     <div className="searchbox">
@@ -208,6 +236,16 @@ export default function FacilitySearch() {
                       <span className="mono">{p.token}</span> appears in no
                       facility, city, or owner name in this batch.
                     </p>
+                  ) : p.facCount > SUPPRESS_MAX ? (
+                    <p className="search-hint">
+                      <span className="mono">{p.token}</span>:{" "}
+                      {p.facCount.toLocaleString()} facilities
+                      {p.ownCount > 0
+                        ? ` and ${p.ownCount.toLocaleString()} owner names`
+                        : ""}
+                      . This word matches too many to narrow anything;
+                      nothing listed.
+                    </p>
                   ) : (
                     <>
                       {p.facCount > 0 && (
@@ -239,7 +277,14 @@ export default function FacilitySearch() {
                           </ul>
                         </>
                       )}
-                      {p.ownCount > 0 && (
+                      {p.ownCount > SUPPRESS_MAX ? (
+                        <p className="search-hint">
+                          <span className="mono">{p.token}</span>:{" "}
+                          {p.ownCount.toLocaleString()} owner, officer, or
+                          company names. Too many to narrow anything;
+                          nothing listed.
+                        </p>
+                      ) : p.ownCount > 0 ? (
                         <>
                           <p className="search-hint">
                             <span className="mono">{p.token}</span>:{" "}
@@ -270,16 +315,23 @@ export default function FacilitySearch() {
                             ))}
                           </ul>
                         </>
-                      )}
+                      ) : null}
                     </>
                   )}
                 </div>
               ))}
-              <p className="search-hint">
-                These are partial matches, shown because the full search
-                found nothing. Nothing here says any of them is what you
-                meant.
-              </p>
+              {anyListed ? (
+                <p className="search-hint">
+                  These are partial matches, shown because the full search
+                  found nothing. Nothing here says any of them is what you
+                  meant.
+                </p>
+              ) : (
+                <p className="search-hint">
+                  Every word matched too much or nothing at all, so there
+                  is nothing to list. Browse by state below.
+                </p>
+              )}
             </>
           ) : (
             <p className="search-hint">
