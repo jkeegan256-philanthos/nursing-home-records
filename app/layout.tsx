@@ -116,7 +116,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 )
               ) : (
                 <>Current data batch processed {generated}.</>
-              )}{" "}
+              )}
+            </p>
+            <p>
               <CitePage vintage={generated} />
             </p>
             {/* Every page says how it was made; until now no page said

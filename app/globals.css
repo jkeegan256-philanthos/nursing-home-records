@@ -71,10 +71,10 @@ a:hover { color: var(--spruce-deep); }
 .site-nav { display: flex; gap: 18px; font-size: 14px; }
 .site-footer { border-top: 1px solid var(--rule); margin-top: 64px; padding: 24px 0 48px; color: var(--faint); font-size: 13px; }
 .site-footer p { margin: 4px 0; }
-/* The cite button is inline in the vintage sentence and wraps when
-   the line fills; a little top margin keeps the wrapped line from
-   reading as detached. */
-.site-footer .csv-button { margin-top: 4px; }
+/* The cite button sits on its own line after the vintage sentence:
+   inline it wrapped mid-paragraph at phone widths and tore the
+   sentence's line rhythm (2026-09-11 visual review). */
+.site-footer .csv-button { margin-top: 2px; }
 
 main { padding-top: 32px; }
 
@@ -249,7 +249,25 @@ td.longtext.longform { min-width: 45ch; }
   display: inline-block; font-size: 12px; padding: 2px 9px; border-radius: 3px;
   border: 1px solid var(--rule); background: var(--card); margin-right: 8px;
 }
-.chip-warn { border-color: var(--ochre); background: var(--ochre-wash); color: var(--ochre); font-weight: 600; }
+/* Solid rather than washed (ruled 2026-09-11): CMS's own abuse flag
+   was visually confusable with the ownership-type tag beside it at a
+   phone glance. Same shape and size, uniform wherever CMS set Y; the
+   salience matches CMS's own presentation, judgment stays CMS's. */
+.chip-warn { border-color: var(--ochre); background: var(--ochre); color: var(--paper); font-weight: 600; }
+
+/* State table at phone width (ruled 2026-09-11): city stacks under
+   the facility name and the City and CCN columns yield, so a long
+   name reads as two controlled lines instead of a three-line wrap
+   against stranded columns. Same #51 precedent as the anchor column:
+   presentation may differ where the phone says no. */
+.state-table .row-city { display: none; }
+@media (max-width: 480px) {
+  .state-table .col-city,
+  .state-table .col-ccn { display: none; }
+  .state-table .row-city {
+    display: block; color: var(--faint); font-size: 12.5px;
+  }
+}
 
 /* facility record */
 .record-head { border: 1px solid var(--rule); background: var(--card); padding: 20px 24px; margin-bottom: 24px; }

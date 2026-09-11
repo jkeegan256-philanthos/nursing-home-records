@@ -107,35 +107,43 @@ export default function MethodsPage() {
         as equity holders. The role column is the only thing that
         separates them.
       </p>
+      {/* One short paragraph per named example (2026-09-11 visual
+          review): inline, the role lists ran fifteen lines of mono
+          caps at phone width in the page's most important teaching
+          paragraph. Same split trap 3 got. */}
       {namedExamples > 0 ? (
-        <p>
-          {plural(namedExamples, "One", "Two")} of the largest footprints
-          in the current batch {plural(namedExamples, "makes", "make")}{" "}
-          the point, with the roles CMS filed, in the file&apos;s own
-          words.{" "}
+        <>
+          <p>
+            {plural(namedExamples, "One", "Two")} of the largest
+            footprints in the current batch{" "}
+            {plural(namedExamples, "makes", "make")} the point, with the
+            roles CMS filed, in the file&apos;s own words.
+          </p>
           {forvis ? (
-            <>
+            <p>
               FORVIS MAZARS LLP appears at{" "}
               {forvis.facilities.toLocaleString()} facilities in{" "}
-              {forvis.states} states: <RoleList roles={forvis.roles} />.{" "}
-            </>
+              {forvis.states} states: <RoleList roles={forvis.roles} />.
+            </p>
           ) : null}
           {cibc ? (
-            <>
+            <p>
               CIBC BANK USA appears at {cibc.facilities.toLocaleString()}{" "}
               facilities in {cibc.states} states:{" "}
-              <RoleList roles={cibc.roles} />.{" "}
-            </>
+              <RoleList roles={cibc.roles} />.
+            </p>
           ) : null}
-          The mix is the lesson. Most of a large footprint can be
-          contracted, advisory, or lending roles while the same name
-          holds a disclosed ownership interest at a handful of
-          facilities, so there is no correct label for the party, only
-          the role disclosed at each facility. Sorting the ownership
-          file by how often a name appears produces a list of the most
-          frequently disclosed parties, which is a different question
-          from who operates the most facilities.
-        </p>
+          <p>
+            The mix is the lesson. Most of a large footprint can be
+            contracted, advisory, or lending roles while the same name
+            holds a disclosed ownership interest at a handful of
+            facilities, so there is no correct label for the party, only
+            the role disclosed at each facility. Sorting the ownership
+            file by how often a name appears produces a list of the most
+            frequently disclosed parties, which is a different question
+            from who operates the most facilities.
+          </p>
+        </>
       ) : null}
 
       <h3>2. Names are exact strings, not entities</h3>
@@ -261,7 +269,7 @@ export default function MethodsPage() {
             The <a href={`${BP}/owners/`}>Ownership</a> search matches
             every word you type against the published names, so JOHN
             MITCHELL finds MITCHELL, JOHN, and spellings that share text
-            surface in the same search. Each result is one published
+            turn up in the same search. Each result is one published
             name, exactly as CMS spelled it, listed with the facilities
             it is disclosed at and counts computed over the full file.
             Nothing tells you whether two spellings are the same party.
