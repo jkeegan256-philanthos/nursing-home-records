@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 71 entries. `scripts/check_project_doc.py` asserts that
+This log holds 72 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -2073,3 +2073,21 @@ one means updating the number; that is the point of it.
   the summary banner, and an INTEGRITY-only diff, and the merge's
   own deploy is the September proof against a batch known
   byte-identical, read as evidence that every file was compared.
+- 2026-09-11: the single-name-campaigns bullet reworded from
+  biography to rule, by founder ruling. The old text described one
+  person: the founder's firsthand experience named as the reason the
+  site exists and excluded as evidence. The disclosure it performs
+  is kept deliberately, because deleting it would remove the
+  disclosure of the stake rather than the stake, and a stranger who
+  later learned of the connection would find a charter that never
+  mentioned it, an omission worse than the sentence; in academic
+  terms it is the conflict-of-interest statement, and those are
+  published, not removed. What changed is the form: the bullet now
+  reads as a rule that binds anyone, forks included, rather than a
+  description of one person. "No one's personal experience is
+  evidence on this site, the author's included. Nothing here rests
+  on anything but the published record." Same foreclosure, no
+  memoir. The byline and SITE_AUTHOR are untouched and were not in
+  question: anonymous public-records work has precedent, but it
+  trades away the accountability that makes a records site
+  trustworthy, and no one proposed that trade.
