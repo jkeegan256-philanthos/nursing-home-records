@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 72 entries. `scripts/check_project_doc.py` asserts that
+This log holds 73 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -2091,3 +2091,19 @@ one means updating the number; that is the point of it.
   question: anonymous public-records work has precedent, but it
   trades away the accountability that makes a records site
   trustworthy, and no one proposed that trade.
+- 2026-09-11: entry 72 records a defense with no attack in the
+  record, and this entry explains that rather than leaving a mystery
+  for a future reader. Entry 72's argument against deleting the
+  disclosure answered a proposal no one had made. Joe asked for the
+  work to read academic rather than personal; the reviewer read that
+  as a proposal to delete the charter bullet and possibly the byline,
+  and wrote the defense against that reading. Neither Joe nor the
+  implementing session had proposed either. The reviewer confirmed
+  the misreading was theirs. The ruling stands on its merits: the
+  reworded bullet is better than what it replaced regardless of how
+  the question arose, and the byline non-question is settled in the
+  log anyway. This is the second time the reviewer has gotten an
+  attribution wrong, once about who said something and once about
+  what was meant, and the shared lesson is to state who holds a
+  position before arguing with it. Recorded so the absence of the
+  attack reads as explained history, not as a gap in the record.
