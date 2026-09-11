@@ -150,8 +150,11 @@ export default async function FacilityPage({
             phone can pair them two-up: their values are fixed-width
             star runs, which exempts them from the facts ladder's
             single-column decision, earned against published text of
-            unknown length. Desktop layout is unchanged: four ratings
-            filled exactly one row of the shared grid before the split. */}
+            unknown length. Desktop layout is unchanged because four
+            ratings filled exactly one row of the shared grid before
+            the split; that equivalence is contingent on the count,
+            not structural, so a fifth CMS rating would reflow the two
+            grids differently. */}
         <div className="factgrid ratings">
           {RATINGS.map(([label, colName]) => (
             <dl className="fact" key={colName}>
