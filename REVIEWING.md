@@ -106,6 +106,17 @@ Corollaries, each earned by an incident:
   did, so this rule and the one above retire the pair together. Before
   passing a flag to a subcommand you have not used it with, check the
   help text or omit it; every git porcelain command runs fine verbose.
+- A public paraphrase is a copy that nothing synchronizes. The About
+  page restates the charter's principles and declined scope in its
+  own words, on the surface strangers actually read, so a change to
+  Principles or Declined scope in PROJECT.md is not complete until
+  About's paraphrase is re-read against it. This is a working rule
+  rather than a gate, deliberately: prose correspondence has no
+  honest checker, and a structural check, seven bullets with matching
+  bold leads, would go green while the substance drifted, which is a
+  check passing for the wrong reason. Earned on 2026-09-11, when a
+  whole-read of About found five omissions, each of which began as a
+  charter correction the paraphrase never received.
 - A comment describes intent or a constraint, never measured state.
   Comments are the only text in the tree no gate scans: the prose
   check scopes them out by design, and nothing can test an English

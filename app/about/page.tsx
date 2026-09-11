@@ -30,10 +30,12 @@ export default function AboutPage() {
       <h2>Why it exists</h2>
       <p>
         Most people assume nursing homes are government institutions. The
-        federal data says otherwise: roughly three in four are operated for
-        profit, and every facility in the file holds Medicare or Medicaid
-        certification. Federal law requires them to disclose their owners,
-        officers, directors, and managing employees.
+        federal data says otherwise: roughly three in four are operated
+        for profit, a split the <a href={`${BP}/`}>Facilities page</a>{" "}
+        re-counts from every published batch, and every facility in the
+        file holds Medicare or Medicaid certification. Federal law
+        requires them to disclose their owners, officers, directors, and
+        managing employees.
       </p>
       <p>
         Those disclosures are public records. But public is only meaningful
@@ -79,11 +81,6 @@ export default function AboutPage() {
 
       <h2>Who this serves</h2>
       <p>
-        This is a professional tool that happens to be free and public:
-        discharge planners, state agencies vetting owners, reporters,
-        researchers, and workers deciding where to work.
-      </p>
-      <p>
         Families are welcome, and it is worth being plain about what they
         will find. This site publishes the same CMS star ratings and
         inspection records a family would see on Care Compare, shown as
@@ -95,18 +92,27 @@ export default function AboutPage() {
         is a different question rather than a smaller version of the same
         one, and it stays different however polished this site gets.
       </p>
+      <p>
+        The same records make this a professional tool that happens to be
+        free and public: discharge planners, state agencies vetting
+        owners, reporters, researchers, and workers deciding where to
+        work.
+      </p>
 
       <h2>The rules this site follows</h2>
       <ul>
         <li>
           <strong>Display, never calculate.</strong> Every value is CMS&apos;s
-          own, shown as published. No derived scores, no rankings by
-          judgment, no edited values.
+          own, shown as published. Counts of rows and groupings by
+          published fields are allowed; derived scores, rankings by
+          judgment, and edited values are not.
         </li>
         <li>
           <strong>Exact strings.</strong> Names are grouped by the exact
-          published spelling. The site never matches, merges, or claims two
-          names are the same person or company.
+          published spelling. Related companies often file under several
+          names, and the site says so instead of guessing: it never
+          matches, merges, or claims two names are the same person or
+          company.
         </li>
         <li>
           <strong>Roles first.</strong> The disclosure file includes lenders,
@@ -115,15 +121,17 @@ export default function AboutPage() {
         </li>
         <li>
           <strong>Uniform rules, no targets.</strong> Every name gets the
-          identical layout under the identical rules. The site never singles
-          anyone out; whatever pattern exists reveals itself to anyone who
+          identical layout under the identical rules, and the sort keys
+          are neutral, published columns. The site never singles anyone
+          out; whatever pattern exists reveals itself to anyone who
           looks.
         </li>
         <li>
           <strong>Radical provenance.</strong> Every table names its source
-          file, CMS dataset, and modified date. The untouched originals are
-          republished with a checksum on the{" "}
-          <a href={`${BP}/data/`}>Data page</a>.
+          file, CMS dataset, and modified date. The untouched zip,
+          manifest, and data dictionary are republished with checksums on
+          the <a href={`${BP}/data/`}>Data page</a>, and processing
+          warnings are public there too.
         </li>
         <li>
           <strong>The full record, one click away.</strong> Summaries never
@@ -131,9 +139,9 @@ export default function AboutPage() {
         </li>
         <li>
           <strong>A claim ships with the check that earns it.</strong>{" "}
-          Anything this site says about how it behaves is checked by
-          software that actually runs it, every build. Where that check
-          cannot be built, the claim comes down until it can.
+          Anything this site says about what it does at run time is
+          checked by software that actually runs it, every build. Where
+          that check cannot be built, the claim comes down until it can.
         </li>
       </ul>
       <p>
@@ -148,14 +156,6 @@ export default function AboutPage() {
         </a>{" "}
         records every correction at full length, next to the rule that
         forced it, including the corrections that were embarrassing.
-      </p>
-
-      <h2>What this site does not do</h2>
-      <p>
-        No money flows, cost reports, or margins. No entity resolution or
-        name merging of our own. No editorial layer: no adjectives, no
-        verdicts, no &quot;worst of&quot; lists. If a fact here seems
-        significant, that significance comes from the public record itself.
       </p>
 
       <h2>Researching a name further</h2>
@@ -175,6 +175,17 @@ export default function AboutPage() {
         hold. The copy button under each name does the one part a website
         can do honestly: it preserves the exact filed spelling for wherever
         the reader&apos;s own judgment takes it.
+      </p>
+
+      <h2>What this site does not do</h2>
+      <p>
+        No money flows, cost reports, or margins. No entity resolution or
+        name merging of our own. No single-name campaigns: no one&apos;s
+        personal experience is evidence on this site, the author&apos;s
+        included, and nothing here rests on anything but the published
+        record. No editorial layer: no adjectives, no verdicts, no
+        &quot;worst of&quot; lists. If a fact here seems significant,
+        that significance comes from the public record itself.
       </p>
 
       <h2>Limitations</h2>
