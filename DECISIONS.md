@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 77 entries. `scripts/check_project_doc.py` asserts that
+This log holds 78 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -2264,3 +2264,21 @@ one means updating the number; that is the point of it.
   the same build. Also recorded because it was predicted and held:
   the fixture's hostile script-tag facility name rendered escaped in
   the live partial list on production.
+- 2026-09-11: the walk's first finding closed end to end, with the
+  after measured on production by the same instrument and string
+  that produced the before. Response height at phone width fell
+  from 2,264 to 1,260 pixels, a 44% drop, while the information
+  went up: the first facility on screen is now in the searched
+  city, 143 pixels from the input, where before it was a facility
+  two thousand miles away behind 262 irrelevant matches and four
+  screens of noise. Group order measured as ruled, rarest word
+  first; the two common words collapsed to counts-only lines; the
+  closing partial-matches sentence survived at the bottom. One
+  observation recorded with it, the reviewer's: suppressing the
+  list without suppressing the number was the right split, because
+  a word matching 5,479 facilities is itself a published fact the
+  reader now learns instead of having it hidden. Less output, more
+  answer, and the sequence the exercise was built to produce ran
+  in full: a reader's dead end became a finding, the finding a
+  ruling, the ruling a shipped and gated change, and the change a
+  measured improvement on the same query that exposed it.
