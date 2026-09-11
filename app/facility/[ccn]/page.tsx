@@ -127,7 +127,19 @@ export default async function FacilityPage({
         {(ownType || specialFocus || abuse) && (
           <p style={{ margin: "0 0 10px" }}>
             {ownType && <span className="chip">{ownType}</span>}
-            {abuse && <span className="chip chip-warn">Abuse icon: Y</span>}
+            {abuse && (
+              // The label names the flag's owner and the title says
+              // what it means (ruled 2026-09-11): a reader seeing a
+              // solid warning chip deserves to know CMS flagged the
+              // facility for abuse citations, not that this site is
+              // judging it.
+              <span
+                className="chip chip-warn"
+                title="CMS's abuse icon, shown as published: CMS flagged this facility for abuse citations. The flag and its criteria are CMS's, not this site's."
+              >
+                CMS abuse icon: Y
+              </span>
+            )}
             {specialFocus && (
               <span className="chip chip-warn">{specialFocus}</span>
             )}

@@ -27,6 +27,15 @@ export default function OwnersPage() {
         names to see every facility it is connected to, in what role, and
         since when.
       </p>
+
+      {/* The search sits directly under the sentence that says what
+          this page is (ruled 2026-09-11): at phone width the three
+          intro paragraphs pushed the input to the fold's edge. The
+          cautions follow; the input's own hint carries the
+          exact-strings and role reminders for the reader who types
+          first. */}
+      <OwnerExplorer />
+
       <p className="lede">
         Read the role column carefully. The list includes lenders,
         consultants, and accounting firms as well as owners, because CMS
@@ -42,8 +51,6 @@ export default function OwnersPage() {
         verify them. Gaps and layered structures in the filings appear here
         as gaps.
       </p>
-
-      <OwnerExplorer />
 
       {owners && owners.top.length > 0 && (
         <>

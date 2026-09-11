@@ -339,7 +339,8 @@ export default function OwnerExplorer() {
         <p className="search-hint">
           Type at least three characters, then press Enter. Every word you
           type must appear in the name; word order does not matter. Names are
-          shown exactly as CMS publishes them, usually LAST, FIRST for people.
+          shown exactly as CMS publishes them, usually LAST, FIRST for
+          people, and every name carries its disclosed role.
         </p>
       </div>
 

@@ -57,11 +57,11 @@ export default function StateTable({
     return out;
   }, [rows, q, sortKey, desc]);
 
-  function header(key: SortKey, label: string, num = false) {
+  function header(key: SortKey, label: string, num = false, cls = "") {
     const active = sortKey === key;
     return (
       <th
-        className={num ? "num" : undefined}
+        className={[num ? "num" : "", cls].filter(Boolean).join(" ") || undefined}
         aria-sort={active ? (desc ? "descending" : "ascending") : undefined}
       >
         <button
@@ -89,7 +89,7 @@ export default function StateTable({
           type="search"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Filter by facility name, city, or CCN"
+          placeholder="Filter this table by facility name, city, or CCN"
           aria-label={`Filter ${state} facilities`}
         />
       </div>
@@ -112,12 +112,18 @@ export default function StateTable({
         />
       </p>
       <div className="tablewrap">
-        <table>
+        {/* At phone width city stacks under the name and the City and
+            CCN columns yield (ruled 2026-09-11, under the #51
+            precedent that presentation may differ where the phone
+            says no): a long facility name was wrapping to three lines
+            against stranded columns. The CCN stays filterable, on the
+            facility page, and in the CSV export. */}
+        <table className="state-table">
           <thead>
             <tr>
               {header("name", "Facility")}
-              {header("city", "City")}
-              {header("ccn", "CCN")}
+              {header("city", "City", false, "col-city")}
+              {header("ccn", "CCN", false, "col-ccn")}
               {header("beds", "Certified beds", true)}
               {header("rating", "Overall rating")}
             </tr>
@@ -129,9 +135,10 @@ export default function StateTable({
                   <a href={`${BP}/facility/${encodeURIComponent(f.ccn)}/`}>
                     {f.name}
                   </a>
+                  <span className="row-city">{f.city}</span>
                 </td>
-                <td>{f.city}</td>
-                <td className="mono">{f.ccn}</td>
+                <td className="col-city">{f.city}</td>
+                <td className="mono col-ccn">{f.ccn}</td>
                 <td className="num">{f.beds}</td>
                 <td>
                   <Stars value={f.rating} />

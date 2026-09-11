@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 75 entries. `scripts/check_project_doc.py` asserts that
+This log holds 76 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -2190,3 +2190,49 @@ one means updating the number; that is the point of it.
   figure and guard kept. One finding was rejected on a checked fact
   and the rejection confirmed: the deploy diff's prior side is the
   zip this site serves, never the CMS archive trap 5 links to.
+- 2026-09-11: the first visual round, two reviews of the rendered
+  site merged into one revision, transcribed in
+  review/visual-pages.md. The round's centerpiece came from the
+  first result of the reader walk: the reader searched a chain name
+  plus a city where that chain has no facility, and the home
+  search's conjunctive token match returned one flat line while six
+  facilities in that city and seventeen spellings of that chain sat
+  one query away. Ruled: the dead end is not allowed to be the whole
+  answer. A multi-word search that matches nothing as a whole now
+  shows what the file contains for each word separately, exact
+  published values counted in full, the first few in the index's own
+  name order, labeled as partial matches and closed with the line
+  that nothing there says any of them is what the reader meant. No
+  merging, no ranking, no guessing which word was wrong; the site
+  still refuses to say two names are the same thing, it just stops
+  pretending the file is empty. The names in the walk's query stay
+  out of this repository by the same line that keeps the worked
+  report out. Three more rulings executed: the abuse-icon chip goes
+  solid, same shape and size, uniform wherever CMS set Y, because at
+  a phone glance it was confusable with the ownership-type tag
+  beside it, and it now names its owner in the label and states in
+  its hover title that CMS flagged the facility for abuse citations,
+  CMS's flag and not this site's judgment; the owners page moves its
+  search input under the first paragraph because three paragraphs
+  were pushing the input to the phone fold, with a correction
+  recorded, the approval plan wrongly claimed the cautions would
+  still precede rendered results, and what actually holds is that
+  the input's own hint carries the exact-strings and disclosed-role
+  reminders; and the state table, under the precedent that
+  presentation may differ where the phone says no, stacks city under
+  the facility name and lets the City and CCN columns yield at 480px
+  and below, the CCN staying filterable, on the facility page, and
+  in the CSV. Smaller fixes in the same pass: both search
+  affordances now name their scope, all facilities versus this
+  table; Methods trap 1's example paragraph split like trap 3 after
+  reading fifteen lines of inline mono caps on a phone; the footer's
+  cite button moved off the sentence it was tearing; one
+  garden-path phrase reworded after being read on a page rather
+  than in code. Every change was re-rendered and read before
+  shipping, including driving the dead end in a browser with a
+  fixture query of the walk's shape, and one duplication between
+  the new hint and the paragraph below it was caught that way and
+  trimmed. One reviewer finding was narrowed by verification, the
+  chip distinction already existed and needed strengthening rather
+  than creating, and one was withdrawn in the prior round's manner:
+  checked against the stylesheet before being argued with.
