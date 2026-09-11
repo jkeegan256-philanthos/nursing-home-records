@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 76 entries. `scripts/check_project_doc.py` asserts that
+This log holds 77 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -2236,3 +2236,31 @@ one means updating the number; that is the point of it.
   chip distinction already existed and needed strengthening rather
   than creating, and one was withdrawn in the prior round's manner:
   checked against the stylesheet before being argued with.
+- 2026-09-11: the partial-match dead end, second round, from the
+  acceptance test on production. The walk's query now returns
+  labeled partial matches and the city word correctly surfaces all
+  six facilities, which is the fix working, and the live page also
+  showed the fix's own flaw: groups rendered in typed order, so the
+  response ran 2,264 pixels down a phone with the useful group last,
+  behind a common word's 5,479 facilities. Ruled: groups render
+  rarest word first, ascending by facility match count with ties
+  broken by position in the query, deterministic, and legal under
+  principle 1 because a match count is a count of published rows;
+  this is ordering by a count, not relevance ranking. And a word
+  matching more than 500 facilities shows its counts and no list,
+  because a list that narrows nothing teaches nothing; the same rule
+  and threshold apply to a word's owner-name matches on their own
+  count, which removes the noise entries without any special case.
+  The 500 is chosen, not measured, like the 700 KB index threshold,
+  and recorded as such. One edge ruled with it: when every word is
+  over the threshold or matches nothing, the reader gets counts and
+  no listings, which is correct and a new kind of dead end, so that
+  state carries one sentence pointing at browse by state. All three
+  branches were seen rendering before ship: ordering and whole-group
+  suppression driven in a browser with the threshold temporarily
+  lowered to what the fixture can reach, the all-suppressed dead end
+  driven the same way, and the normal path re-proven at the real
+  threshold, with the rendered-values and origin gates green against
+  the same build. Also recorded because it was predicted and held:
+  the fixture's hostile script-tag facility name rendered escaped in
+  the live partial list on production.
