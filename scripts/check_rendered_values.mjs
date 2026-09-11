@@ -53,7 +53,11 @@ for (const st of states) {
   const html = readFileSync(file, "utf8");
 
   for (const row of html.split("<tr")) {
-    const ccn = /class="mono">(\d+)</.exec(row)?.[1];
+    // The CCN cell carries "mono" plus, since the 2026-09-11 phone
+    // layout, "col-ccn"; anchored to exactly "mono" this found zero
+    // rows and the coverage check below correctly refused the empty
+    // sample. Tolerate additional classes, keep requiring mono.
+    const ccn = /class="mono[^"]*">(\d+)</.exec(row)?.[1];
     if (!ccn || !published.has(ccn)) continue;
     const stars = /class="stars"[^>]*>([\s\S]*?)<\/span>\s*<\/td>/.exec(row)?.[1];
     const rating = published.get(ccn);
