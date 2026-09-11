@@ -169,18 +169,28 @@ jobs:
           path: state/
           if-no-files-found: error
 
-      - name: Report sizes and repeat the batch diff at the tail of the log
-        # Two measurements the monthly check-in reads, placed after
-        # the uploads on purpose: the pages upload lists every
-        # exported file, which pushes anything printed earlier beyond
-        # what log tooling reading a bounded tail can reach. The
-        # export size answers entry 49's re-measure against the 1 GB
-        # Pages cap; the diff report is a verbatim copy of the
-        # three-way diff step's output, so the per-file counts read
-        # as evidence rather than being inferred from a green step.
-        # The judgement stays in the diff step above, which is the
-        # one that can fail.
-        run: du -sb out && find out -type f | wc -l && cat /tmp/diff-report.txt
+      - name: Report sizes, warnings, and the batch diff at the tail of the log
+        # Measurements the monthly check-in reads, placed after the
+        # uploads on purpose: the pages upload lists every exported
+        # file, which pushes anything printed earlier beyond what log
+        # tooling reading a bounded tail can reach. The export size
+        # answers entry 49's re-measure against the 1 GB Pages cap;
+        # the diff report is a verbatim copy of the three-way diff
+        # step's output, so the per-file counts read as evidence
+        # rather than being inferred from a green step; and every
+        # processing warning is repeated as a named line, because the
+        # transform prints them mid-log where the tail cannot reach,
+        # and a warning nobody reads is how conditions become
+        # unwatched (entry 75: the role-value watcher warns rather
+        # than blocks, so this tail is its surface). The judgement
+        # stays in the steps above, which are the ones that can fail.
+        run: >-
+          du -sb out && find out -type f | wc -l &&
+          python3 -c "import json;
+          ws = json.load(open('build/site-meta.json')).get('warnings', []);
+          print(f'{len(ws)} processing warning(s) in this batch');
+          [print('processing warning:', w) for w in ws]" &&
+          cat /tmp/diff-report.txt
 
   deploy:
     needs: build

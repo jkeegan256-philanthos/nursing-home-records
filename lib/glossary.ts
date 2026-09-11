@@ -59,6 +59,17 @@ export const ROLE_VALUES: string[] = [
   "ADP OF THE SNF",
 ];
 
+// Values the ownership file publishes that the dictionary does not
+// define. Kept apart from ROLE_VALUES deliberately: that list is the
+// dictionary's own, asserted verbatim against the batch's PDF, and
+// mixing in file-only values would put words in the dictionary's
+// mouth. check_glossary asserts the opposite for these, that each is
+// absent from the dictionary, so if CMS ever defines one the check
+// fails and says to promote it. Ruled 2026-09-11.
+export const PUBLISHED_UNDEFINED_VALUES: string[] = [
+  "Ownership Data Not Available",
+];
+
 /** Stable fragment id for a term, shared by the page and inline links. */
 export function termAnchor(term: string): string {
   return term.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
