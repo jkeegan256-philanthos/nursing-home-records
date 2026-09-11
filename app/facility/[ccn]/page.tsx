@@ -146,7 +146,13 @@ export default async function FacilityPage({
           </p>
         )}
 
-        <div className="factgrid">
+        {/* Ratings sit in their own grid (visual series pass 2) so the
+            phone can pair them two-up: their values are fixed-width
+            star runs, which exempts them from the facts ladder's
+            single-column decision, earned against published text of
+            unknown length. Desktop layout is unchanged: four ratings
+            filled exactly one row of the shared grid before the split. */}
+        <div className="factgrid ratings">
           {RATINGS.map(([label, colName]) => (
             <dl className="fact" key={colName}>
               <dt>{label} rating</dt>
@@ -155,6 +161,8 @@ export default async function FacilityPage({
               </dd>
             </dl>
           ))}
+        </div>
+        <div className="factgrid">
           {KEY_FACTS.map(([label, colName]) => {
             const v = f.get(colName).trim();
             return (

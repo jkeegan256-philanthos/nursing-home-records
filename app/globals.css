@@ -444,6 +444,14 @@ details.fullrecord[open] summary { margin-bottom: 10px; }
   .factgrid { gap: 4px 24px; }
   .fact dt { margin-bottom: 0; }
 
+  /* Ratings pair two-up on phones (visual series pass 2, tenet 5):
+     stacked singly they pushed the records a reader came for a full
+     screen deeper, and their values are fixed-width star runs, so
+     the facts ladder's measured single-column caution above does not
+     apply to them. Verified at 320: two cells hold a wrapped label
+     and a five-star run with no overflow. */
+  .factgrid.ratings { grid-template-columns: 1fr 1fr; gap: 10px 16px; }
+
   /* Thumb-sized hit areas. The header's own vertical padding shrinks by
      what the button gains, so the row is the height it was and the
      target is the size a thumb needs. */
