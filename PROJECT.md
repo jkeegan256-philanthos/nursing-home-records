@@ -65,9 +65,9 @@ Decided deliberately. Do not revisit casually.
 - No name merging or entity resolution of our own. If portfolio
   averages are ever wanted, use CMS's own chain performance dataset,
   where CMS did the resolution and the math.
-- No single-name campaigns. The founder's firsthand experience is the
-  reason the site exists, not evidence on it. It stays out of the
-  copy.
+- No single-name campaigns. No one's personal experience is evidence
+  on this site, the author's included. Nothing here rests on anything
+  but the published record.
 - No editorial layer: no adjectives, no verdicts, no "worst of"
   lists.
 
