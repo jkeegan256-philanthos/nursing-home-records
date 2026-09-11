@@ -48,24 +48,30 @@ def parse_glossary() -> tuple[list[tuple[str, str]], list[str], str]:
     src = TS.read_text(encoding="utf-8")
     defs_block = re.search(r"COLUMN_DEFINITIONS[^=]*=\s*\[(.*?)\n\];", src, re.S)
     roles_block = re.search(r"ROLE_VALUES[^=]*=\s*\[(.*?)\n\];", src, re.S)
+    undef_block = re.search(
+        r"PUBLISHED_UNDEFINED_VALUES[^=]*=\s*\[(.*?)\n\];", src, re.S
+    )
     vintage = re.search(r"GLOSSARY_VINTAGE\s*=\s*" + QUOTED, src)
-    if not (defs_block and roles_block and vintage):
-        print("FAIL  could not locate COLUMN_DEFINITIONS, ROLE_VALUES, and "
-              "GLOSSARY_VINTAGE in lib/glossary.ts; the file's shape changed "
-              "and this parser must move with it")
+    if not (defs_block and roles_block and undef_block and vintage):
+        print("FAIL  could not locate COLUMN_DEFINITIONS, ROLE_VALUES, "
+              "PUBLISHED_UNDEFINED_VALUES, and GLOSSARY_VINTAGE in "
+              "lib/glossary.ts; the file's shape changed and this parser "
+              "must move with it")
         sys.exit(1)
     entries = re.findall(
         r"term:\s*" + QUOTED + r",\s*definition:\s*" + QUOTED,
         defs_block.group(1),
     )
     roles = re.findall(QUOTED, roles_block.group(1))
-    if len(entries) < 3 or len(roles) < 10:
-        print(f"FAIL  parsed only {len(entries)} definition(s) and "
-              f"{len(roles)} role value(s) from lib/glossary.ts; that is "
+    undefined = re.findall(QUOTED, undef_block.group(1))
+    if len(entries) < 3 or len(roles) < 10 or len(undefined) < 1:
+        print(f"FAIL  parsed only {len(entries)} definition(s), "
+              f"{len(roles)} role value(s), and {len(undefined)} "
+              f"published-undefined value(s) from lib/glossary.ts; that is "
               f"fewer than the file is known to hold, so the parser is "
               f"broken, not the glossary")
         sys.exit(1)
-    return entries, roles, vintage.group(1)
+    return entries, roles, undefined, vintage.group(1)
 
 
 def straighten(s: str) -> str:
@@ -84,7 +90,7 @@ def normalize(s: str) -> str:
 
 
 def main() -> None:
-    entries, roles, vintage = parse_glossary()
+    entries, roles, undefined, vintage = parse_glossary()
     if not PDF.exists():
         print(f"FAIL  {PDF.relative_to(ROOT)} is missing: every batch "
               f"republishes the dictionary, so a build without one has "
@@ -109,6 +115,23 @@ def main() -> None:
             misses.append(f'role value "{role}"')
     if normalize(vintage) not in text:
         misses.append(f'stated vintage "{vintage}"')
+    # The opposite direction for the published-undefined list: each of
+    # these is marked on the glossary page as a value the dictionary
+    # does not define, so finding one IN the dictionary means CMS has
+    # defined it and the marking is now false. Fail loud and say what
+    # to do, so the gap closes itself instead of sitting marked forever.
+    promoted = [v for v in undefined if normalize(v) in text]
+    if promoted:
+        print(f"FAIL  {len(promoted)} value(s) marked published-but-"
+              f"undefined now appear in this batch's dictionary:\n")
+        for v in promoted:
+            print(f"  - {v}")
+        print("\nCMS defined it. Move the value from "
+              "PUBLISHED_UNDEFINED_VALUES into ROLE_VALUES (and the role "
+              "definition quote if it changed); the glossary page marks "
+              "these as undefined and must not once the dictionary "
+              "defines them.")
+        sys.exit(1)
 
     if misses:
         print(f"FAIL  {len(misses)} glossary quote(s) not found in this "
@@ -123,6 +146,8 @@ def main() -> None:
 
     print(f"  ok    all {len(entries)} column definition(s) appear in the dictionary")
     print(f"  ok    all {len(roles)} role value(s) appear in the dictionary")
+    print(f"  ok    all {len(undefined)} published-undefined value(s) are "
+          f"absent from the dictionary, as marked")
     print(f'  ok    the stated vintage ("{vintage}") appears in the dictionary')
     print("\nthe glossary says what the dictionary says")
 

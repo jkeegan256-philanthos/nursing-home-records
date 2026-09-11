@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 74 entries. `scripts/check_project_doc.py` asserts that
+This log holds 75 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -2141,3 +2141,52 @@ one means updating the number; that is the point of it.
   not complete until About's paraphrase is re-read against it,
   because prose correspondence has no honest checker and a
   structural check would go green while the substance drifted.
+- 2026-09-11: the Methods page's whole-read, two reviews run the
+  same day with almost no overlap, transcribed in
+  review/methods-page.md. One review checked the page's claims
+  against the code and found the centerpiece: the owner-search
+  description described a tool that does not exist, on the page
+  whose job is teaching accurate reading. The search matches every
+  typed word against the published names, so related spellings
+  surface together; the old sentence said the opposite. Rewritten to
+  the measured behavior, with the founder's edit that each result is
+  one published name exactly as CMS spelled it, wording chosen so
+  nothing can be heard as the merging the site refuses. The other
+  review checked claims against the batch and found the sharpest
+  finding of either: the file publishes a role value, Ownership Data
+  Not Available, on hundreds of facilities at one row each, that the
+  dictionary does not define and the glossary did not list, so its
+  role links landed on nothing. Ruled: all three remedies. Methods
+  now says the file sometimes publishes values the dictionary does
+  not define; the glossary gains a separate marked section for them,
+  visibly apart from the dictionary's own list so the different
+  epistemic status cannot be skimmed away; and the build gains a
+  watcher comparing every published role value against both lists,
+  normalized the way the glossary check compares quotes, because the
+  dictionary prints two variants in lowercase that the file
+  publishes uppercase and a naive comparison would have cried wolf
+  on its first real run. The watcher warns and never blocks, the
+  first one built that way on purpose: the hard stops are reserved
+  for conditions where publishing would serve something wrong, and
+  an undefined value is CMS's own value faithfully mirrored with a
+  documentation gap, so blocking would withhold correct data. The
+  warning's surface is real rather than hoped for, the public
+  processing-warnings channel plus every warning repeated as a named
+  line at the deploy log's tail where the monthly check-in reads,
+  and its message carries both row and distinct-facility counts
+  because the shape tells the reader what kind of value arrived.
+  check_glossary asserts the marked values are absent from the
+  dictionary, loud in the other direction, so if CMS ever defines
+  one the check fails and says to promote it: the gap closes itself
+  rather than sitting marked forever. Proven red first: a planted
+  unknown role warned with the full message, the marked value
+  planted into the defined side failed the glossary check with the
+  promote instruction, and the clean runs pass with the uppercase
+  variants in play. Also fixed from the reviews: the hardcoded
+  counts above conditional examples, the page failing its own header
+  comment's rule; the Capacity heading that read as beds; the
+  citation of a trap by number; the ruled-out characterization
+  surviving in a comment; the densest paragraph split with every
+  figure and guard kept. One finding was rejected on a checked fact
+  and the rejection confirmed: the deploy diff's prior side is the
+  zip this site serves, never the CMS archive trap 5 links to.

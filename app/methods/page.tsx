@@ -43,7 +43,13 @@ function RoleList({ roles }: { roles: { role: string; facilities: number }[] }) 
     <>
       {roles.map((r, i) => (
         <span key={r.role || "(blank)"}>
-          {i > 0 ? (i === roles.length - 1 ? ", and " : ", ") : ""}
+          {i > 0
+            ? i === roles.length - 1
+              ? roles.length === 2
+                ? " and "
+                : ", and "
+              : ", "
+            : ""}
           <span className="mono">{r.role || "(blank role)"}</span> at{" "}
           {r.facilities.toLocaleString()}
         </span>
@@ -57,11 +63,15 @@ export default function MethodsPage() {
   const capacity = capacityFigure();
 
   // Named because they are properties of the file rather than of a
-  // moment: an accounting firm, a bank, and a cluster of near-identical
-  // corporate spellings. If a rotation drops one out of the derived set,
+  // moment: two of the batch's largest footprints and a cluster of
+  // near-identical corporate spellings. If a rotation drops one out of the derived set,
   // its example is omitted rather than shown from memory.
   const forvis = footprint("FORVIS MAZARS LLP");
   const cibc = footprint("CIBC BANK USA");
+  // The sentence introducing them must agree with how many survived
+  // the rotation, per this page's own header comment: agreement is
+  // computed rather than assumed.
+  const namedExamples = [forvis, cibc].filter(Boolean).length;
   const genesis = [
     "GEN OPERATIONS I LLC",
     "GEN OPERATIONS II LLC",
@@ -97,10 +107,11 @@ export default function MethodsPage() {
         as equity holders. The role column is the only thing that
         separates them.
       </p>
-      {forvis || cibc ? (
+      {namedExamples > 0 ? (
         <p>
-          Two of the largest footprints in the current batch make the
-          point, with the roles CMS filed for each, in the file&apos;s own
+          {plural(namedExamples, "One", "Two")} of the largest footprints
+          in the current batch {plural(namedExamples, "makes", "make")}{" "}
+          the point, with the roles CMS filed, in the file&apos;s own
           words.{" "}
           {forvis ? (
             <>
@@ -138,7 +149,7 @@ export default function MethodsPage() {
       {genesis.length > 1 ? (
         <>
           <p>
-            In the current batch these four names are filed separately:
+            In the current batch each of these names is filed separately:
           </p>
           <div className="tablewrap">
             <table>
@@ -168,39 +179,41 @@ export default function MethodsPage() {
         </>
       ) : null}
 
-      <h3>3. Capacity varies facility by facility</h3>
+      <h3>3. The same name, a different role at each facility</h3>
       <p>
         A name is not disclosed once. It is disclosed once per facility,
         with a role each time, and the roles differ. The same person can
         hold an ownership interest at a handful of facilities and be a
-        managing employee at a hundred others. There is no such thing as
-        a correct label for the person, only a correct label for the
-        person at a facility.
+        managing employee at a hundred others. For the individuals the
+        file names, the correct reading is per building, and the current
+        batch shows how often that matters.
       </p>
       {capacity ? (
         <p>
-          In the current batch, of the{" "}
-          {capacity.people.toLocaleString()} distinct{" "}
-          {plural(capacity.people, "name string", "name strings")} filed
-          with owner type Individual and disclosed at {capacity.threshold}{" "}
-          or more facilities, {capacity.none_owning.toLocaleString()}{" "}
+          The current batch has {capacity.people.toLocaleString()}{" "}
+          distinct {plural(capacity.people, "name string", "name strings")}{" "}
+          filed with owner type Individual and disclosed at{" "}
+          {capacity.threshold} or more facilities. Of those,{" "}
+          {capacity.none_owning.toLocaleString()}{" "}
           {verb(capacity.none_owning)} no role whose published description
           contains the words{" "}
           <span className="mono">{capacity.ownership_marker.toLowerCase()}</span>{" "}
-          anywhere in the file. Of the{" "}
-          {capacity.some_owning.toLocaleString()} that {verb(capacity.some_owning)}{" "}
-          such a role somewhere, {capacity.mixed.toLocaleString()}{" "}
-          {verb(capacity.mixed)} it at only some of their facilities. A
-          single label applied to any of them would be wrong at some of
-          the buildings the name is attached to. These are counts of
-          exact published names, not of people.
+          anywhere in the file. {capacity.some_owning.toLocaleString()}{" "}
+          {verb(capacity.some_owning)} such a role somewhere, and{" "}
+          {capacity.mixed.toLocaleString()} of those {verb(capacity.mixed)}{" "}
+          it at only some of their facilities. A single label applied to
+          any of them would be wrong at some of the buildings the name is
+          attached to. These are counts of exact published names, not of
+          people.
         </p>
       ) : null}
       <p>
         This site takes the role from the row, so a name shown on a
         facility page carries the role disclosed at that facility. The{" "}
         <a href={`${BP}/glossary/`}>glossary</a> lists every role value
-        CMS defines.
+        CMS defines, and the file sometimes publishes a value the
+        dictionary does not define; the glossary marks those as published
+        without a definition.
       </p>
 
       <h3>4. These are filings, not findings</h3>
@@ -231,7 +244,7 @@ export default function MethodsPage() {
         when, not what CMS published.
       </p>
 
-      <h2>Five questions, and where each is answered</h2>
+      <h2>The questions readers arrive with, and where each is answered</h2>
       <dl className="glossary">
         <div className="glossary-entry">
           <dt>Who is connected to this facility?</dt>
@@ -245,10 +258,13 @@ export default function MethodsPage() {
         <div className="glossary-entry">
           <dt>Where else does this name appear?</dt>
           <dd>
-            The <a href={`${BP}/owners/`}>Ownership</a> search finds a name
-            by its exact published spelling and lists every facility it is
-            disclosed at. It does not find related spellings, and it does
-            not tell you whether two spellings are the same party.
+            The <a href={`${BP}/owners/`}>Ownership</a> search matches
+            every word you type against the published names, so JOHN
+            MITCHELL finds MITCHELL, JOHN, and spellings that share text
+            surface in the same search. Each result is one published
+            name, exactly as CMS spelled it, listed with the facilities
+            it is disclosed at and counts computed over the full file.
+            Nothing tells you whether two spellings are the same party.
           </dd>
         </div>
         <div className="glossary-entry">
@@ -296,8 +312,9 @@ export default function MethodsPage() {
         </li>
         <li>
           <strong>It does not say whether two similar names are
-          related.</strong> That is the same boundary as trap two, stated
-          as a property of the record rather than of this site.
+          related.</strong> That is the same boundary as the
+          exact-strings trap, stated as a property of the record rather
+          than of this site.
         </li>
       </ul>
       <p>

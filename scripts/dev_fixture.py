@@ -102,7 +102,7 @@ def dictionary_pdf() -> bytes:
     import check_glossary
     import pymupdf
 
-    entries, roles, vintage = check_glossary.parse_glossary()
+    entries, roles, _undefined, vintage = check_glossary.parse_glossary()
     # Straightened through the checker's own table: the base PDF font
     # cannot encode typographic quotes and dashes, and the comparison
     # normalizes both sides through the same function anyway.
@@ -207,6 +207,11 @@ def main() -> None:
         ownership.append(own_row(f, "EXAMPLE HOLDINGS LLC", "Organization", "5% OR GREATER INDIRECT OWNERSHIP INTEREST", "100%"))
     ownership.append(own_row(facilities[1], "LONE, OWNER", "Individual", "CORPORATE OFFICER", "NOT APPLICABLE"))
     ownership.append(own_row(facilities[2], "", "None", "ADP OF THE SNF", "NO PERCENTAGE PROVIDED"))
+    # The published-undefined value, one row with no owner name, the
+    # shape CMS gives it: keeps the role-value watcher's known-list
+    # path and the glossary's marked-entry anchor exercised on every
+    # fixture build. The watcher must stay silent for this row.
+    ownership.append(own_row(facilities[3], "", "None", "Ownership Data Not Available", "NO PERCENTAGE PROVIDED"))
 
     files: dict[str, bytes] = {
         "NH_ProviderInfo_Jun2026.csv": csv_bytes(PROVIDER_COLS, facilities),

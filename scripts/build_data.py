@@ -520,6 +520,64 @@ def export_owners(
         ).fetchall():
             roles_by_name[name].append({"role": role, "facilities": n})
 
+    # Every role value this batch publishes, checked against the two
+    # lists the glossary page renders: the dictionary's own role list
+    # and the values marked published-but-undefined (ruled 2026-09-11,
+    # after a reviewer found "Ownership Data Not Available" in the
+    # batch with no glossary entry to land on). The scan covers the
+    # whole table, not the named-owner subset, because the known
+    # undefined value rides rows with no owner name at all. Comparison
+    # is normalized the way check_glossary compares quotes: the
+    # dictionary prints two role variants in lowercase while the file
+    # publishes uppercase, and a naive set comparison would flag
+    # defined roles as unknown on its first real run and teach everyone
+    # to ignore the warning. This watcher warns and never dies, the
+    # first one built that way on purpose: the hard stops are reserved
+    # for publishing something wrong, and an undefined value is CMS's
+    # own value faithfully mirrored with a documentation gap. The
+    # warning rides the public processing-warnings channel and is
+    # repeated at the deploy log's tail, where the monthly check-in
+    # reads it.
+    if role_col in own_meta["columns"]:
+        known = None
+        try:
+            import check_glossary
+            _, known_roles, marked_undefined, _ = check_glossary.parse_glossary()
+            known = {
+                check_glossary.normalize(v)
+                for v in known_roles + marked_undefined
+            }
+        except SystemExit:
+            warn(
+                "ownership: the role-value watcher could not parse "
+                "lib/glossary.ts and did not run; check:glossary will say "
+                "why. An unwatched condition, not a clean pass."
+            )
+        if known is not None:
+            for value, rows_n, fac_n in con.execute(
+                f"SELECT {qident(role_col)}, count(*), count(DISTINCT {ccn}) "
+                f"FROM {rel} WHERE {qident(role_col)} IS NOT NULL "
+                f"AND trim({qident(role_col)}) <> '' GROUP BY 1 ORDER BY 1"
+            ).fetchall():
+                if check_glossary.normalize(value) not in known:
+                    warn(
+                        f"ownership: role value not in the glossary's "
+                        f"lists: \"{value}\" on {rows_n:,} row(s) across "
+                        f"{fac_n:,} distinct "
+                        f"facilit{'y' if fac_n == 1 else 'ies'}. Both "
+                        f"numbers matter: many facilities with one row "
+                        f"each is a file-level marker, a few rows is a "
+                        f"real role. The dictionary's role list and the "
+                        f"published-undefined list (lib/glossary.ts) both "
+                        f"lack it, so its glossary link from facility "
+                        f"pages lands on no entry. Either CMS defined it "
+                        f"(move it into ROLE_VALUES with the updated "
+                        f"quote; check:glossary confirms) or it is a new "
+                        f"undefined value (add it to "
+                        f"PUBLISHED_UNDEFINED_VALUES, marked on the "
+                        f"glossary page)."
+                    )
+
     total_owners = con.execute(
         f"SELECT count(DISTINCT \"Owner Name\") FROM ({named})"
     ).fetchone()[0]

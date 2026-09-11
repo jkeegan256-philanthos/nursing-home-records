@@ -3,6 +3,7 @@ import { BP } from "@/lib/config";
 import {
   COLUMN_DEFINITIONS,
   GLOSSARY_VINTAGE,
+  PUBLISHED_UNDEFINED_VALUES,
   ROLE_VALUES,
   termAnchor,
 } from "@/lib/glossary";
@@ -50,6 +51,28 @@ export default function GlossaryPage() {
           </li>
         ))}
       </ul>
+
+      <h2>Values the file publishes without a definition</h2>
+      <p>
+        These are not part of the dictionary&apos;s role list above. They
+        appear in the published ownership file itself, in the same role
+        column, and the dictionary does not define them. They are listed
+        here so a role link from a facility page always lands on an
+        answer, even when the honest answer is that no definition exists.
+      </p>
+      <dl className="glossary">
+        {PUBLISHED_UNDEFINED_VALUES.map((v) => (
+          <div key={v} id={termAnchor(v)} className="glossary-entry">
+            <dt className="mono">{v}</dt>
+            <dd>
+              CMS publishes this value in the ownership file; its data
+              dictionary does not define it. What it means for a given
+              facility is not stated in the published record, and this
+              site does not guess.
+            </dd>
+          </div>
+        ))}
+      </dl>
 
       <h2>What the dictionary does not say</h2>
       <p>
