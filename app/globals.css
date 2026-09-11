@@ -29,7 +29,13 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--sans);
-  font-size: 15px;
+  /* The type scale (2026-09-11, visual series pass 1, tenet 2):
+     eight sizes, each one role, replacing fifteen-plus sizes that
+     sat half a pixel apart. 32 h1 / 22 h2 / 18 lede / 16 body and
+     thesis lines / 14 tables, facts, nav / 13 metadata / 11.5
+     uppercase labels; mono rides relative at 0.92em. A new element
+     picks the role it plays, never a new size. */
+  font-size: 16px;
   line-height: 1.55;
 }
 
@@ -70,7 +76,7 @@ a:hover { color: var(--spruce-deep); }
 .wordmark span { color: var(--spruce); }
 .site-nav { display: flex; gap: 18px; font-size: 14px; }
 .site-footer { border-top: 1px solid var(--rule); margin-top: 64px; padding: 24px 0 48px; color: var(--faint); font-size: 13px; }
-.site-footer p { margin: 4px 0; }
+.site-footer p { margin: 4px 0; max-width: 72ch; /* tenet 1: ~140ch lines at 1280 before */ }
 /* The cite button sits on its own line after the vintage sentence:
    inline it wrapped mid-paragraph at phone widths and tore the
    sentence's line rhythm (2026-09-11 visual review). */
@@ -79,9 +85,11 @@ a:hover { color: var(--spruce-deep); }
 main { padding-top: 32px; }
 
 /* type */
-h1 { font-family: var(--serif); font-weight: 700; font-size: 30px; line-height: 1.2; margin: 0 0 6px; }
-h2 { font-family: var(--serif); font-weight: 600; font-size: 21px; margin: 36px 0 10px; }
-.lede { color: var(--faint); font-size: 16px; max-width: 62ch; margin: 0 0 24px; }
+h1 { font-family: var(--serif); font-weight: 700; font-size: 32px; line-height: 1.2; margin: 0 0 6px; }
+h2 { font-family: var(--serif); font-weight: 600; font-size: 22px; margin: 36px 0 10px; }
+/* Introductions lead, they do not whisper (tenet 3): grey marked the
+   most important paragraph on every page as less than body text. */
+.lede { color: var(--ink); font-size: 18px; max-width: 62ch; margin: 0 0 24px; }
 .mono { font-family: var(--mono); font-size: 0.92em; letter-spacing: 0.01em; }
 .muted { color: var(--faint); }
 
@@ -110,7 +118,7 @@ h2 { font-family: var(--serif); font-weight: 600; font-size: 21px; margin: 36px 
 .state-columns li {
   display: flex; justify-content: space-between; align-items: baseline;
   gap: 12px; padding: 6px 2px; border-bottom: 1px solid var(--rule-soft);
-  break-inside: avoid; font-size: 13.5px;
+  break-inside: avoid; font-size: 14px;
 }
 .state-columns li:last-child { border-bottom: none; }
 .state-columns a { font-weight: 600; text-decoration: none; }
@@ -118,7 +126,7 @@ h2 { font-family: var(--serif); font-weight: 600; font-size: 21px; margin: 36px 
 
 /* the provenance strip: the site's signature element */
 .prov {
-  font-size: 12.5px; color: var(--faint); border-left: 3px solid var(--spruce);
+  font-size: 13px; color: var(--faint); border-left: 3px solid var(--spruce);
   padding: 4px 10px; margin: 10px 0 0; background: var(--card);
 }
 .prov .mono { color: var(--spruce-deep); }
@@ -133,7 +141,7 @@ h2 { font-family: var(--serif); font-weight: 600; font-size: 21px; margin: 36px 
    document's own horizontal scroll width out past the viewport. A
    narrow phone then scrolls sideways on a page with nothing wide on it. */
 .tablewrap { position: relative; overflow-x: auto; border: 1px solid var(--rule); background: var(--card); }
-table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
 th, td { text-align: left; padding: 7px 12px; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
 thead th {
   font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em;
@@ -246,7 +254,7 @@ td.longtext.longform { min-width: 45ch; }
 
 /* flags */
 .chip {
-  display: inline-block; font-size: 12px; padding: 2px 9px; border-radius: 3px;
+  display: inline-block; font-size: 13px; padding: 2px 9px; border-radius: 3px;
   border: 1px solid var(--rule); background: var(--card); margin-right: 8px;
 }
 /* Solid rather than washed (ruled 2026-09-11): CMS's own abuse flag
@@ -265,7 +273,7 @@ td.longtext.longform { min-width: 45ch; }
   .state-table .col-city,
   .state-table .col-ccn { display: none; }
   .state-table .row-city {
-    display: block; color: var(--faint); font-size: 12.5px;
+    display: block; color: var(--faint); font-size: 13px;
   }
 }
 
@@ -275,7 +283,7 @@ td.longtext.longform { min-width: 45ch; }
 .record-sub { color: var(--faint); margin: 0 0 12px; }
 .factgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px 24px; margin-top: 16px; }
 .fact dt { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--faint); margin: 0 0 2px; }
-.fact dd { margin: 0; font-size: 14.5px; }
+.fact dd { margin: 0; font-size: 14px; }
 
 details.fullrecord { margin-top: 20px; }
 details.fullrecord summary { cursor: pointer; color: var(--spruce); font-weight: 600; }
@@ -286,6 +294,10 @@ details.fullrecord[open] summary { margin-bottom: 10px; }
 .searchbox input {
   width: 100%; font: inherit; padding: 10px 14px; border: 1px solid var(--rule);
   background: var(--card); color: var(--ink); border-radius: 4px;
+  /* Pinned at 16px at every width: iOS zooms the page on focusing
+     any input below 16px, which readers experience as the layout
+     jumping. Body scales down on phones; the input does not. */
+  font-size: 16px;
 }
 .searchbox input::placeholder { color: var(--faint); }
 .search-results { list-style: none; margin: 8px 0 0; padding: 0; border: 1px solid var(--rule); background: var(--card); }
@@ -294,7 +306,7 @@ details.fullrecord[open] summary { margin-bottom: 10px; }
 .search-results a { display: flex; gap: 12px; align-items: baseline; padding: 8px 12px; text-decoration: none; color: var(--ink); flex-wrap: wrap; }
 .search-results a:hover { background: #f4f6f3; }
 .search-results .name { font-weight: 600; }
-.search-hint { font-size: 12.5px; color: var(--faint); margin: 6px 2px; }
+.search-hint { font-size: 13px; color: var(--faint); margin: 6px 2px; }
 
 /* record tabs */
 .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 14px; }
@@ -332,12 +344,16 @@ details.fullrecord[open] summary { margin-bottom: 10px; }
 }
 .tabs button:hover { border-color: var(--spruce); }
 .tabs button[aria-selected="true"] { background: var(--spruce); border-color: var(--spruce); color: #fff; }
-.tab-status { color: var(--faint); font-size: 13.5px; padding: 14px 2px; }
+.tab-status { color: var(--faint); font-size: 13px; padding: 14px 2px; }
 
-.count-line { font-size: 13.5px; color: var(--faint); margin: 8px 2px; }
+.count-line { font-size: 13px; color: var(--faint); margin: 8px 2px; }
+/* The thesis role (tenet 3): the home page's ownership split is the
+   site's central sentence and was styled as a caption. One element
+   carries this class; captions keep count-line. */
+.count-line.thesis { font-size: 16px; color: var(--ink); }
 .count-line.has-button { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .csv-button {
-  font: inherit; font-size: 12.5px; white-space: nowrap; cursor: pointer;
+  font: inherit; font-size: 13px; white-space: nowrap; cursor: pointer;
   padding: 2px 10px; border-radius: 3px; border: 1px solid var(--rule);
   background: var(--card); color: inherit;
 }
@@ -358,7 +374,7 @@ details.fullrecord[open] summary { margin-bottom: 10px; }
 .dl-list li { padding: 6px 0; border-bottom: 1px solid var(--rule-soft); }
 
 /* copy-name row */
-.copy-row { font-size: 12.5px; margin: 0 0 12px; }
+.copy-row { font-size: 13px; margin: 0 0 12px; }
 .copy-row .csv-button { margin-left: 0; }
 
 /* sortable column headers */
@@ -369,11 +385,14 @@ details.fullrecord[open] summary { margin-bottom: 10px; }
 .th-sort:hover { color: var(--spruce); }
 
 @media (max-width: 640px) {
-  h1 { font-size: 24px; }
-  body { font-size: 14px; }
+  /* The phone scale shifts the same roles down together: 26 h1 /
+     15 body / 13 tables. The nav stays 12.5px deliberately, an
+     exception the wrap comment below earned by measurement. */
+  h1 { font-size: 26px; }
+  body { font-size: 15px; }
   .container { padding: 0 14px; }
   .record-head { padding: 16px; }
-  table { font-size: 12.5px; }
+  table { font-size: 13px; }
   th, td { padding: 6px 8px; }
   .count-line.has-button { flex-wrap: wrap; }
   .search-results a { gap: 6px 10px; padding: 8px 10px; }

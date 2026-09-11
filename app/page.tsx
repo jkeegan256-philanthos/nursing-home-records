@@ -24,7 +24,10 @@ function OwnershipLine({ total }: { total: number }) {
   const r = ownershipRollup();
   if (!r) return null;
   return (
-    <p className="count-line">
+    // The thesis role (visual series pass 1, tenet 3): this is the
+    // site's central sentence and it was styled as a caption. The
+    // captions elsewhere keep plain count-line.
+    <p className="count-line thesis">
       Of the {total.toLocaleString()} certified facilities in this batch,{" "}
       {r.forProfit.toLocaleString()} are operated for profit,{" "}
       {r.nonProfit.toLocaleString()} by non-profits, and{" "}

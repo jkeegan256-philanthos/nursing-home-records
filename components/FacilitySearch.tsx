@@ -193,7 +193,11 @@ export default function FacilitySearch() {
         type="search"
         value={q}
         onChange={(e) => setQ(e.target.value)}
-        placeholder="Search all facilities by name, city, ZIP, CCN, or owner name"
+        // Scope named (the V6 ruling's substance), short enough to
+        // survive a 390px input without clipping: the long field list
+        // cut off at exactly "owner name", the term the walk proved
+        // matters most. Fields are discoverable by typing them.
+        placeholder="Search all facilities and owner names"
         aria-label="Search facilities and owner names"
       />
       {failed ? (

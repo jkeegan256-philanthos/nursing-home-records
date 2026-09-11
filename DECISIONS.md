@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 78 entries. `scripts/check_project_doc.py` asserts that
+This log holds 79 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -2282,3 +2282,42 @@ one means updating the number; that is the point of it.
   in full: a reader's dead end became a finding, the finding a
   ruling, the ruling a shipped and gated change, and the change a
   measured improvement on the same query that exposed it.
+- 2026-09-11: the visual series opened, one page per pass, aimed by
+  founder direction at research-backed readability rather than
+  fashion. The yardstick is review/visual-tenets.md, seven tenets
+  chosen from the typography and reading literature and marked as
+  chosen defaults, not measurements of this site, the same
+  discipline as the 700 KB threshold. Pass 1 is the foundations,
+  reviewed on the home page, because the scale lives in one
+  stylesheet: the measured audit found fifteen-plus font sizes
+  between 11.5 and 32 pixels, many half a pixel apart, and
+  differences below perception cannot carry hierarchy, they are
+  noise wearing precision's badge. Collapsed to eight roles, 32
+  headline, 22 section, 18 lede, 16 body and thesis, 14 tables and
+  facts and nav, 13 metadata, 11.5 uppercase labels, mono relative,
+  with the phone scale shifting the same roles down together and one
+  named exception, the nav's 12.5, which an earlier measured wrap
+  earned. The sharpest finding is recorded as a class, not an
+  instance: grey marking important text, in the lede on every page,
+  in the home thesis styled as a caption, and in the identity line,
+  because a future session adding a secondary element will reach for
+  grey by default and this entry is the reason not to. The lede goes
+  ink at 18, checked at 390 pixels for the fragmentation the
+  approval warned of and found clean, so 18 stands over the 17
+  fallback; the home thesis gains its own role class while the
+  eleven caption uses of the same class stay metadata. The footer
+  gains the 72 character measure it never had. Two adjacent fixes
+  rode along with their reasons stated: the search input pins at 16
+  pixels at every width because iOS zooms the page on focusing
+  anything smaller, and the home placeholder shortens to name its
+  scope without clipping, because the ruled field list was cutting
+  off at exactly the words owner name, the term the walk proved
+  matters most, at phone width since it shipped. Named as deferred
+  rather than left to be rediscovered: the inline mono caps role
+  strings on Methods, the worst measured readability failure on the
+  site, are a markup problem for that page's own pass. Series order
+  after this pass: facility, state, Methods before owners because
+  Methods carries the worst measured failures and is where strangers
+  are sent, then data, about, glossary. Method for every pass:
+  a measured audit first, each change naming its tenet, before and
+  after renders at both widths delivered for a ruling before merge.
