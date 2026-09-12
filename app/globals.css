@@ -271,7 +271,8 @@ td.longtext.longform { min-width: 45ch; }
 .state-table .row-city { display: none; }
 @media (max-width: 480px) {
   .state-table .col-city,
-  .state-table .col-ccn { display: none; }
+  .state-table .col-ccn,
+  .state-table .col-beds { display: none; }
   .state-table .row-city {
     display: block; color: var(--faint); font-size: 13px;
   }
