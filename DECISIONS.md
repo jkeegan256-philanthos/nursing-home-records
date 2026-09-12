@@ -2435,7 +2435,18 @@ one means updating the number; that is the point of it.
   stars collapse read from the other side. Measured before and
   after at 390: 124 and 149 pixel paragraphs at 37 to 42 characters
   per line became 186 and 214 pixel blocks whose every role starts
-  at a line start. The instrumentation lesson is the durable half:
+  at a line start. One tidy consequence is
+  recorded so entry 75 keeps reading as history rather than
+  regression: the two-item " and " branch that whole-read fixed in
+  RoleList is now deleted rather than superseded, because the list
+  layout has no separators at all; the finding was fixed, then the
+  surface it fixed ceased to exist. And the two typographic
+  decisions of this series are consistent rather than opposite:
+  pass 3 refused to remove the rating column and pass 4 added rows,
+  one by refusing to collapse and one by choosing to expand, both
+  buying scannability with compactness. The instrumentation lesson
+  is the durable half, promoted to REVIEWING.md as a working rule:
   two honest instruments can disagree by measuring different facts,
-  and the discrepancy, raised rather than papered over, is what
-  found the real evidence.
+  and when two measurements disagree, the first question is what
+  each one counts; the discrepancy, raised rather than papered
+  over, is what found the real evidence.
