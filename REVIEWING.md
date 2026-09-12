@@ -117,6 +117,16 @@ Corollaries, each earned by an incident:
   check passing for the wrong reason. Earned on 2026-09-11, when a
   whole-read of About found five omissions, each of which began as a
   charter correction the paraphrase never received.
+- When two measurements disagree, the first question is what each
+  one counts. On 2026-09-12 two instruments measured the same
+  paragraphs and returned six characters per line and forty: one
+  counted inline fragments (Range.getClientRects returns a rect per
+  fragment, and a paragraph full of spans yields dozens per visual
+  line), the other counted visual lines. Both were right about
+  different facts, and the real evidence, a role string as wide as
+  its column, surfaced only because the discrepancy was raised
+  rather than reconciled quietly. Building against an unreproduced
+  number is the same failure as trusting an untested check.
 - A comment describes intent or a constraint, never measured state.
   Comments are the only text in the tree no gate scans: the prose
   check scopes them out by design, and nothing can test an English

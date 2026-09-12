@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 82 entries. `scripts/check_project_doc.py` asserts that
+This log holds 83 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -2409,3 +2409,44 @@ one means updating the number; that is the point of it.
   keeps the shape this pass gave it: measure the page you claim,
   and when the projection and the measurement disagree, the
   disagreement is the finding.
+- 2026-09-12: visual series pass 4, Methods, and the deferred T4
+  finding resolved in two steps that both earned recording. First
+  the number was corrected: T4's six characters per line was an
+  instrumentation artifact, Range.getClientRects counting inline
+  fragments rather than visual lines, so a paragraph carrying
+  fifteen mono spans reported 27 to 50 rects for five or six real
+  lines. The implementing session's render could not reproduce the
+  geometry, raised the discrepancy instead of building against it,
+  and the reviewer re-instrumented and confirmed both instruments
+  right about different facts: five to six visual lines, 27 to 50
+  inline fragments. The finding survived its own number on better
+  evidence, a single role string measured at 357 pixels wide in a
+  362 pixel phone column, meaning the named examples' inline role
+  lists were comma-runs of full-width atoms with connective tissue
+  wedged between them, not prose with emphasis. Ruled and built:
+  atoms that each fill a line are rows. The named examples' roles
+  now render one per line with the count beside each, the intro
+  sentence above the list; the rendered-values gate verified the
+  role spans byte-identical against the exported breakdowns on a
+  planted build before the plant was removed. The cost is stated,
+  not hidden: the blocks grew about sixty pixels each at phone
+  width, because rows spend height, and the trade is deliberate,
+  scannability over compactness, the same judgment as the refused
+  stars collapse read from the other side. Measured before and
+  after at 390: 124 and 149 pixel paragraphs at 37 to 42 characters
+  per line became 186 and 214 pixel blocks whose every role starts
+  at a line start. One tidy consequence is
+  recorded so entry 75 keeps reading as history rather than
+  regression: the two-item " and " branch that whole-read fixed in
+  RoleList is now deleted rather than superseded, because the list
+  layout has no separators at all; the finding was fixed, then the
+  surface it fixed ceased to exist. And the two typographic
+  decisions of this series are consistent rather than opposite:
+  pass 3 refused to remove the rating column and pass 4 added rows,
+  one by refusing to collapse and one by choosing to expand, both
+  buying scannability with compactness. The instrumentation lesson
+  is the durable half, promoted to REVIEWING.md as a working rule:
+  two honest instruments can disagree by measuring different facts,
+  and when two measurements disagree, the first question is what
+  each one counts; the discrepancy, raised rather than papered
+  over, is what found the real evidence.
