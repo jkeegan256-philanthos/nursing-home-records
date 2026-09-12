@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 80 entries. `scripts/check_project_doc.py` asserts that
+This log holds 81 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -2345,3 +2345,35 @@ one means updating the number; that is the point of it.
   recorded as deliberate, not drift: the facts row exists so absence
   never carries meaning, per the gate that asserts it, and the chips
   are the glance those facts are not.
+- 2026-09-12: visual series pass 3, the state page, opened from a
+  live baseline rather than an inherited number, and the baseline
+  carried a correction: pass 1 made this page taller, not shorter.
+  The reviewer's production measurement of the largest state page
+  found 15,178 pixels at phone width against the earlier 14,189,
+  because the 16 pixel body raised every line box by more than the
+  city stack had saved, with seven of 193 rows fully above the fold
+  and ten of the first twenty-five names wrapping to three lines.
+  Recorded plainly: a foundations pass can regress a page it never
+  looked at, which is why every pass now starts by measuring the
+  page it claims. The metric ruled right for this page is rows per
+  screen, not page height, because height alone rewards shrinking
+  type, which the tenets forbid. The change: at phone width the
+  Certified-beds column yields and its value rides the meta line
+  under the name, city dot beds, giving the name the column's width;
+  the production finding was that the name is the problem, not the
+  columns, and the realistic lever was giving the name more of the
+  row. Every published value stays on every row; what the phone
+  loses is the beds column's sort button, the same trade as the
+  anchor column, disclosed rather than discovered. Desktop, measured
+  healthy at 37 pixel uniform rows with no wrapping, is untouched.
+  Measured on planted 50 character fixture names before and after:
+  worst-case rows fell from 94 to 73 pixels, three-line name wraps
+  became two, and the projection for the measured state page is
+  roughly two more rows per screen and a page shorter by around a
+  fifth, to be confirmed on production after deploy by the same
+  instrument that set the baseline. The state filter placeholder
+  also shortened, the same clipping class the home placeholder had,
+  caught at 390 in the same measurement. The stars-into-the-meta-line
+  variant, which would make nearly every name one line at the cost
+  of the rating column's glance and its sort button, is described
+  and left unchosen for the ruling to take or refuse.

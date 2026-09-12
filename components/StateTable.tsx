@@ -89,7 +89,9 @@ export default function StateTable({
           type="search"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Filter this table by facility name, city, or CCN"
+          // Shortened like the home placeholder (pass 1): the longer
+          // form clipped at "or CC" at 390px, the same class of bug.
+          placeholder="Filter this table by name, city, or CCN"
           aria-label={`Filter ${state} facilities`}
         />
       </div>
@@ -112,19 +114,24 @@ export default function StateTable({
         />
       </p>
       <div className="tablewrap">
-        {/* At phone width city stacks under the name and the City and
-            CCN columns yield (ruled 2026-09-11, under the #51
-            precedent that presentation may differ where the phone
-            says no): a long facility name was wrapping to three lines
-            against stranded columns. The CCN stays filterable, on the
-            facility page, and in the CSV export. */}
+        {/* At phone width the City, CCN, and Certified-beds columns
+            yield and their values ride a meta line under the name
+            (ruled 2026-09-11 under the #51 precedent, extended in
+            visual series pass 3): the production measurement showed
+            the name column at ~175px wrapping 43-character names to
+            three lines, and the realistic lever was giving the name
+            more of the row. Every published value stays on the row;
+            what the phone loses is the beds column's sort button,
+            disclosed here and in entry 81, the same trade as the
+            anchor column. CCN stays filterable, on the facility page,
+            and in the CSV export. */}
         <table className="state-table">
           <thead>
             <tr>
               {header("name", "Facility")}
               {header("city", "City", false, "col-city")}
               {header("ccn", "CCN", false, "col-ccn")}
-              {header("beds", "Certified beds", true)}
+              {header("beds", "Certified beds", true, "col-beds")}
               {header("rating", "Overall rating")}
             </tr>
           </thead>
@@ -135,11 +142,14 @@ export default function StateTable({
                   <a href={`${BP}/facility/${encodeURIComponent(f.ccn)}/`}>
                     {f.name}
                   </a>
-                  <span className="row-city">{f.city}</span>
+                  <span className="row-city">
+                    {f.city}
+                    {f.beds ? <> · {f.beds} beds</> : null}
+                  </span>
                 </td>
                 <td className="col-city">{f.city}</td>
                 <td className="mono col-ccn">{f.ccn}</td>
-                <td className="num">{f.beds}</td>
+                <td className="num col-beds">{f.beds}</td>
                 <td>
                   <Stars value={f.rating} />
                 </td>
