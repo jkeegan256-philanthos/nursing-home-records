@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 83 entries. `scripts/check_project_doc.py` asserts that
+This log holds 84 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -2450,3 +2450,30 @@ one means updating the number; that is the point of it.
   and when two measurements disagree, the first question is what
   each one counts; the discrepancy, raised rather than papered
   over, is what found the real evidence.
+- 2026-09-12: pass 4's live close, and a correction to entry 83's
+  own cost line, which is exactly the kind of thing this log exists
+  to catch in itself. The fix landed: the two worst fragmenting
+  paragraphs on the site no longer exist as paragraphs, 29 and 50
+  inline fragments at phone width to zero, with the worst remaining
+  paragraph at ten fragments, genuine prose carrying inline mono,
+  which is what inline mono is for. The correction: entry 83's
+  "about sixty pixels each" was an average that reads as a
+  measurement. The lists measured 111 pixels for three roles and
+  222 for six, so the cost scales with role count, cheapest exactly
+  where it matters least and dearest where the example is most
+  instructive. And the comparison that matters is against the old
+  paragraph at the same width, not against zero, folded in with the
+  one caveat the evidence forces: the before heights come from the
+  planted fixture audit, so the FORVIS pair is clean, three roles
+  on both sides, a 124 pixel paragraph became a 111 pixel list, a
+  net gain rather than break-even; the CIBC pair crosses datasets,
+  a four-role planted paragraph at 149 against a six-role live list
+  at 222, so its height comparison is not clean and the claim the
+  evidence supports there is the fragment count, fifty to zero. One
+  note for future instruments: the trap-3 block measures 31
+  fragments under the same method because it is a different
+  structure, not a leftover of this fix. And the series
+  observation worth keeping: four passes, each closed with a
+  production measurement, and two of the four found something the
+  plan did not predict, the state page regression and this cost
+  curve, which is the method working rather than the changes.
