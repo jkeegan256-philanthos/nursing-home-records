@@ -14,7 +14,7 @@ principle enforced. Entries are appended, never rewritten. When a
 shipped feature is reversed, the original entry stays, the reversal is
 dated beside it, and the reasoning is recorded at full length.
 
-This log holds 81 entries. `scripts/check_project_doc.py` asserts that
+This log holds 82 entries. `scripts/check_project_doc.py` asserts that
 number, along with the shape of every entry, so an entry lost or mangled
 by a bad edit fails a build instead of disappearing quietly. Appending
 one means updating the number; that is the point of it.
@@ -2384,3 +2384,28 @@ one means updating the number; that is the point of it.
   working in a single column. Two extra rows per screen does not
   pay for that. Beds is different: a specification checked after
   narrowing, whose phone sort costs little.
+- 2026-09-12: pass 3's live close, measured on the same page by the
+  same instrument that set the baseline, and the result splits
+  cleanly into a confirmation and a correction, both recorded. The
+  mechanism confirmed: the tallest row on the largest state page
+  fell from 114 to 73 pixels, exactly the number the planted
+  fixture names predicted, which is a measured vote for the
+  fixture's realism; three-line names went from ten of the first
+  twenty-five to zero of 193, and 125 of 193 names now fit on one
+  line. Page height fell 14.2 percent to 13,023 pixels against a
+  projected fifth. The metric corrected: rows above the fold moved
+  from seven to eight, not the projected nine, because the fold is
+  dominated by what sits above the table, 367 pixels of header,
+  title, filter, count line, and button, which at the new 60 pixel
+  mean row costs six rows before the first facility appears. The
+  table is now efficient enough that the page furniture is the
+  binding constraint, which is a different problem from the one
+  pass 3 solved, and by ruling it is deliberately not chased now:
+  pass 4 goes to Methods first, whose deferred inline mono-caps
+  role strings remain the worst measured readability failure on
+  the site, and a fold-overhead optimization does not get to queue
+  ahead of that. Desktop stayed untouched and healthy, 37 pixel
+  uniform rows, all one-line, seventeen above the fold. The series
+  keeps the shape this pass gave it: measure the page you claim,
+  and when the projection and the measurement disagree, the
+  disagreement is the finding.
