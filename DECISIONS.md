@@ -2374,6 +2374,13 @@ one means updating the number; that is the point of it.
   instrument that set the baseline. The state filter placeholder
   also shortened, the same clipping class the home placeholder had,
   caught at 390 in the same measurement. The stars-into-the-meta-line
-  variant, which would make nearly every name one line at the cost
-  of the rating column's glance and its sort button, is described
-  and left unchosen for the ruling to take or refuse.
+  variant, which would make nearly every name one line, was put to
+  the ruling and refused, and the reason is recorded so a future
+  pass hunting height finds the argument with the option: the
+  rating column is the only element on the page that supports
+  scanning rather than reading, and it is the one place the site
+  shows published values side by side in a way that lets a reader
+  compare without the site doing any comparing, the whole method
+  working in a single column. Two extra rows per screen does not
+  pay for that. Beds is different: a specification checked after
+  narrowing, whose phone sort costs little.
