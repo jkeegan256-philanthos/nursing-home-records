@@ -38,23 +38,24 @@ function footprint(name: string) {
 // them. The file's own words are the only characterization offered
 // (ruled 2026-09-04); a label from outside the file is exactly the
 // flattening this section teaches against.
+//
+// One role per line (visual series pass 4): measured on production,
+// a single role string renders up to 357px wide in a 362px phone
+// column, so inline these are full-width atoms in a comma-run,
+// fragmenting the paragraph into 27 to 50 inline pieces. Atoms that
+// each fill a line are rows, not prose. The rendered-values gate
+// matches each role's "</span> at N" bytes; the list changes what
+// wraps, never those bytes.
 function RoleList({ roles }: { roles: { role: string; facilities: number }[] }) {
   return (
-    <>
-      {roles.map((r, i) => (
-        <span key={r.role || "(blank)"}>
-          {i > 0
-            ? i === roles.length - 1
-              ? roles.length === 2
-                ? " and "
-                : ", and "
-              : ", "
-            : ""}
+    <ul className="role-rows">
+      {roles.map((r) => (
+        <li key={r.role || "(blank)"}>
           <span className="mono">{r.role || "(blank role)"}</span> at{" "}
           {r.facilities.toLocaleString()}
-        </span>
+        </li>
       ))}
-    </>
+    </ul>
   );
 }
 
@@ -120,18 +121,23 @@ export default function MethodsPage() {
             roles CMS filed, in the file&apos;s own words.
           </p>
           {forvis ? (
-            <p>
-              FORVIS MAZARS LLP appears at{" "}
-              {forvis.facilities.toLocaleString()} facilities in{" "}
-              {forvis.states} states: <RoleList roles={forvis.roles} />.
-            </p>
+            <>
+              <p>
+                FORVIS MAZARS LLP appears at{" "}
+                {forvis.facilities.toLocaleString()} facilities in{" "}
+                {forvis.states} states:
+              </p>
+              <RoleList roles={forvis.roles} />
+            </>
           ) : null}
           {cibc ? (
-            <p>
-              CIBC BANK USA appears at {cibc.facilities.toLocaleString()}{" "}
-              facilities in {cibc.states} states:{" "}
-              <RoleList roles={cibc.roles} />.
-            </p>
+            <>
+              <p>
+                CIBC BANK USA appears at {cibc.facilities.toLocaleString()}{" "}
+                facilities in {cibc.states} states:
+              </p>
+              <RoleList roles={cibc.roles} />
+            </>
           ) : null}
           <p>
             The mix is the lesson. Most of a large footprint can be

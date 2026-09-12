@@ -98,6 +98,13 @@ h2 { font-family: var(--serif); font-weight: 600; font-size: 22px; margin: 36px 
    text is comfortably read at; tables, provenance strips, and
    anything data-shaped keep the full container. */
 .prose p, .prose li, .prose dd { max-width: 72ch; }
+
+/* The Methods named examples' roles, one per line (visual series
+   pass 4): no bullets, tight rhythm, each role's count beside it.
+   Rows because the role strings are full-width atoms at phone
+   width, not prose. */
+.role-rows { list-style: none; margin: 8px 0 20px; padding: 0; }
+.role-rows li { padding: 2px 0; }
 .prose .prov { max-width: none; }
 
 /* The state page's averages block: three narrow columns stretched
